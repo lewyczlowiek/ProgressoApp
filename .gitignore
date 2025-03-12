@@ -22,3 +22,46 @@
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Ignorowanie katalogu target, gdzie Maven kompiluje pliki
+target/
+
+# Ignorowanie plików logów
+*.log
+
+# Ignorowanie plików IDE (IntelliJ IDEA, Eclipse, VS Code)
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.project
+.classpath
+.settings/
+
+# Pliki systemowe
+.DS_Store
+Thumbs.db
+
+# Ignorowanie skryptów Maven Wrapper (mogą być w repo, jeśli zespół tak chce)
+mvnw
+mvnw.cmd
+
+# Ignorowanie plików Gradle, jeśli przypadkiem znajdą się w projekcie
+.gradle/
+build/
+
+# Ignorowanie plików zależności pobranych lokalnie przez Mavena
+.m2/
+
+# Pliki związane z testami
+test-output/
+surefire-reports/
+failsafe-reports/
+
+# Pliki generowane przez IDE, ale opcjonalnie warto dodać do repo
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf/
