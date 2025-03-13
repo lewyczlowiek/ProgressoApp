@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Strona Rejestracji</title>
+</head>
+<body>
+<div class="register-container">
+  <h2>Rejestracja</h2>
+  <form action="register.php" method="POST">
+    <div class="input-group">
+      <label for="fullname">Imię i nazwisko</label>
+      <input type="text" id="fullname" name="fullname" class="input-field" required>
+    </div>
+    <div class="input-group">
+      <label for="email">Adres e-mail</label>
+      <input type="email" id="email" name="email" class="input-field" required>
+    </div>
+    <div class="input-group">
+      <label for="username">Nazwa użytkownika</label>
+      <input type="text" id="username" name="username" class="input-field" required>
+    </div>
+    <div class="input-group">
+      <label for="password">Hasło</label>
+      <input type="password" id="password" name="password" class="input-field" required>
+    </div>
+    <div class="input-group">
+      <label for="confirm-password">Potwierdź hasło</label>
+      <input type="password" id="confirm-password" name="confirm-password" class="input-field" required>
+    </div>
+    <div class="terms">
+      <input type="checkbox" id="terms" name="terms" required>
+      <label for="terms">Akceptuję <a href="privacy-policy.html" target="_blank">regulamin i politykę prywatności</a></label>
+    </div>
+    <button type="submit" class="register-button">Zarejestruj się</button>
+  </form>
+  <div class="links">
+    <span>Masz już konto?</span>
+    <a href="login.html" class="login-link">Zaloguj się</a>
+  </div>
+</div>
+</body>
+</html>
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+
+  .register-container {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 380px;
+  }
+
+  h2 {
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+    font-size: 1.8rem;
+    text-align: center;
+  }
+
+  .input-group {
+    margin-bottom: 1.2rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #e1e1e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .input-field:focus {
+    border-color: #3498db;
+    outline: none;
+  }
+
+  .terms {
+    display: flex;
+    align-items: center;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+
+  .terms input[type="checkbox"] {
+    margin-right: 0.5rem;
+  }
+
+  .register-button {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .register-button:hover {
+    background-color: #2980b9;
+  }
+
+  .links {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+
+  .links span {
+    color: #2c3e50;
+  }
+
+  .links a {
+    color: #3498db;
+    text-decoration: none;
+    margin-left: 0.5rem;
+    transition: color 0.3s ease;
+  }
+
+  .links a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 480px) {
+    .register-container {
+      width: 90%;
+      padding: 1.5rem;
+    }
+  }
+</style>
