@@ -1,39 +1,36 @@
 package ProgressoApp.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.lang.NonNull;
+import lombok.*;
+
+import java.util.Set;
 
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 @Entity
 @Table(name = "users")
 public class User {
-    @Id
-    @GeneratedValue
-    private Long Id;
-    private String firstname;
-    private String lastname;
-    private Long indexNumber;
 
-    @Column(unique = true)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String imie;
+    private String nazwisko;
+
+    @Column(unique = true, nullable = false)
+    private String numerIndeksu;
+
+    @Column(unique = true, nullable = false)
     private String email;
 
-    @NonNull
     private String password;
-    /**
-     * TO DO  poprawne logowanie na bazie informacji o użytkowniku:
-     * - imie
-     * - nazwisko
-     * - e-mail
-     * - Rola (student/wykładowca)
-     * - Numer Indeksu
-     *
-     * Obsłużyć to wraz z UserDetails, narazie szkielet dla bazy wstępnego ustalenia
-     */
+
+    @ElementCollection(targetClass = Role.class, fetch = FetchType.LAZY)
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
+    @Enumerated(EnumType.STRING)
+    private Set<Role> roles;
+
 }

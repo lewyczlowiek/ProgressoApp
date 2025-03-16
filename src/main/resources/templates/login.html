@@ -1,143 +1,20 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Strona Logowania</title>
+    <title>Logowanie</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<div class="login-container">
-  <h2>Logowanie</h2>
-  <form action="login.php" method="POST">
-    <div class="input-group">
-      <label for="username">Nazwa użytkownika</label>
-      <input type="text" id="username" name="username" class="input-field" required>
-    </div>
-    <div class="input-group">
-      <label for="password">Hasło</label>
-      <input type="password" id="password" name="password" class="input-field" required>
-    </div>
-    <div class="remember-me">
-      <input type="checkbox" id="remember" name="remember">
-      <label for="remember">Zapamiętaj mnie</label>
-    </div>
-    <button type="button" class="login-button" onclick="window.location.href='index.html';">Zaloguj się!</button>
-  </form>
-  <div class="links">
-    <a href="forgot-password.html" class="forgot-password">Zapomniałeś hasła?</a>
-    <a href="register.html" class="register-link">Zarejestruj się</a>
-  </div>
-</div>
+<h2>Logowanie</h2>
+<form th:action="@{/auth/login}" method="post">
+    <label>Email:</label>
+    <input type="email" name="username" placeholder="Wprowadź e-mail" required/><br>
+
+    <label>Hasło:</label>
+    <input type="password" name="password" placeholder="Wprowadź hasło" required/><br>
+
+    <button type="submit">Zaloguj się</button>
+</form>
+<a href="/auth/register">Nie masz konta? Zarejestruj się</a>
 </body>
 </html>
-
-<style>
-  * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-  }
-
-  body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-  }
-
-  .login-container {
-    background-color: white;
-    padding: 2.5rem;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    width: 380px;
-  }
-
-  h2 {
-    margin-bottom: 1.5rem;
-    color: #2c3e50;
-    font-size: 1.8rem;
-    text-align: center;
-  }
-
-  .input-group {
-    margin-bottom: 1.2rem;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #2c3e50;
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-
-  .input-field {
-    width: 100%;
-    padding: 0.8rem;
-    border: 2px solid #e1e1e1;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.3s ease;
-  }
-
-  .input-field:focus {
-    border-color: #3498db;
-    outline: none;
-  }
-
-  .remember-me {
-    display: flex;
-    align-items: center;
-    margin: 1rem 0;
-  }
-
-  .remember-me input[type="checkbox"] {
-    margin-right: 0.5rem;
-  }
-
-  .login-button {
-    width: 100%;
-    padding: 0.8rem;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .login-button:hover {
-    background-color: #2980b9;
-  }
-
-  .links {
-    margin-top: 1.5rem;
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-  }
-
-  .links a {
-    color: #3498db;
-    text-decoration: none;
-    transition: color 0.3s ease;
-  }
-
-  .links a:hover {
-    color: #2980b9;
-    text-decoration: underline;
-  }
-
-  @media (max-width: 480px) {
-    .login-container {
-      width: 90%;
-      padding: 1.5rem;
-    }
-  }
-</style>
