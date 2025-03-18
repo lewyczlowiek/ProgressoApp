@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class MainController {
 
 //    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/")
+    @GetMapping({"", "/"})
     public String homePage() {
         return "index";
     }

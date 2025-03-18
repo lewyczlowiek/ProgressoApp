@@ -5,6 +5,7 @@ import ProgressoApp.model.Role;
 import ProgressoApp.model.User;
 import ProgressoApp.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -14,26 +15,30 @@ import java.util.Collections;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public User registerUser(RegisterRequest registerRequest) {
 
+        // Check if email already exists
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new IllegalArgumentException("Podany e-mail już istnieje!!!");
+            throw new IllegalArgumentException("The provided email already exists!");
         }
 
-        if (userRepository.existsByNumerIndeksu(registerRequest.getNumerIndeksu())) {
-            throw new IllegalArgumentException("Podany numer indeksu już istnieje!!!");
+        // Check if student number already exists
+        if (userRepository.existsByStudentNumber(registerRequest.getStudentNumber())) {
+            throw new IllegalArgumentException("The provided student number already exists!");
         }
 
-        User user  = User.builder()
-                .imie(registerRequest.getImie())
-                .nazwisko(registerRequest.getNazwisko())
-                .numerIndeksu(registerRequest.getNumerIndeksu())
-                .email(registerRequest.getEmail())
-                .password(registerRequest.getPassword())
-                .roles(Collections.singleton(Role.STUDENT))
-                .build();
+        // Create user from the registration request
+        User user = User.builder()
+            .firstName(registerRequest.getFirstName())
+            .lastName(registerRequest.getLastName())
+            .studentNumber(registerRequest.getStudentNumber())
+            .email(registerRequest.getEmail())
+            .password(passwordEncoder.encode(registerRequest.getPassword()))  // Encode password
+            .roles(Collections.singleton(Role.STUDENT))  // Assuming a default role
+            .build();
 
-        return userRepository.save(user);
+        return userRepository.save(user);  // Save user to the repository
     }
 }
