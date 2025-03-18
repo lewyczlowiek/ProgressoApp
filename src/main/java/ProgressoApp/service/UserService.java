@@ -21,14 +21,13 @@ public class UserService {
             throw new IllegalArgumentException("Podany e-mail już istnieje!!!");
         }
 
-        if (userRepository.existsByNumerIndeksu(registerRequest.getNumerIndeksu())) {
+        if (userRepository.existsByNumberIndex(registerRequest.getNumerIndex())) {
             throw new IllegalArgumentException("Podany numer indeksu już istnieje!!!");
         }
 
         User user  = User.builder()
-                .imie(registerRequest.getImie())
-                .nazwisko(registerRequest.getNazwisko())
-                .numerIndeksu(registerRequest.getNumerIndeksu())
+                .firstName(registerRequest.getFirstName())
+                .lastName(registerRequest.getLastName())
                 .email(registerRequest.getEmail())
                 .password(registerRequest.getPassword())
                 .roles(Collections.singleton(Role.STUDENT))
