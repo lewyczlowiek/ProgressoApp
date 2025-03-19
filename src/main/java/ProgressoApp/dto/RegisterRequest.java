@@ -16,7 +16,7 @@ public class RegisterRequest {
     private String lastName;
 
     @NotBlank(message = "Numer indeksu nie może być pusty!")
-    private String numerIndex;
+    private String numberIndex;
 
     @Email(message = "Podaj poprawny email")
     @NotBlank(message = "Email jest wymagany")

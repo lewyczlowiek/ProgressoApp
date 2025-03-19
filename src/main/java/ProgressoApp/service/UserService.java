@@ -21,7 +21,7 @@ public class UserService {
             throw new IllegalArgumentException("Podany e-mail już istnieje!!!");
         }
 
-        if (userRepository.existsByNumberIndex(registerRequest.getNumerIndex())) {
+        if (userRepository.existsByNumberIndex(registerRequest.getNumberIndex())) {
             throw new IllegalArgumentException("Podany numer indeksu już istnieje!!!");
         }
 
@@ -30,6 +30,7 @@ public class UserService {
                 .lastName(registerRequest.getLastName())
                 .email(registerRequest.getEmail())
                 .password(registerRequest.getPassword())
+                .numberIndex(registerRequest.getNumberIndex())
                 .roles(Collections.singleton(Role.STUDENT))
                 .build();
 

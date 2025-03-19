@@ -8,13 +8,13 @@
 <h2>Rejestracja</h2>
 <form th:action="@{/auth/register}" method="post" th:object="${registerRequest}">
     <label>Imię:</label>
-    <input type="text" th:field="*{imie}" required/><br>
+    <input type="text" th:field="*{firstName}" required/><br>
 
     <label>Nazwisko:</label>
-    <input type="text" th:field="*{nazwisko}" required/><br>
+    <input type="text" th:field="*{lastName}" required/><br>
 
     <label>Numer Indeksu:</label>
-    <input type="text" th:field="*{numerIndeksu}" required/><br>
+    <input type="text" th:field="*{numberIndex}" required/><br>
 
     <label>Email:</label>
     <input type="email" th:field="*{email}" required/><br>
