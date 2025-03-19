@@ -1,10 +1,11 @@
-package ProgressoApp.controllers;
+package ProgressoApp.auth;
+
 
 import ProgressoApp.dto.RegisterRequest;
 import ProgressoApp.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +17,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/auth")
 public class AuthController {
 
+
     @Autowired
+    private AuthenticationService authenticationService;
     private UserService userService;
 
     @GetMapping("/register")
@@ -32,7 +35,24 @@ public class AuthController {
     }
 
     @GetMapping("/login")
-    public String showLoginPage() {
+    public String showLoginForm(Model model) {
+        model.addAttribute("authenticationRequest", new AuthenticationRequest());
+        return "login";
+    }
+
+    @PostMapping
+    public String login(@ModelAttribute AuthenticationRequest authenticationRequest, Model model) {
+        try {
+            AuthenticationResponse response = authenticationService.authenticate(authenticationRequest);
+            return "redirect:/index";
+        } catch (BadCredentialsException e) {
+            model.addAttribute("error", "Błędne dane logowania!");
+            return "login";
+        }
+    }
+
+    @GetMapping("/logout")
+    public String logout() {
         return "login";
     }
 
