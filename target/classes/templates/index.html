@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="#">
+            <img src="/static/logo_biale.png" alt="Logo" class="logo-img">
+            <span class="brand-text">Project Manager</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#"><i class="fas fa-project-diagram me-1"></i> Projekty</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-list-check me-1"></i> Zadania</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-users me-1"></i> Użytkownicy</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#"><i class="fas fa-comments me-1"></i> Czat</a>
+                </li>
+            </ul>
+            <div class="d-flex align-items-center">
+                <input class="form-control me-2" type="search" placeholder="Szukaj projektu...">
+                <button class="btn btn-light me-2" type="submit"><i class="fas fa-search"></i></button>
+                <button class="btn btn-outline-light" onclick="logout()">
+                    <i class="fas fa-sign-out-alt me-1"></i> Wyloguj
+                </button>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3"><i class="fas fa-folder-open me-2"></i>Lista projektów</h1>
+                <button class="btn btn-primary" onclick="createProject()">
+                    <i class="fas fa-plus me-2"></i>Nowy projekt
+                </button>
+            </div>
+            <div id="projects-list" class="list-group shadow-sm">
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">Projekt testowy</h5>
+                            <small class="text-muted">Utworzono: 2024-01-20</small>
+                        </div>
+                        <div>
+                            <span class="badge bg-success me-2">Aktywny</span>
+                            <button class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Segoe UI', sans-serif;
+        min-height: 100vh;
+    }
+
+    /* Logo styles */
+    .logo-img {
+        height: 40px;
+        width: auto;
+        margin-right: 10px;
+        vertical-align: middle;
+    }
+
+    .navbar-brand {
+        display: flex;
+        align-items: center;
+        font-weight: 600;
+        font-size: 1.4rem;
+        padding: 0;
+    }
+
+    .brand-text {
+        vertical-align: middle;
+        color: white;
+        margin-left: 8px;
+    }
+
+    /* Navbar styles */
+    .navbar {
+        box-shadow: 0 2px 8px rgba(0,0,0,.15);
+        padding: 0.8rem 0;
+    }
+
+    .navbar .container {
+        padding: 0.5rem 1rem;
+    }
+
+    .nav-link {
+        padding: 0.8rem 1.2rem !important;
+        transition: all 0.2s ease;
+        margin: 0 0.2rem;
+        border-radius: 6px;
+    }
+
+    .nav-link:hover {
+        background-color: rgba(255,255,255,0.15);
+    }
+
+    /* Search bar improvements */
+    .form-control {
+        border-radius: 20px;
+        padding: 0.5rem 1rem;
+        width: 250px;
+    }
+
+    /* Logout button safety improvements */
+    .btn-outline-light {
+        margin-left: 15px;
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        position: relative;
+    }
+
+    .btn-outline-light:before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -10px;
+        height: 100%;
+        width: 10px;
+    }
+
+    /* Projects list improvements */
+    .list-group-item {
+        border-left: 4px solid transparent;
+        transition: all 0.2s ease;
+        padding: 1rem;
+        margin-bottom: 0.5rem;
+        border-radius: 8px !important;
+    }
+
+    .list-group-item:hover {
+        border-left-color: #0d6efd;
+        background-color: #f8f9fa;
+        transform: translateX(3px);
+        box-shadow: 0 2px 5px rgba(0,0,0,.08);
+    }
+
+    /* Button improvements */
+    .btn {
+        transition: all 0.2s ease;
+        border-radius: 6px;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px rgba(0,0,0,.1);
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+    }
+
+    /* Badge improvements */
+    .badge {
+        padding: 0.6em 1em;
+        font-weight: 500;
+        border-radius: 20px;
+    }
+
+    /* New project button improvements */
+    .btn-primary {
+        padding: 0.6rem 1.2rem;
+        font-weight: 500;
+    }
+
+    /* Delete button improvements */
+    .btn-outline-danger {
+        opacity: 0.7;
+        transition: all 0.2s ease;
+    }
+
+    .btn-outline-danger:hover {
+        opacity: 1;
+        background-color: #dc3545;
+        color: white;
+    }
+
+    /* Responsive improvements */
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 15px;
+        }
+
+        .form-control {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        .btn-outline-light {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .navbar-nav {
+            margin: 1rem 0;
+        }
+
+        .logo-img {
+            height: 32px;
+        }
+
+        .navbar-brand {
+            font-size: 1.2rem;
+        }
+    }
+
+    .btn-outline-danger,
+    .btn-outline-light {
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .confirmation-dialog {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    }
+
+    body::before {
+        content: "";
+        background-image: url('/static/logo_czarne.png');
+        background-size: 20%;
+        background-repeat: no-repeat;
+        background-position: center;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0.6;
+        z-index: -1;
+        pointer-events: none;
+    }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function logout() {
+        if (confirm("Czy na pewno chcesz się wylogować?")) {
+            window.location.href = "login.html";
+        }
+    }
+
+    function createProject() {
+        const projectName = prompt("Podaj nazwę nowego projektu:");
+        if (projectName) {
+            const projectsList = document.getElementById("projects-list");
+            const currentDate = new Date().toISOString().split('T')[0];
+
+            const newProject = document.createElement("a");
+            newProject.href = "#";
+            newProject.className = "list-group-item list-group-item-action";
+            newProject.innerHTML = `
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">${projectName}</h5>
+                            <small class="text-muted">Utworzono: ${currentDate}</small>
+                        </div>
+                        <div>
+                            <span class="badge bg-success me-2">Aktywny</span>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProject(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            projectsList.insertBefore(newProject, projectsList.firstChild);
+        }
+    }
+
+    function deleteProject(button) {
+        if (confirm("Czy na pewno chcesz usunąć ten projekt?")) {
+            button.closest('.list-group-item').remove();
+        }
+    }
+</script>
+</body>
+
+</html>
