@@ -183,4 +183,37 @@ fabric.properties
 # https://plugins.jetbrains.com/plugin/8053-azure-toolkit-for-intellij
 .idea/**/azureSettings.xml
 
+
+# NPM
+node_modules
+package-lock.json
+pnpm-lock.yaml
+# Webstorm
+.idea
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Build
+dist
+out
+.next
+build
+.turbo
+
+# Utils
+*.log
+coverage
+.nyc_output
+.DS_Store
+report.*.json
+tsconfig.tsbuildinfo
+junit.xml
+
+private/var/folders/**
+
 # End of https://www.toptal.com/developers/gitignore/api/phpstorm
