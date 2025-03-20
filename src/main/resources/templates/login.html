@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Logowanie</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+  <title>Logowanie</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <h2>Logowanie</h2>
-<form th:action="@{/login}" method="post">
-    <label>Email:</label>
-    <input type="email" name="email" placeholder="Wprowadź e-mail" required/><br>
+<form method="post" role="form" th:action="@{/auth/login}">
+  <label>Email:</label>
+  <input id="username" name="username" placeholder="Wprowadź e-mail" type="text"/><br>
 
-    <label>Hasło:</label>
-    <input type="password" name="password" placeholder="Wprowadź hasło" required/><br>
+  <label>Hasło:</label>
+  <input id="password" name="password" placeholder="Wprowadź hasło" type="password"/><br>
 
-    <button type="submit">Zaloguj się</button>
+  <button type="submit">Zaloguj się</button>
 </form>
 <a href="/auth/register">Nie masz konta? Zarejestruj się</a>
 </body>
