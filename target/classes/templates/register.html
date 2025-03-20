@@ -1,29 +1,45 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Rejestracja</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+  <title>Rejestracja</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
+<div th:if="${param.success}">
+  <div class="alert alert-info">
+    You've registered successfully
+  </div>
+</div>
 <h2>Rejestracja</h2>
-<form th:action="@{/auth/register}" method="post" th:object="${registerRequest}">
-    <label>Imię:</label>
-    <input type="text" th:field="*{firstName}" required/><br>
+<form method="post" role="form" th:action="@{/auth/register/save}" th:object="${user}">
+  <label>Imię:</label>
+  <input class="form-control" th:field="*{firstName}" type="text"/><br>
+  <p class="text-danger" th:errors="*{firstName}" th:if="${#fields.hasErrors('firstName')}"></p>
 
-    <label>Nazwisko:</label>
-    <input type="text" th:field="*{lastName}" required/><br>
 
-    <label>Numer Indeksu:</label>
-    <input type="text" th:field="*{numberIndex}" required/><br>
+  <label>Nazwisko:</label>
+  <input class="form-control" th:field="*{lastName}" type="text"/><br>
+  <p class="text-danger" th:errors="*{lastName}"
+     th:if="${#fields.hasErrors('lastName')}"></p>
 
-    <label>Email:</label>
-    <input type="email" th:field="*{email}" required/><br>
+  <label>Numer Indeksu:</label>
+  <input class="form-control" th:field="*{numberIndex}" type="text"/><br>
+  <p class="text-danger" th:errors="*{numberIndex}"
+     th:if="${#fields.hasErrors('numberIndex')}"></p>
 
-    <label>Hasło:</label>
-    <input type="password" th:field="*{password}" required/><br>
+  <label>Email:</label>
+  <input class="form-control" th:field="*{email}" type="email"/><br>
+  <p class="text-danger" th:errors="*{email}"
+     th:if="${#fields.hasErrors('email')}"></p>
 
-    <button type="submit">Zarejestruj się</button>
+  <label>Hasło:</label>
+  <input class="form-control" th:field="*{password}" type="password"/><br>
+  <p class="text-danger" th:errors="*{password}"
+     th:if="${#fields.hasErrors('password')}"></p>
+
+
+  <button type="submit">Zarejestruj się</button>
 </form>
-<a href="/login">Masz już konto? Zaloguj się</a>
+<a href="/auth/login">Masz już konto? Zaloguj się</a>
 </body>
 </html>

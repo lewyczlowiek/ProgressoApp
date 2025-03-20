@@ -6,9 +6,9 @@
 </head>
 <body>
 <h2>Logowanie</h2>
-<form th:action="@{/auth/login}" method="post">
+<form th:action="@{/login}" method="post">
     <label>Email:</label>
-    <input type="email" name="username" placeholder="Wprowadź e-mail" required/><br>
+    <input type="email" name="email" placeholder="Wprowadź e-mail" required/><br>
 
     <label>Hasło:</label>
     <input type="password" name="password" placeholder="Wprowadź hasło" required/><br>
