@@ -4,6 +4,7 @@ package ProgressoApp.controllers;
 import ProgressoApp.dto.RegisterDTO;
 import ProgressoApp.model.User;
 import ProgressoApp.service.UserService;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,5 +53,10 @@ public class AuthController {
   @GetMapping("/login")
   public String loginPage() {
     return "login";
+  }
+
+  @GetMapping("/logout")
+  public String logout(HttpSession session) {
+    return "redirect:/";
   }
 }
