@@ -17,11 +17,11 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String firstName;  // Changed from 'imie'
-    private String lastName;   // Changed from 'nazwisko'
+    private String firstName;
+    private String lastName;
 
     @Column(unique = true, nullable = false)
-    private String studentNumber;  // Changed from 'numerIndeksu'
+    private String numberIndex;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -32,4 +32,5 @@ public class User {
     @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
+
 }
