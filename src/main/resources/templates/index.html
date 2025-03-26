@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html lang="pl" xmlns:th="http://www.w3.org/1999/xhtml">
 
 <head>
     <meta charset="UTF-8">
@@ -13,7 +13,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
         <a class="navbar-brand" href="#">
-            <img src="/static/logo_biale.png" alt="Logo" class="logo-img">
+            <img th:src="@{/logo_biale.png}" alt="Logo" class="logo-img">
             <span class="brand-text">Project Manager</span>
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -35,7 +35,9 @@
                 </li>
             </ul>
             <div class="d-flex align-items-center">
-                <input class="form-control me-2" type="search" placeholder="Szukaj projektu...">
+                <label>
+                    <input class="form-control me-2" type="search" placeholder="Szukaj projektu...">
+                </label>
                 <button class="btn btn-light me-2" type="submit"><i class="fas fa-search"></i></button>
                 <button class="btn btn-outline-light" onclick="logout()">
                     <i class="fas fa-sign-out-alt me-1"></i> Wyloguj
@@ -249,7 +251,7 @@
 
     body::before {
         content: "";
-        background-image: url('/static/logo_czarne.png');
+        background-image: url('/logo_czarne.png');
         background-size: 20%;
         background-repeat: no-repeat;
         background-position: center;
@@ -268,7 +270,7 @@
 <script>
     function logout() {
         if (confirm("Czy na pewno chcesz się wylogować?")) {
-            window.location.href = "login.html";
+            window.location.href = "/auth/login";
         }
     }
 
