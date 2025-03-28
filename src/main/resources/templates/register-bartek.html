@@ -1,53 +1,43 @@
-<!--
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Logowanie</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}">
-</head>
-<body>
-<h2>Logowanie</h2>
-<form th:action="@{/auth/login}" method="post">
-    <label>Email:</label>
-    <input type="email" name="username" placeholder="Wprowadź e-mail" required/><br>
-
-    <label>Hasło:</label>
-    <input type="password" name="password" placeholder="Wprowadź hasło" required/><br>
-
-    <button type="submit">Zaloguj się</button>
-</form>
-<a href="/auth/register">Nie masz konta? Zarejestruj się</a>
-</body>
-</html>
--->
 <!DOCTYPE html>
 <html lang="pl">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Strona Logowania</title>
+  <title>Strona Rejestracji</title>
 </head>
 <body>
-<div class="login-container">
-  <h2>Logowanie</h2>
-  <form th:action="@{/auth/login}" method="post">
+<div class="register-container">
+  <h2>Rejestracja</h2>
+  <form action="register.php" method="POST">
     <div class="input-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" class="input-field" placeholder="Wprowadź e-mail" required>
+      <label for="fullname">Imię i nazwisko</label>
+      <input type="text" id="fullname" name="fullname" class="input-field" required>
+    </div>
+    <div class="input-group">
+      <label for="email">Adres e-mail</label>
+      <input type="email" id="email" name="email" class="input-field" required>
+    </div>
+    <div class="input-group">
+      <label for="username">Nazwa użytkownika</label>
+      <input type="text" id="username" name="username" class="input-field" required>
     </div>
     <div class="input-group">
       <label for="password">Hasło</label>
-      <input type="password" id="password" name="password" class="input-field" placeholder="Wprowadź hasło" required>
+      <input type="password" id="password" name="password" class="input-field" required>
     </div>
-    <div class="remember-me">
-      <input type="checkbox" id="remember" name="remember">
-      <label for="remember">Zapamiętaj mnie</label>
+    <div class="input-group">
+      <label for="confirm-password">Potwierdź hasło</label>
+      <input type="password" id="confirm-password" name="confirm-password" class="input-field" required>
     </div>
-    <button type="submit" class="login-button">Zaloguj się!</button>
+    <div class="terms">
+      <input type="checkbox" id="terms" name="terms" required>
+      <label for="terms">Akceptuję <a href="privacy-policy.html" target="_blank">regulamin i politykę prywatności</a></label>
+    </div>
+    <button type="submit" class="register-button">Zarejestruj się</button>
   </form>
   <div class="links">
-    <a href="forgot-password.html" class="forgot-password">Zapomniałeś hasła?</a>
-    <a href="register.html" class="register-link">Zarejestruj się</a>
+    <span>Masz już konto?</span>
+    <a href="login.html" class="login-link">Zaloguj się</a>
   </div>
 </div>
 </body>
@@ -70,7 +60,7 @@
     margin: 0;
   }
 
-  .login-container {
+  .register-container {
     background-color: white;
     padding: 2.5rem;
     border-radius: 15px;
@@ -111,17 +101,18 @@
     outline: none;
   }
 
-  .remember-me {
+  .terms {
     display: flex;
     align-items: center;
     margin: 1rem 0;
+    font-size: 0.9rem;
   }
 
-  .remember-me input[type="checkbox"] {
+  .terms input[type="checkbox"] {
     margin-right: 0.5rem;
   }
 
-  .login-button {
+  .register-button {
     width: 100%;
     padding: 0.8rem;
     background-color: #3498db;
@@ -134,20 +125,24 @@
     transition: background-color 0.3s ease;
   }
 
-  .login-button:hover {
+  .register-button:hover {
     background-color: #2980b9;
   }
 
   .links {
     margin-top: 1.5rem;
-    display: flex;
-    justify-content: space-between;
+    text-align: center;
     font-size: 0.9rem;
+  }
+
+  .links span {
+    color: #2c3e50;
   }
 
   .links a {
     color: #3498db;
     text-decoration: none;
+    margin-left: 0.5rem;
     transition: color 0.3s ease;
   }
 
@@ -157,7 +152,7 @@
   }
 
   @media (max-width: 480px) {
-    .login-container {
+    .register-container {
       width: 90%;
       padding: 1.5rem;
     }
