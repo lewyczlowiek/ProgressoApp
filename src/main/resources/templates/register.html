@@ -5,41 +5,172 @@
   <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<div th:if="${param.success}">
-  <div class="alert alert-info">
-    You've registered successfully
+<div class="register-container">
+  <div th:if="${param.success}">
+    <div class="alert alert-info">
+      You've registered successfully
+    </div>
   </div>
+  <h2>Rejestracja</h2>
+  <form method="post" role="form" th:action="@{/auth/register/save}" th:object="${user}">
+
+    <div class="input-group">
+      <label for="firstName">Imię </label>
+      <input class="input-field" id="firstName" name="firstName" required th:field="*{firstName}"
+             type="text">
+    </div>
+
+    <div class="input-group">
+      <label for="lastName">Nazwisko </label>
+      <input class="input-field" id="lastName" name="lastName" required th:field="*{lastName}"
+             type="text">
+    </div>
+
+    <div class="input-group">
+      <label for="email">Adres e-mail</label>
+      <input class="input-field" id="email" name="email" required th:field="*{email}" type="email">
+    </div>
+    <div class="input-group">
+      <label for="numberIndex">Numer Indeksu:</label>
+      <input class="input-field" id="numberIndex" name="numberIndex" required
+             th:field="*{numberIndex}"
+             type="text">
+    </div>
+    <div class="input-group">
+      <label for="password">Hasło</label>
+      <input class="input-field" id="password" name="password" required th:field="*{password}"
+             type="password">
+    </div>
+    <div class="input-group">
+      <label for="confirm-password">Potwierdź hasło</label>
+      <input class="input-field" id="confirm-password" name="confirm-password" required
+             type="password">
+    </div>
+    <div class="terms">
+      <input id="terms" name="terms" required type="checkbox">
+      <label for="terms">Akceptuję <a href="privacy-policy.html" target="_blank">regulamin i
+        politykę
+        prywatności</a></label>
+    </div>
+    <button class="register-button" type="submit">Zarejestruj się</button>
+  </form>
+  <a href="/auth/login">Masz już konto? Zaloguj się</a>
 </div>
-<h2>Rejestracja</h2>
-<form method="post" role="form" th:action="@{/auth/register/save}" th:object="${user}">
-  <label>Imię:</label>
-  <input class="form-control" th:field="*{firstName}" type="text"/><br>
-  <p class="text-danger" th:errors="*{firstName}" th:if="${#fields.hasErrors('firstName')}"></p>
-
-
-  <label>Nazwisko:</label>
-  <input class="form-control" th:field="*{lastName}" type="text"/><br>
-  <p class="text-danger" th:errors="*{lastName}"
-     th:if="${#fields.hasErrors('lastName')}"></p>
-
-  <label>Numer Indeksu:</label>
-  <input class="form-control" th:field="*{numberIndex}" type="text"/><br>
-  <p class="text-danger" th:errors="*{numberIndex}"
-     th:if="${#fields.hasErrors('numberIndex')}"></p>
-
-  <label>Email:</label>
-  <input class="form-control" th:field="*{email}" type="email"/><br>
-  <p class="text-danger" th:errors="*{email}"
-     th:if="${#fields.hasErrors('email')}"></p>
-
-  <label>Hasło:</label>
-  <input class="form-control" th:field="*{password}" type="password"/><br>
-  <p class="text-danger" th:errors="*{password}"
-     th:if="${#fields.hasErrors('password')}"></p>
-
-
-  <button type="submit">Zarejestruj się</button>
-</form>
-<a href="/auth/login">Masz już konto? Zaloguj się</a>
 </body>
 </html>
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+
+  .register-container {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 380px;
+  }
+
+  h2 {
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+    font-size: 1.8rem;
+    text-align: center;
+  }
+
+  .input-group {
+    margin-bottom: 1.2rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #e1e1e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .input-field:focus {
+    border-color: #3498db;
+    outline: none;
+  }
+
+  .terms {
+    display: flex;
+    align-items: center;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+  }
+
+  .terms input[type="checkbox"] {
+    margin-right: 0.5rem;
+  }
+
+  .register-button {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .register-button:hover {
+    background-color: #2980b9;
+  }
+
+  .links {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-size: 0.9rem;
+  }
+
+  .links span {
+    color: #2c3e50;
+  }
+
+  .links a {
+    color: #3498db;
+    text-decoration: none;
+    margin-left: 0.5rem;
+    transition: color 0.3s ease;
+  }
+
+  .links a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 480px) {
+    .register-container {
+      width: 90%;
+      padding: 1.5rem;
+    }
+  }
+</style>
