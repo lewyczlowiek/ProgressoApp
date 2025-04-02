@@ -62,7 +62,7 @@ public class AuthController {
     String token = jwtService.generateToken(newUser);
 
     model.addAttribute("token", token);
-    return "redirect:/auth/register?success";
+    return "redirect:/auth/login";
   }
 
   @GetMapping("/login")
