@@ -27,6 +27,10 @@ public class Task {
   @Column(nullable = false, updatable = false, name = "creation_timestamp")
   private LocalDateTime creationTimestamp;
 
+  @ManyToOne
+  @JoinColumn(name = "project_id")
+  private Project project;
+
   public Task(String name, String description, Integer taskOrder, LocalDateTime creationTimestamp) {
     this.name = name;
     this.description = description;
