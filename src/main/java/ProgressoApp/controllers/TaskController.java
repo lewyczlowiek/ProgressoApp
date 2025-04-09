@@ -28,7 +28,7 @@ public class TaskController {
   }
 
 
-  public List<Task> getAllTaskForProject(Long projectId) {
+  public List<Task> getAllTasksForProject(Long projectId) {
     return taskService.getAllTasks();
   }
 

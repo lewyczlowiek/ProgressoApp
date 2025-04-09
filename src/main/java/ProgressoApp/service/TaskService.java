@@ -9,6 +9,7 @@ public interface TaskService {
 
   List<Task> getAllTasks();
 
+  List<Task> getAllTasksForProject(Long id);
   Optional<Task> getTaskById(Long id);
 
   Task createTask(TaskDTO dto);
