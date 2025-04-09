@@ -1,14 +1,18 @@
 package ProgressoApp.service;
 
 import ProgressoApp.model.Project;
+import java.util.List;
+import java.util.Optional;
 
 public interface ProjectService {
 
-  void createProject(Project project);
+  List<Project> getAllProjects();
 
-  void updateProject(Project project);
+  Optional<Project> getProjectById(Long id);
 
-  void deleteProject(Long projectId);
+  Project createProject(Project project);
 
-  Project getProjectById(Long projectId);
+  Project updateProject(Long id, Project updatedProject);
+
+  void deleteProject(Long id);
 }

@@ -3,6 +3,7 @@ package ProgressoApp.controllers;
 import ProgressoApp.model.Project;
 import ProgressoApp.service.ProjectService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,29 +21,37 @@ public class ProjectController {
     this.projectService = projectService;
   }
 
+  @GetMapping
+  public List<Project> getAllProjects() {
+    return projectService.getAllProjects();
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
+    return projectService.getProjectById(id)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+  }
+
   @PostMapping
-  public ResponseEntity<Project> createProject(@Valid @RequestBody Project project) {
-    projectService.createProject(project);
-    return new ResponseEntity<>(project, HttpStatus.CREATED);
+  public Project createProject(@RequestBody Project project) {
+    return projectService.createProject(project);
   }
 
-  @PutMapping("/{projectId}")
-  public ResponseEntity<Project> updateProject(@PathVariable Long projectId,
-      @Valid @RequestBody Project project) {
-    project.setProjectId(projectId); // Ensure the projectId is set correctly before updating
-    projectService.updateProject(project);
-    return new ResponseEntity<>(project, HttpStatus.OK);
+  @PutMapping("/{id}")
+  public ResponseEntity<Project> updateProject(@PathVariable Long id,
+      @RequestBody Project project) {
+    try {
+      return ResponseEntity.ok(projectService.updateProject(id, project));
+    } catch (RuntimeException e) {
+      return ResponseEntity.notFound().build();
+    }
   }
 
-  @DeleteMapping("/{projectId}")
-  public ResponseEntity<Void> deleteProject(@PathVariable Long projectId) {
-    projectService.deleteProject(projectId);
-    return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204 No Content
-  }
+  @DeleteMapping("/{id}")
 
-  @GetMapping("/{projectId}")
-  public ResponseEntity<Project> getProject(@PathVariable Long projectId) {
-    // Optional: You can add logic to check if the project exists before returning
-    return new ResponseEntity<>(projectService.getProjectById(projectId), HttpStatus.OK);
+  public ResponseEntity<Void> deleteProject(@PathVariable Long id) {
+    projectService.deleteProject(id);
+    return ResponseEntity.noContent().build();
   }
 }

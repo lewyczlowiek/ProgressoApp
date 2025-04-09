@@ -1,8 +1,10 @@
 package ProgressoApp.controllers;
 
+import ProgressoApp.dto.TaskDTO;
 import ProgressoApp.model.Task;
 import ProgressoApp.service.TaskService;
 import jakarta.validation.Valid;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,29 +22,35 @@ public class TaskController {
     this.taskService = taskService;
   }
 
+  @GetMapping
+  public List<Task> getAllTasks() {
+    return taskService.getAllTasks();
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
+    return taskService.getTaskById(id)
+        .map(ResponseEntity::ok)
+        .orElse(ResponseEntity.notFound().build());
+  }
+
   @PostMapping
-  public ResponseEntity<Task> createTask(@Valid @RequestBody Task task) {
-    taskService.createTask(task);
-    return new ResponseEntity<>(task, HttpStatus.CREATED);
+  public Task createTask(@RequestBody TaskDTO dto) {
+    return taskService.createTask(dto);
   }
 
-  @PutMapping("/{taskId}")
-  public ResponseEntity<Task> updateTask(@PathVariable Long taskId,
-      @Valid @RequestBody Task task) {
-    task.setTaskId(taskId); // Ensure the taskId is set correctly before updating
-    taskService.updateTask(task);
-    return new ResponseEntity<>(task, HttpStatus.OK);
+  @PutMapping("/{id}")
+  public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {
+    try {
+      return ResponseEntity.ok(taskService.updateTask(id, task));
+    } catch (RuntimeException e) {
+      return ResponseEntity.notFound().build();
+    }
   }
 
-  @DeleteMapping("/{taskId}")
-  public ResponseEntity<Void> deleteTask(@PathVariable Long taskId) {
-    taskService.deleteTask(taskId);
-    return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204 No Content
-  }
-
-  @GetMapping("/{taskId}")
-  public ResponseEntity<Task> getTask(@PathVariable Long taskId) {
-    // Optional: You can add logic to check if the task exists before returning
-    return new ResponseEntity<>(taskService.getTaskById(taskId), HttpStatus.OK);
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+    taskService.deleteTask(id);
+    return ResponseEntity.noContent().build();
   }
 }
