@@ -27,9 +27,9 @@ public class TaskController {
     return taskService.getAllTasks();
   }
 
-
+  @GetMapping("/project/{id}")
   public List<Task> getAllTasksForProject(Long projectId) {
-    return taskService.getAllTasks();
+    return taskService.getAllTasksForProject(projectId);
   }
 
   @GetMapping("/{id}")
