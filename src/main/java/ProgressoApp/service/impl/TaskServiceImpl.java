@@ -3,6 +3,7 @@ package ProgressoApp.service.impl;
 import ProgressoApp.dto.TaskDTO;
 import ProgressoApp.model.Project;
 import ProgressoApp.model.Task;
+import ProgressoApp.model.TaskStatus;
 import ProgressoApp.repository.ProjectRepository;
 import ProgressoApp.repository.TaskRepository;
 import ProgressoApp.service.TaskService;
@@ -37,7 +38,7 @@ public class TaskServiceImpl implements TaskService {
     task.setName(dto.getName());
     task.setDescription(dto.getDescription());
     task.setTaskOrder(dto.getTaskOrder());
-    task.setTaskStatus(dto.getTaskStatus());
+    task.setTaskStatus(TaskStatus.TO_DO);
 
     if (dto.getProjectId() != null) {
       Project project = projectRepository.findById(dto.getProjectId())
