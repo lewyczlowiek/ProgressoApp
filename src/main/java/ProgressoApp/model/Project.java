@@ -37,14 +37,14 @@ public class Project implements Serializable {
   @Column(name = "due_date")
   private LocalDate dueDate;
 
-  @OneToMany(mappedBy = "project")
+  @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonIgnoreProperties({"project"})
   private List<Task> tasks;
 
   @ManyToMany
   @JoinTable(name = "project_user",
-          joinColumns = {@JoinColumn(name = "project_id")},
-          inverseJoinColumns = {@JoinColumn(name = "user_id")})
+      joinColumns = {@JoinColumn(name = "project_id")},
+      inverseJoinColumns = {@JoinColumn(name = "user_id")})
   private Set<User> users;
 
 

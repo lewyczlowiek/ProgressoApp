@@ -37,7 +37,8 @@ public class WebSpringSecurity {
     http
         .csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/**", "/css/**", "/static/**", "/api/tasks/**", "/")
+            .requestMatchers("/auth/**", "/css/**", "/static/**", "/api/tasks/**",
+                "/api/projects/**", "/")
             .permitAll()
             .anyRequest().authenticated()
         )

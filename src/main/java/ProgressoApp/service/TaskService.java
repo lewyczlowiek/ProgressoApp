@@ -1,14 +1,19 @@
 package ProgressoApp.service;
 
+import ProgressoApp.dto.TaskDTO;
 import ProgressoApp.model.Task;
+import java.util.List;
+import java.util.Optional;
 
 public interface TaskService {
 
-  void createTask(Task task);
+  List<Task> getAllTasks();
 
-  void updateTask(Task task);
+  Optional<Task> getTaskById(Long id);
 
-  void deleteTask(Long taskId);
+  Task createTask(TaskDTO dto);
 
-  Task getTaskById(Long taskId);
+  Task updateTask(Long id, Task updatedTask);
+
+  void deleteTask(Long id);
 }

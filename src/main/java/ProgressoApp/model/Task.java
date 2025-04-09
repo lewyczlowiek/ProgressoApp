@@ -23,6 +23,7 @@ public class Task {
   @Column(length = 1000)
   private String description;
 
+  private TaskStatus taskStatus;
   @CreationTimestamp
   @Column(nullable = false, updatable = false, name = "creation_timestamp")
   private LocalDateTime creationTimestamp;
@@ -31,11 +32,13 @@ public class Task {
   @JoinColumn(name = "project_id")
   private Project project;
 
-  public Task(String name, String description, Integer taskOrder, LocalDateTime creationTimestamp) {
+  public Task(String name, String description, Integer taskOrder, LocalDateTime creationTimestamp,
+      TaskStatus taskStatus) {
     this.name = name;
     this.description = description;
     this.taskOrder = taskOrder;
     this.creationTimestamp = creationTimestamp;
+    this.taskStatus = taskStatus;
   }
 
   public Task() {
@@ -80,6 +83,22 @@ public class Task {
 
   public void setCreationTimestamp(LocalDateTime creationTimestamp) {
     this.creationTimestamp = creationTimestamp;
+  }
+
+  public TaskStatus getTaskStatus() {
+    return taskStatus;
+  }
+
+  public void setTaskStatus(TaskStatus taskStatus) {
+    this.taskStatus = taskStatus;
+  }
+
+  public Project getProject() {
+    return project;
+  }
+
+  public void setProject(Project project) {
+    this.project = project;
   }
 }
 

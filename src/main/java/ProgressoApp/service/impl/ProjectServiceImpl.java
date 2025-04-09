@@ -3,6 +3,7 @@ package ProgressoApp.service.impl;
 import ProgressoApp.model.Project;
 import ProgressoApp.repository.ProjectRepository;
 import ProgressoApp.service.ProjectService;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,28 +18,31 @@ public class ProjectServiceImpl implements ProjectService {
     this.projectRepository = projectRepository;
   }
 
-  @Override
-  public void createProject(Project project) {
-    projectRepository.save(project);
+  public List<Project> getAllProjects() {
+    return projectRepository.findAll();
   }
 
-  @Override
-  public void updateProject(Project project) {
-    projectRepository.save(project);
+  public Optional<Project> getProjectById(Long id) {
+    return projectRepository.findById(id);
   }
 
-  @Override
-  public void deleteProject(Long projectId) {
-    projectRepository.deleteById(projectId);
+  public Project createProject(Project project) {
+    return projectRepository.save(project);
   }
 
-  public Project getProjectById(Long projectId) {
-    Optional<Project> project = projectRepository.findById(projectId);
-    if (project.isPresent()) {
-      return project.get(); // Zwraca projekt, jeżeli istnieje
-    } else {
-      throw new RuntimeException(
-          "Project not found with id " + projectId); // Jeśli projekt nie istnieje, rzucamy wyjątek
-    }
+  public Project updateProject(Long id, Project updatedProject) {
+    return projectRepository.findById(id)
+        .map(project -> {
+          project.setName(updatedProject.getName());
+          project.setDescription(updatedProject.getDescription());
+          project.setDueDate(updatedProject.getDueDate());
+          return projectRepository.save(project);
+        }).orElseThrow(() -> new RuntimeException("Project not found"));
+  }
+
+  public void deleteProject(Long id) {
+    Project project = projectRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+    projectRepository.delete(project);
   }
 }

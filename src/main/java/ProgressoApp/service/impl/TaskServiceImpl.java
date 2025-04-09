@@ -1,8 +1,12 @@
 package ProgressoApp.service.impl;
 
+import ProgressoApp.dto.TaskDTO;
+import ProgressoApp.model.Project;
 import ProgressoApp.model.Task;
+import ProgressoApp.repository.ProjectRepository;
 import ProgressoApp.repository.TaskRepository;
 import ProgressoApp.service.TaskService;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -11,39 +15,53 @@ import org.springframework.stereotype.Service;
 public class TaskServiceImpl implements TaskService {
 
   private final TaskRepository taskRepository;
+  private final ProjectRepository projectRepository;
 
   @Autowired
-  public TaskServiceImpl(TaskRepository taskRepository) {
+  public TaskServiceImpl(TaskRepository taskRepository, ProjectRepository projectRepository) {
     this.taskRepository = taskRepository;
+    this.projectRepository = projectRepository;
   }
 
-  @Override
-  public void createTask(Task task) {
-
-    Task newTask = new Task(task.getName(), task.getDescription(), task.getTaskOrder(),
-        task.getCreationTimestamp());
-    taskRepository.save(newTask);
+  public List<Task> getAllTasks() {
+    return taskRepository.findAll();
   }
 
-  @Override
-  public void updateTask(Task task) {
-    taskRepository.save(task);
+  public Optional<Task> getTaskById(Long id) {
+    return taskRepository.findById(id);
   }
 
-  @Override
-  public void deleteTask(Long taskId) {
-    taskRepository.deleteById(taskId);
-  }
 
-  @Override
-  public Task getTaskById(Long taskId) {
-    Optional<Task> task = taskRepository.findById(taskId);
-    if (task.isPresent()) {
-      return task.get(); // Zwraca zadanie, jeżeli istnieje
-    } else {
-      throw new RuntimeException(
-          "Task not found with id " + taskId); // Jeśli zadanie nie istnieje, rzucamy wyjątek
+  public Task createTask(TaskDTO dto) {
+    Task task = new Task();
+    task.setName(dto.getName());
+    task.setDescription(dto.getDescription());
+    task.setTaskOrder(dto.getTaskOrder());
+    task.setTaskStatus(dto.getTaskStatus());
+
+    if (dto.getProjectId() != null) {
+      Project project = projectRepository.findById(dto.getProjectId())
+          .orElseThrow(
+              () -> new RuntimeException("Project not found with id: " + dto.getProjectId()));
+      task.setProject(project);
     }
+
+    return taskRepository.save(task);
+  }
+
+  public Task updateTask(Long id, Task updatedTask) {
+    return taskRepository.findById(id)
+        .map(task -> {
+          task.setName(updatedTask.getName());
+          task.setDescription(updatedTask.getDescription());
+          task.setTaskOrder(updatedTask.getTaskOrder());
+          task.setTaskStatus(updatedTask.getTaskStatus());
+          return taskRepository.save(task);
+        }).orElseThrow(() -> new RuntimeException("Task not found"));
+  }
+
+  public void deleteTask(Long id) {
+    taskRepository.deleteById(id);
   }
 
 }
