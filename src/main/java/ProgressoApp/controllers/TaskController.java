@@ -28,8 +28,8 @@ public class TaskController {
   }
 
   @GetMapping("/project/{id}")
-  public List<Task> getAllTasksForProject(Long projectId) {
-    return taskService.getAllTasksForProject(projectId);
+  public List<Task> getAllTasksForProject(@PathVariable Long id) {
+    return taskService.getAllTasksForProject(id);
   }
 
   @GetMapping("/{id}")
