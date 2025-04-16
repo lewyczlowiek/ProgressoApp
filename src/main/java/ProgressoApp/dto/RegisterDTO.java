@@ -24,7 +24,7 @@ public class RegisterDTO {
   @NotEmpty(message = "Numer indeksu nie może być pusty!")
   private String numberIndex;
 
-  @Email(message = "Podaj poprawny email")
+  @Email(message = "Niepoprawny format adresu e-mail")
   @NotEmpty(message = "Email jest wymagany")
   private String email;
 

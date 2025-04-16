@@ -51,7 +51,7 @@ public class AuthController {
   }
 
   @PostMapping("/register/save")
-  public String register(@Valid @ModelAttribute("user") RegisterDTO user,
+  public String register(@RequestBody @Valid RegisterDTO user,
       BindingResult result, Model model) {
     Optional<User> existingUser = userService.findByEmail(user.getEmail());
 
@@ -75,7 +75,7 @@ public class AuthController {
 
 
   @PostMapping("/login/add")
-  public ResponseEntity<Tokens> login(@Valid @ModelAttribute("add") LoginDTO loginDTO) {
+  public ResponseEntity<Tokens> login(@RequestBody @Valid LoginDTO loginDTO, BindingResult result, Model model) {
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword())
     );
