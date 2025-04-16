@@ -1,7 +1,7 @@
 package ProgressoApp.controllers;
 
 
-import ProgressoApp.auth.AuthenticationResponse;
+import ProgressoApp.auth.Tokens;
 import ProgressoApp.config.JwtService;
 import ProgressoApp.dto.LoginDTO;
 import ProgressoApp.dto.RegisterDTO;
@@ -9,16 +9,20 @@ import ProgressoApp.model.User;
 import ProgressoApp.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
@@ -30,7 +34,9 @@ public class AuthController {
   private final AuthenticationManager authenticationManager;
 
   @Autowired
-  public AuthController(UserService userService, JwtService jwtService, AuthenticationManager authenticationManager) {
+  public AuthController(@Qualifier("userServiceImpl") UserService userService,
+      JwtService jwtService,
+      AuthenticationManager authenticationManager) {
     this.userService = userService;
     this.jwtService = jwtService;
     this.authenticationManager = authenticationManager;
@@ -47,21 +53,18 @@ public class AuthController {
   @PostMapping("/register/save")
   public String register(@Valid @ModelAttribute("user") RegisterDTO user,
       BindingResult result, Model model) {
-    User existingUser = userService.findByEmail(user.getEmail());
-    if (existingUser != null && existingUser.getEmail() != null && !existingUser.getEmail()
-        .isEmpty()) {
+    Optional<User> existingUser = userService.findByEmail(user.getEmail());
+
+    if (existingUser.isPresent()) {
       result.rejectValue("email", null, "Ten adres email jest niedostępny");
     }
+
     if (result.hasErrors()) {
       model.addAttribute("user", user);
       return "register";
     }
+
     userService.saveUser(user);
-
-    User newUser = userService.findByEmail(user.getEmail());
-    String token = jwtService.generateToken(newUser);
-
-    model.addAttribute("token", token);
     return "redirect:/auth/register?success";
   }
 
@@ -70,23 +73,30 @@ public class AuthController {
     return "login";
   }
 
-  @PostMapping("/login")
-  public ResponseEntity<AuthenticationResponse> login(@Valid @ModelAttribute("login") LoginDTO loginDTO) {
 
+  @PostMapping("/login/add")
+  public ResponseEntity<Tokens> login(@Valid @ModelAttribute("add") LoginDTO loginDTO) {
     authenticationManager.authenticate(
-            new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword())
+        new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword())
     );
 
-    User user = userService.findByEmail(loginDTO.getEmail());
-    String token = jwtService.generateToken(user);
+    Optional<User> optionalUser = userService.findByEmail(loginDTO.getEmail());
 
-    AuthenticationResponse authenticationResponse = new AuthenticationResponse(token);
-    return ResponseEntity.ok(authenticationResponse);
+    if (optionalUser.isEmpty()) {
+      return ResponseEntity.badRequest().build();
+    }
+
+    User user = optionalUser.get();
+
+    String accessToken = jwtService.generateAccessToken(user);
+    String refreshToken = jwtService.generateRefreshToken(user);
+
+    return ResponseEntity.ok(new Tokens(accessToken, refreshToken));
   }
-
 
   @GetMapping("/logout")
   public String logout(HttpSession session) {
+    session.invalidate();
     return "redirect:/";
   }
 }
