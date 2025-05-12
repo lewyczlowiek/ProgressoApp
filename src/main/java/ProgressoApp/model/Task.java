@@ -23,6 +23,7 @@ public class Task {
   @Column(length = 1000)
   private String description;
 
+  @Enumerated(EnumType.STRING)
   private TaskStatus taskStatus;
   @CreationTimestamp
   @Column(nullable = false, updatable = false, name = "creation_timestamp")
