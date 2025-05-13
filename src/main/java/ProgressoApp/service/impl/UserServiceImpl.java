@@ -1,6 +1,6 @@
 package ProgressoApp.service.impl;
 
-import ProgressoApp.dto.RegisterDTO;
+import ProgressoApp.dto.request.RegisterDTO;
 import ProgressoApp.model.Role;
 import ProgressoApp.model.User;
 import ProgressoApp.repository.UserRepository;
@@ -12,8 +12,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
 
 @Service
 public class UserServiceImpl implements UserService, UserDetailsService {

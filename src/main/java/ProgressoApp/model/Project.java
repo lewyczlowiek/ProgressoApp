@@ -1,6 +1,8 @@
 package ProgressoApp.model;
 
 
+import ProgressoApp.dto.request.ProjectRequestDTO;
+import ProgressoApp.dto.response.ProjectResponseDTO;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -34,9 +36,6 @@ public class Project implements Serializable {
   @Column(name = "creation_timestamp", nullable = false, updatable = false)
   private LocalDateTime creationTimestamp;
 
-  @Column(name = "due_date")
-  private LocalDate dueDate;
-
   @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
   @JsonIgnoreProperties({"project"})
   private List<Task> tasks;
@@ -47,17 +46,36 @@ public class Project implements Serializable {
       inverseJoinColumns = {@JoinColumn(name = "user_id")})
   private Set<User> users;
 
-
-  public Project(String description, String name, LocalDateTime creationTimestamp,
-      LocalDate dueDate) {
-    this.description = description;
-    this.name = name;
-    this.creationTimestamp = creationTimestamp;
-    this.dueDate = dueDate;
+  public Project() {
   }
 
-  public Project() {
+  public Project(Project other) {
+    this.projectId = other.projectId;
+    this.name = other.name;
+    this.description = other.description;
+    this.creationTimestamp = other.creationTimestamp;
+    this.tasks = other.tasks;
+    this.users = other.users;
+  }
 
+
+  public Project(ProjectRequestDTO dto) {
+    this.name = dto.name();
+    this.description = dto.description();
+    this.creationTimestamp = dto.creationTimestamp();
+
+  }
+
+  public ProjectResponseDTO toProjectResponseDTO() {
+    return new ProjectResponseDTO(
+        this.projectId,
+        this.name,
+        this.description,
+        this.creationTimestamp,
+        this.tasks != null ? this.tasks.stream().map(Task::toTaskResponseDTO).toList() : List.of(),
+        this.users != null ? this.users.stream().map(User::toUserResponseDTO)
+            .collect(java.util.stream.Collectors.toSet()) : Set.of()
+    );
   }
 
   public Long getProjectId() {
@@ -92,11 +110,4 @@ public class Project implements Serializable {
     this.creationTimestamp = creationTimestamp;
   }
 
-  public LocalDate getDueDate() {
-    return dueDate;
-  }
-
-  public void setDueDate(LocalDate dueDate) {
-    this.dueDate = dueDate;
-  }
 }

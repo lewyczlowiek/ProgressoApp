@@ -1,18 +1,19 @@
 package ProgressoApp.service;
 
-import ProgressoApp.dto.TaskDTO;
+import ProgressoApp.dto.request.TaskRequestDTO;
 import ProgressoApp.model.Task;
-import java.util.List;
 import java.util.Optional;
+import org.h2.mvstore.Page;
 
 public interface TaskService {
 
-  List<Task> getAllTasks();
+  Page<Task> getAllTasks();
 
-  List<Task> getAllTasksForProject(Long id);
+  Page<Task> getAllTasksForProject(Long id);
+
   Optional<Task> getTaskById(Long id);
 
-  Task createTask(TaskDTO dto);
+  Task createTask(TaskRequestDTO dto);
 
   Task updateTask(Long id, Task updatedTask);
 

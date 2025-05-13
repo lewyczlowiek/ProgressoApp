@@ -3,8 +3,8 @@ package ProgressoApp.controllers;
 
 import ProgressoApp.auth.Tokens;
 import ProgressoApp.config.JwtService;
-import ProgressoApp.dto.LoginDTO;
-import ProgressoApp.dto.RegisterDTO;
+import ProgressoApp.dto.request.LoginDTO;
+import ProgressoApp.dto.request.RegisterDTO;
 import ProgressoApp.model.User;
 import ProgressoApp.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -15,12 +15,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -75,7 +73,8 @@ public class AuthController {
 
 
   @PostMapping("/login/add")
-  public ResponseEntity<Tokens> login(@RequestBody @Valid LoginDTO loginDTO, BindingResult result, Model model) {
+  public ResponseEntity<Tokens> login(@RequestBody @Valid LoginDTO loginDTO, BindingResult result,
+      Model model) {
     authenticationManager.authenticate(
         new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword())
     );

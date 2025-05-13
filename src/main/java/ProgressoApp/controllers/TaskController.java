@@ -1,12 +1,10 @@
 package ProgressoApp.controllers;
 
-import ProgressoApp.dto.TaskDTO;
+import ProgressoApp.dto.request.TaskRequestDTO;
 import ProgressoApp.model.Task;
 import ProgressoApp.service.TaskService;
-import jakarta.validation.Valid;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,7 +21,7 @@ public class TaskController {
   }
 
   @GetMapping
-  public List<Task> getAllTasks() {
+  public ResponseEntity<Task> getAllTasks() {
     return taskService.getAllTasks();
   }
 
@@ -40,7 +38,7 @@ public class TaskController {
   }
 
   @PostMapping
-  public Task createTask(@RequestBody TaskDTO dto) {
+  public Task createTask(@RequestBody TaskRequestDTO dto) {
     return taskService.createTask(dto);
   }
 

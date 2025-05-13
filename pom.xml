@@ -170,6 +170,10 @@
       <optional>true</optional>
       <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+    </dependency>
   </dependencies>
   <groupId>com.example</groupId>
   <modelVersion>4.0.0</modelVersion>

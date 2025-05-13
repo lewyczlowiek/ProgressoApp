@@ -35,7 +35,6 @@ public class ProjectServiceImpl implements ProjectService {
         .map(project -> {
           project.setName(updatedProject.getName());
           project.setDescription(updatedProject.getDescription());
-          project.setDueDate(updatedProject.getDueDate());
           return projectRepository.save(project);
         }).orElseThrow(() -> new RuntimeException("Project not found"));
   }

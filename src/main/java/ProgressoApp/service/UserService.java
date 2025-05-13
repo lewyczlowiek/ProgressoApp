@@ -1,6 +1,6 @@
 package ProgressoApp.service;
 
-import ProgressoApp.dto.RegisterDTO;
+import ProgressoApp.dto.request.RegisterDTO;
 import ProgressoApp.model.User;
 import java.util.Optional;
 import org.springframework.security.core.userdetails.UserDetailsService;

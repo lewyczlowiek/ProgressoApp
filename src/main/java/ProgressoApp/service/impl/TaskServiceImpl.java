@@ -1,15 +1,16 @@
 package ProgressoApp.service.impl;
 
-import ProgressoApp.dto.TaskDTO;
+import ProgressoApp.dto.request.TaskRequestDTO;
 import ProgressoApp.model.Project;
 import ProgressoApp.model.Task;
 import ProgressoApp.model.TaskStatus;
 import ProgressoApp.repository.ProjectRepository;
 import ProgressoApp.repository.TaskRepository;
 import ProgressoApp.service.TaskService;
-import java.util.List;
 import java.util.Optional;
+import org.h2.mvstore.Page;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -24,12 +25,12 @@ public class TaskServiceImpl implements TaskService {
     this.projectRepository = projectRepository;
   }
 
-  public List<Task> getAllTasks() {
-    return taskRepository.findAll();
+  public Page<TaskRequestDTO> getAllTasks(Pageable pageable) {
+    return taskRepository.findAllBy(pageable);
   }
 
-  public List<Task> getAllTasksForProject(Long projectId) {
-    return taskRepository.findByProject_ProjectId(projectId);
+  public Page<TaskRequestDTO> getAllTasksForProject(Long projectId, Pageable pageable) {
+    return taskRepository.findByProject_ProjectId(projectId, pageable);
   }
 
   public Optional<Task> getTaskById(Long id) {
@@ -37,7 +38,7 @@ public class TaskServiceImpl implements TaskService {
   }
 
 
-  public Task createTask(TaskDTO dto) {
+  public Task createTask(TaskRequestDTO dto) {
     Task task = new Task();
     task.setName(dto.getName());
     task.setDescription(dto.getDescription());
