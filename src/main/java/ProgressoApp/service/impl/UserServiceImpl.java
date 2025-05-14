@@ -5,6 +5,8 @@ import ProgressoApp.model.Role;
 import ProgressoApp.model.User;
 import ProgressoApp.repository.UserRepository;
 import ProgressoApp.service.UserService;
+
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -41,5 +43,10 @@ public class UserServiceImpl implements UserService {
   @Override
   public User findByEmail(String email) {
     return userRepository.findByEmail(email);
+  }
+
+  @Override
+  public List<User> findAll() {
+    return userRepository.findAll();
   }
 }

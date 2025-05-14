@@ -14,4 +14,9 @@ public class MainController {
     return "index";
   }
 
+/*    @GetMapping("/chat")
+    public String chatView() {
+      return "chat";
+    }*/
+
 }
