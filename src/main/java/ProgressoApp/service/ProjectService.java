@@ -1,18 +1,46 @@
 package ProgressoApp.service;
 
 import ProgressoApp.model.Project;
+import ProgressoApp.repository.ProjectRepository;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-public interface ProjectService {
+@Service
+public class ProjectService {
 
-  List<Project> getAllProjects();
+  private final ProjectRepository projectRepository;
 
-  Optional<Project> getProjectById(Long id);
+  @Autowired
+  public ProjectService(ProjectRepository projectRepository) {
+    this.projectRepository = projectRepository;
+  }
 
-  Project createProject(Project project);
+  public List<Project> getAllProjects() {
+    return projectRepository.findAll();
+  }
 
-  Project updateProject(Long id, Project updatedProject);
+  public Optional<Project> getProjectById(Long id) {
+    return projectRepository.findById(id);
+  }
 
-  void deleteProject(Long id);
+  public Project createProject(Project project) {
+    return projectRepository.save(project);
+  }
+
+  public Project updateProject(Long id, Project updatedProject) {
+    return projectRepository.findById(id)
+        .map(project -> {
+          project.setName(updatedProject.getName());
+          project.setDescription(updatedProject.getDescription());
+          return projectRepository.save(project);
+        }).orElseThrow(() -> new RuntimeException("Project not found"));
+  }
+
+  public void deleteProject(Long id) {
+    Project project = projectRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("Project not found with id: " + id));
+    projectRepository.delete(project);
+  }
 }

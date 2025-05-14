@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController
+@Controller
 @RequestMapping("/auth")
 public class AuthController {
 
@@ -35,7 +35,7 @@ public class AuthController {
   private final AuthenticationManager authenticationManager;
 
   @Autowired
-  public AuthController(@Qualifier("userServiceImpl") UserService userService,
+  public AuthController(@Qualifier("userService") UserService userService,
       JwtService jwtService,
       AuthenticationManager authenticationManager) {
     this.userService = userService;
@@ -75,7 +75,7 @@ public class AuthController {
   }
 
 
-  @PostMapping("/login/gave")
+  @PostMapping("/login")
   public ResponseEntity<Tokens> login(@RequestBody @Valid LoginDTO loginDTO, BindingResult result,
       Model model) {
     try {

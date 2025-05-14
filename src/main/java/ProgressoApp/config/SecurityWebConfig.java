@@ -29,7 +29,7 @@ public class SecurityWebConfig {
     return http// Apply CORS filter
         .csrf(AbstractHttpConfigurer::disable) // Disable CSRF (since we're using stateless JWT)
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/login", "/auth/register", "/auth/**")
+            .requestMatchers("/auth/login", "/auth/register", "/auth/**", "/**")
             .permitAll()  // Allow unauthenticated access
             .anyRequest().authenticated())  // All other endpoints require authentication
         .sessionManagement(session -> session

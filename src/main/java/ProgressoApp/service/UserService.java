@@ -1,13 +1,53 @@
 package ProgressoApp.service;
 
 import ProgressoApp.dto.request.RegisterDTO;
+import ProgressoApp.model.Role;
 import ProgressoApp.model.User;
+import ProgressoApp.repository.UserRepository;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
 
-public interface UserService extends UserDetailsService {
+@Service
+public class UserService implements UserDetailsService {
 
-  void saveUser(RegisterDTO registerDTO);
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
-  Optional<User> findByEmail(String email);
+  @Autowired
+  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    this.userRepository = userRepository;
+    this.passwordEncoder = passwordEncoder;
+  }
+
+
+  public void saveUser(RegisterDTO registerDTO) {
+
+    User user = User.builder()
+        .firstName(registerDTO.getFirstName())
+        .lastName(registerDTO.getLastName())
+        .email(registerDTO.getEmail())
+        .password(passwordEncoder.encode(registerDTO.getPassword()))
+        .numberIndex(registerDTO.getNumberIndex())
+        .role(Role.STUDENT)
+        .build();
+
+    userRepository.save(user);
+  }
+
+
+  public Optional<User>
+  findByEmail(String email) {
+    return userRepository.findByEmail(email);
+  }
+
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    return userRepository.findByEmail(username)
+        .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+  }
 }
