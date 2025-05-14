@@ -12,8 +12,10 @@ import jakarta.validation.Valid;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,8 +24,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-@Controller
+@RestController
 @RequestMapping("/auth")
 public class AuthController {
 
@@ -72,12 +75,16 @@ public class AuthController {
   }
 
 
-  @PostMapping("/login/add")
+  @PostMapping("/login/gave")
   public ResponseEntity<Tokens> login(@RequestBody @Valid LoginDTO loginDTO, BindingResult result,
       Model model) {
-    authenticationManager.authenticate(
-        new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword())
-    );
+    try {
+      authenticationManager.authenticate(
+          new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword())
+      );
+    } catch (BadCredentialsException e) {
+      return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    }
 
     Optional<User> optionalUser = userService.findByEmail(loginDTO.getEmail());
 

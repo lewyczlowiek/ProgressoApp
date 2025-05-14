@@ -4,6 +4,7 @@ import ProgressoApp.dto.request.RegisterDTO;
 import ProgressoApp.model.Role;
 import ProgressoApp.model.User;
 import ProgressoApp.repository.UserRepository;
+import ProgressoApp.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,13 +12,13 @@ import org.springframework.boot.autoconfigure.jdbc.JdbcConnectionDetails;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.testcontainers.containers.PostgreSQLContainer;
+
 
 import java.util.List;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
+
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -29,12 +30,19 @@ public class UserRepositoryTest {
 
   @Autowired
   private UserRepository userRepository;
+  private UserService userService;
 
   @BeforeEach
   void setUp() {
-    RegisterDTO user = new RegisterDTO(null, "Krzysztof", "Olejniczak", "456718", "thekriso@wp.pl",
-        "haslo12345",
-        Role.ADMIN);
+
+    User user = User.builder()
+        .firstName("Krzysztof")
+        .lastName("Olejniczak")
+        .email("thekriso@wp.pl")
+        .password("haslo12345")
+        .numberIndex("456718")
+        .role(Role.ADMIN)
+        .build();
     userRepository.save(user);
   }
 

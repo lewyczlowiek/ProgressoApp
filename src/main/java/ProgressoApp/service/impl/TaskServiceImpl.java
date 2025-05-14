@@ -8,7 +8,7 @@ import ProgressoApp.repository.ProjectRepository;
 import ProgressoApp.repository.TaskRepository;
 import ProgressoApp.service.TaskService;
 import java.util.Optional;
-import org.h2.mvstore.Page;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,13 +25,6 @@ public class TaskServiceImpl implements TaskService {
     this.projectRepository = projectRepository;
   }
 
-  public Page<TaskRequestDTO> getAllTasks(Pageable pageable) {
-    return taskRepository.findAllBy(pageable);
-  }
-
-  public Page<TaskRequestDTO> getAllTasksForProject(Long projectId, Pageable pageable) {
-    return taskRepository.findByProject_ProjectId(projectId, pageable);
-  }
 
   public Optional<Task> getTaskById(Long id) {
     return taskRepository.findById(id);
@@ -40,17 +33,6 @@ public class TaskServiceImpl implements TaskService {
 
   public Task createTask(TaskRequestDTO dto) {
     Task task = new Task();
-    task.setName(dto.getName());
-    task.setDescription(dto.getDescription());
-    task.setTaskOrder(dto.getTaskOrder());
-    task.setTaskStatus(TaskStatus.TO_DO);
-
-    if (dto.getProjectId() != null) {
-      Project project = projectRepository.findById(dto.getProjectId())
-          .orElseThrow(
-              () -> new RuntimeException("Project not found with id: " + dto.getProjectId()));
-      task.setProject(project);
-    }
 
     return taskRepository.save(task);
   }

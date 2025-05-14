@@ -20,15 +20,15 @@ public class TaskController {
     this.taskService = taskService;
   }
 
-  @GetMapping
-  public ResponseEntity<Task> getAllTasks() {
-    return taskService.getAllTasks();
-  }
-
-  @GetMapping("/project/{id}")
-  public List<Task> getAllTasksForProject(@PathVariable Long id) {
-    return taskService.getAllTasksForProject(id);
-  }
+//  @GetMapping
+//  public ResponseEntity<Task> getAllTasks() {
+//    return taskService.getAllTasks();
+//  }
+//
+//  @GetMapping("/project/{id}")
+//  public List<Task> getAllTasksForProject(@PathVariable Long id) {
+//    return taskService.getAllTasksForProject(id);
+//  }
 
   @GetMapping("/{id}")
   public ResponseEntity<Task> getTaskById(@PathVariable Long id) {

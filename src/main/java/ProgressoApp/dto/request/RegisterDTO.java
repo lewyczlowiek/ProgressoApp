@@ -9,8 +9,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 public class RegisterDTO {
 
 
@@ -31,4 +29,15 @@ public class RegisterDTO {
   @NotEmpty(message = "Hasło nie może być puste!")
   private String password;
 
+  public RegisterDTO(String firstName, String lastName, String numberIndex, String email,
+      String password) {
+    this.firstName = firstName;
+    this.lastName = lastName;
+    this.numberIndex = numberIndex;
+    this.email = email;
+    this.password = password;
+  }
+
+  public RegisterDTO() {
+  }
 }

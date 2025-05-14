@@ -26,8 +26,9 @@ public class TaskRepositoryTest {
 
   @BeforeEach
   void setUp() {
-    TaskRequestDTO task = new TaskRequestDTO("dwa", "opis", 3, TaskStatus.TO_DO, 1,
+    TaskRequestDTO taskDTO = new TaskRequestDTO("dwa", "opis", 3, TaskStatus.TO_DO, 1L,
         LocalDate.of(2024, 2, 20));
+    Task task = new Task(taskDTO);
     taskRepository.save(task);
   }
 
