@@ -26,10 +26,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Entity
-@Table(name = "users", indexes = {
-    @Index(name = "idx_lastName", columnList = "lastName", unique = false),
-    @Index(name = "idx_email", columnList = "email", unique = true),
-    @Index(name = "idx_numberIndex", columnList = "numberIndex", unique = true)})
+@Table(name = "users")
 public class User implements UserDetails {
 
   @Id
