@@ -19,40 +19,5 @@ public class TaskController {
     this.taskService = taskService;
   }
 
-//  @GetMapping
-//  public ResponseEntity<Task> getAllTasks() {
-//    return taskService.getAllTasks();
-//  }
-//
-//  @GetMapping("/project/{id}")
-//  public List<Task> getAllTasksForProject(@PathVariable Long id) {
-//    return taskService.getAllTasksForProject(id);
-//  }
 
-  @GetMapping("/{id}")
-  public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
-    return taskService.getTaskById(id)
-        .map(ResponseEntity::ok)
-        .orElse(ResponseEntity.notFound().build());
-  }
-
-  @PostMapping
-  public Task createTask(@RequestBody TaskRequestDTO dto) {
-    return taskService.createTask(dto);
-  }
-
-  @PutMapping("/{id}")
-  public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody Task task) {
-    try {
-      return ResponseEntity.ok(taskService.updateTask(id, task));
-    } catch (RuntimeException e) {
-      return ResponseEntity.notFound().build();
-    }
-  }
-
-  @DeleteMapping("/{id}")
-  public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-    taskService.deleteTask(id);
-    return ResponseEntity.noContent().build();
-  }
 }
