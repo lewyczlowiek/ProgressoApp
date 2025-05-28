@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <title>Progresso - Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/navbar.CSS}">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .chat-container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+
+        #message-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        #message-list li {
+            margin-bottom: 10px;
+        }
+
+        .message {
+            padding: 8px 12px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .my-message {
+            background-color: #d4edda;
+            color: #155724;
+            text-align: right;
+        }
+
+        .other-message {
+            background-color: #cce5ff;
+            color: #004085;
+            text-align: left;
+        }
+
+        .input-group {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<div class="container chat-container">
+    <h2>Czat</h2>
+    <ul id="message-list">
+        <!-- Wiadomości będą dodawane tutaj przez JavaScript -->
+    </ul>
+    <div class="input-group">
+        <input type="text" class="form-control" placeholder="Wpisz wiadomość..." id="message-input">
+        <button class="btn btn-primary" type="button" id="send-btn">Wyślij</button>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="/webjars/sockjs-client/sockjs.min.js"></script>
+<script src="/webjars/stomp-websocket/stomp.min.js"></script>
+
+<script>
+    let stompClient;
+
+    function connect() {
+        const socket = new SockJS('/ws-chat');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, () => {
+            console.log('Połączono z WebSocket');
+            stompClient.subscribe('/topic/messages', (frame) => {
+                const msg = JSON.parse(frame.body);
+                appendMessage(msg.from, msg.text);
+            });
+        });
+    }
+
+    function appendMessage(from, text) {
+        const ul = document.getElementById('message-list');
+        const li = document.createElement('li');
+        const messageClass = from === 'You' ? 'my-message' : 'other-message';
+        li.innerHTML = `<div class="message ${messageClass}"><strong>${from}:</strong> ${text}</div>`;
+        ul.appendChild(li);
+        ul.scrollTop = ul.scrollHeight; // Przewiń do najnowszej wiadomości
+    }
+
+    $(document).ready(() => {
+        connect();
+
+        $('#send-btn').click(() => {
+            const messageInput = $('#message-input');
+            const message = messageInput.val().trim();
+            if (message !== '') {
+                sendMessage(message);
+                messageInput.val('');
+            }
+        });
+
+        function sendMessage(text) {
+            if (!stompClient) return;
+            const payload = { text: text }; // Wyślij tylko tekst wiadomości
+            stompClient.send('/app/send', {}, JSON.stringify(payload));
+        }
+    });
+</script>
+</body>
+</html>

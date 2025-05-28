@@ -1,0 +1,36 @@
+<div th:fragment="navbar">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" th:href="@{/}">
+        <img th:src="@{/logo_biale.png}" alt="Logo" class="logo-img">
+        <span class="brand-text">Project Manager</span>
+      </a>
+      <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbarNav" type="button">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/projects}"><i class="fas fa-project-diagram me-1"></i> Projekty</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/tasks}"><i class="fas fa-list-check me-1"></i> Zadania</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/users}"><i class="fas fa-users me-1"></i> Użytkownicy</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" th:href="@{/chat}"><i class="fas fa-comments me-1"></i> Czat</a>
+          </li>
+        </ul>
+        <div class="d-flex align-items-center">
+          <input class="form-control me-2" type="search" placeholder="Szukaj projektu...">
+          <button class="btn btn-light me-2" type="submit"><i class="fas fa-search"></i></button>
+          <button class="btn btn-outline-light" onclick="window.location.href='/login.html'">
+            <i class="fas fa-sign-out-alt me-1"></i> Wyloguj
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+</div>
