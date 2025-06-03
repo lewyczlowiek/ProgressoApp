@@ -1,13 +1,16 @@
 package ProgressoApp.service;
 
 import ProgressoApp.dto.request.TaskRequestDTO;
+import ProgressoApp.model.Project;
 import ProgressoApp.model.Task;
 import ProgressoApp.repository.ProjectRepository;
 import ProgressoApp.repository.TaskRepository;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class TaskService {
@@ -22,8 +25,9 @@ public class TaskService {
   }
 
 
-  public Optional<Task> getTaskById(Long id) {
-    return taskRepository.findById(id);
+  public Task findById(long id) {
+    return taskRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
   }
 
 

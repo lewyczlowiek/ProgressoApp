@@ -2,15 +2,18 @@ package ProgressoApp.service;
 
 import ProgressoApp.dto.request.RegisterDTO;
 import ProgressoApp.model.Role;
+import ProgressoApp.model.Task;
 import ProgressoApp.model.User;
 import ProgressoApp.repository.UserRepository;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService implements UserDetailsService {
@@ -39,6 +42,10 @@ public class UserService implements UserDetailsService {
     userRepository.save(user);
   }
 
+  public User findById(long id) {
+    return userRepository.findById(id)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+  }
 
   public Optional<User>
   findByEmail(String email) {
@@ -50,4 +57,6 @@ public class UserService implements UserDetailsService {
     return userRepository.findByEmail(username)
         .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
   }
+
+
 }

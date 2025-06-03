@@ -78,6 +78,22 @@ public class Project implements Serializable {
     );
   }
 
+  public Set<User> getUsers() {
+    return users;
+  }
+
+  public void setUsers(Set<User> users) {
+    this.users = users;
+  }
+
+  public List<Task> getTasks() {
+    return tasks;
+  }
+
+  public void setTasks(List<Task> tasks) {
+    this.tasks = tasks;
+  }
+
   public Long getProjectId() {
     return projectId;
   }
