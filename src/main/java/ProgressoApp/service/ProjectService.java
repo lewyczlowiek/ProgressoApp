@@ -6,6 +6,7 @@ import ProgressoApp.model.Project;
 import ProgressoApp.model.Task;
 import ProgressoApp.model.User;
 import ProgressoApp.repository.ProjectRepository;
+import ProgressoApp.repository.TaskRepository;
 import ProgressoApp.utils.ProjectSpecification;
 import ProgressoApp.utils.SearchCriteria;
 import java.util.ArrayList;
@@ -33,14 +34,14 @@ public class ProjectService {
 
   private final ProjectRepository projectRepository;
   private final UserService userService;
-  private final TaskService taskService;
+  private final TaskRepository taskRepository;
 
   @Autowired
-  public ProjectService(ProjectRepository projectRepository, TaskService taskService,
+  public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository,
       UserService userService) {
     this.projectRepository = projectRepository;
     this.userService = userService;
-    this.taskService = taskService;
+    this.taskRepository = taskRepository;
   }
 
   public Project createProject(ProjectRequestDTO projectdto) {
@@ -107,7 +108,8 @@ public class ProjectService {
       }
       List<Task> updatedTasks = projectDTO.tasks().stream()
           .map(taskDto -> {
-            Task task = taskService.findById(taskDto.id());
+            Task task = taskRepository.findById(taskDto.id())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
             task.setProject(project);
             return task;
           })

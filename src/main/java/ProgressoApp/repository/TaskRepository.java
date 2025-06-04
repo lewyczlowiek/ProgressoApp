@@ -1,12 +1,12 @@
 package ProgressoApp.repository;
 
 import ProgressoApp.model.Task;
+import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
-
-@Repository
-public interface TaskRepository extends JpaRepository<Task, Long> {
- List<Task> findByProject_ProjectId(Long projectId);
+public interface TaskRepository extends JpaRepository<Task, Long>, JpaSpecificationExecutor<Task> {
+       Page<Task> findAll(Specification<Task> spec, Pageable pageable);
 }
