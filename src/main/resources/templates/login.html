@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>Strona Logowania</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <div class="login-container">
   <h2>Logowanie</h2>
   <form id="login-form" role="form">
+
     <div class="input-group">
       <label for="username">Email</label>
       <input class="input-field" id="username" name="username" required type="text">
@@ -31,7 +31,9 @@
     <a class="forgot-password" href="/auth/register">Zapomniałeś hasła?</a>
     <a class="register-link" href="/auth/register">Zarejestruj się</a>
   </div>
+
 </div>
+</body>
 
 <script>
   // Pobieramy formularz
@@ -46,26 +48,26 @@
 
     // Tworzymy obiekt JSON
     const loginData = {
-      username: username,
+      email: username,
       password: password,
-      remember: remember
     };
 
     // Wysyłamy dane za pomocą fetch
     try {
-      const response = await fetch('/auth/login/add', {
+      const response = await fetch('/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(loginData)
+        body: JSON.stringify(loginData),
+        credentials: 'include'
       });
 
       if (response.ok) {
-        // Jeśli odpowiedź jest ok, przekierowujemy lub pokazujemy sukces
-        window.location.href = '/auth/login/success'; // lub inna strona po udanym logowaniu
+        const data = await response.json();
+        localStorage.setItem('jwtToken', data.accessToken);
+        window.location.href = '/';
       } else {
-        // Jeśli coś poszło nie tak, wyświetlamy komunikat o błędzie
         alert('Nie udało się zalogować. Sprawdź dane logowania.');
       }
     } catch (error) {
@@ -74,5 +76,114 @@
     }
   });
 </script>
-</body>
-</html>
+
+<style>
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+  }
+
+  .login-container {
+    background-color: white;
+    padding: 2.5rem;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 380px;
+  }
+
+  h2 {
+    margin-bottom: 1.5rem;
+    color: #2c3e50;
+    font-size: 1.8rem;
+    text-align: center;
+  }
+
+  .input-group {
+    margin-bottom: 1.2rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+
+  .input-field {
+    width: 100%;
+    padding: 0.8rem;
+    border: 2px solid #e1e1e1;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .input-field:focus {
+    border-color: #3498db;
+    outline: none;
+  }
+
+  .remember-me {
+    display: flex;
+    align-items: center;
+    margin: 1rem 0;
+  }
+
+  .remember-me input[type="checkbox"] {
+    margin-right: 0.5rem;
+  }
+
+  .login-button {
+    width: 100%;
+    padding: 0.8rem;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .login-button:hover {
+    background-color: #2980b9;
+  }
+
+  .links {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+  }
+
+  .links a {
+    color: #3498db;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+
+  .links a:hover {
+    color: #2980b9;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 480px) {
+    .login-container {
+      width: 90%;
+      padding: 1.5rem;
+    }
+  }
+</style>

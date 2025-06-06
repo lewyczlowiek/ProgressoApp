@@ -26,14 +26,15 @@ public class SecurityWebConfig {
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    return http// Apply CORS filter
+    return http
+        .cors(AbstractHttpConfigurer::disable)
         .csrf(AbstractHttpConfigurer::disable) // Disable CSRF (since we're using stateless JWT)
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/auth/login", "/auth/register", "/auth/**", "/**")
             .permitAll()  // Allow unauthenticated access
             .anyRequest().authenticated())  // All other endpoints require authentication
         .sessionManagement(session -> session
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Stateless, no sessions
+            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
         .addFilterBefore(jwtAuthFilter,
             UsernamePasswordAuthenticationFilter.class)  // Add JWT filter
         .build();

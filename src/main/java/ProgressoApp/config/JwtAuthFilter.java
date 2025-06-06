@@ -1,8 +1,13 @@
 package ProgressoApp.config;
 
-import java.io.IOException;
+import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,12 +15,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import io.jsonwebtoken.ExpiredJwtException;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+
+import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
@@ -24,11 +25,21 @@ public class JwtAuthFilter extends OncePerRequestFilter {
   private final JwtService jwtService;
   private final UserDetailsService userDetailsService;
 
+  private String getTokenFromCookies(HttpServletRequest request) {
+    if (request.getCookies() != null) {
+      for (Cookie cookie : request.getCookies()) {
+        if ("jwtToken".equals(cookie.getName())) {
+          return cookie.getValue();
+        }
+      }
+    }
+    return null;
+  }
+
   @Override
   protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
       FilterChain filterChain) throws ServletException, IOException {
 
-    // Skip the filter for login, register, and other public endpoints
     if (request.getRequestURI().startsWith("/auth/")) {
       filterChain.doFilter(request, response);
       return;
@@ -37,31 +48,36 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
     final String prefix = "Bearer ";
 
-    // Skip request if no Authorization header or if it's not a Bearer token
-    if (authHeader == null || !authHeader.startsWith(prefix)) {
+    String token = null;
+
+    if (authHeader != null && authHeader.startsWith(prefix)) {
+      token = authHeader.substring(prefix.length());
+    } else {
+      token = getTokenFromCookies(request);
+    }
+
+    if (token == null) {
       filterChain.doFilter(request, response);
       return;
     }
 
-    final String token = authHeader.substring(prefix.length());
-
     try {
-      final String userName = jwtService.extractUserNameFromAccessToken(token);
+      String username = jwtService.extractUserNameFromAccessToken(token);
 
-      if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-        UserDetails userDetails = this.userDetailsService.loadUserByUsername(userName);
+      if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
         if (jwtService.isAccessTokenValid(token, userDetails)) {
           UsernamePasswordAuthenticationToken authToken =
               new UsernamePasswordAuthenticationToken(userDetails, null,
                   userDetails.getAuthorities());
           authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-          // Set authentication context
           SecurityContextHolder.getContext().setAuthentication(authToken);
         }
       }
     } catch (ExpiredJwtException e) {
-      response.setStatus(HttpStatus.UNAUTHORIZED.value());
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       return;
     }
 
