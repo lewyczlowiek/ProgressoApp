@@ -5,6 +5,7 @@ import ProgressoApp.model.Role;
 import ProgressoApp.model.Task;
 import ProgressoApp.model.User;
 import ProgressoApp.repository.UserRepository;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -56,6 +57,10 @@ public class UserService implements UserDetailsService {
   public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
     return userRepository.findByEmail(username)
         .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
+  }
+
+  public List<User> findAll() {
+    return userRepository.findAll();
   }
 
 

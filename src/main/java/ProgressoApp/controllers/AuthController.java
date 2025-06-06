@@ -7,6 +7,8 @@ import ProgressoApp.dto.request.LoginDTO;
 import ProgressoApp.dto.request.RegisterDTO;
 import ProgressoApp.model.User;
 import ProgressoApp.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import java.util.Optional;
@@ -76,8 +78,8 @@ public class AuthController {
 
 
   @PostMapping("/login")
-  public ResponseEntity<Tokens> login(@RequestBody @Valid LoginDTO loginDTO, BindingResult result,
-      Model model) {
+  public ResponseEntity<?> login(@RequestBody @Valid LoginDTO loginDTO, BindingResult result,
+      HttpServletResponse response) {
     try {
       authenticationManager.authenticate(
           new UsernamePasswordAuthenticationToken(loginDTO.getEmail(), loginDTO.getPassword())
@@ -87,7 +89,6 @@ public class AuthController {
     }
 
     Optional<User> optionalUser = userService.findByEmail(loginDTO.getEmail());
-
     if (optionalUser.isEmpty()) {
       return ResponseEntity.badRequest().build();
     }
@@ -97,12 +98,24 @@ public class AuthController {
     String accessToken = jwtService.generateAccessToken(user);
     String refreshToken = jwtService.generateRefreshToken(user);
 
-    return ResponseEntity.ok(new Tokens(accessToken, refreshToken));
+    // ustaw ciasteczko HttpOnly z accessToken
+    Cookie cookie = new Cookie("jwtToken", accessToken);
+    cookie.setHttpOnly(true);
+    cookie.setSecure(true);  // jeśli masz HTTPS, ustaw true
+    cookie.setPath("/");
+    cookie.setMaxAge(24 * 60 * 60); // 1 dzień
+    response.addCookie(cookie);
+
+    // Możesz też wysłać refresh token w ciele lub w osobnym ciasteczku
+    return ResponseEntity.ok(
+        new Tokens(null, refreshToken)); // access token nie wysyłamy jawnie bo jest w ciasteczku
   }
+
 
   @GetMapping("/logout")
   public String logout(HttpSession session) {
     session.invalidate();
+
     return "redirect:/";
   }
 }
