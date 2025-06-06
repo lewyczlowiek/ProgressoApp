@@ -103,7 +103,7 @@ public class AuthController {
     cookie.setHttpOnly(true);
     cookie.setSecure(true);  // jeśli masz HTTPS, ustaw true
     cookie.setPath("/");
-    cookie.setMaxAge(24 * 60 * 60); // 1 dzień
+    cookie.setMaxAge(60 * 60); // 1 dzień
     response.addCookie(cookie);
 
     // Możesz też wysłać refresh token w ciele lub w osobnym ciasteczku
