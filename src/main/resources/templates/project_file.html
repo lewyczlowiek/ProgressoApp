@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formularz Projektu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        #addProjectForm {
+            max-width: 700px;
+            width: 100%;
+            margin: 20px;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+        }
+
+        #addProjectForm:hover {
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control,
+        .form-select {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #5cb85c;
+            outline: none;
+            box-shadow: 0 0 8px rgba(92, 184, 92, 0.3);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .mb-3 {
+            margin-bottom: 35px;
+        }
+
+        .form-buttons {
+            text-align: right;
+            margin-top: 30px;
+        }
+
+        .form-buttons button,
+        .form-buttons a {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-left: 15px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .form-buttons button.add {
+            background-color: #5cb85c;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-buttons button.add:hover {
+            background-color: #4cae4c;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-buttons a.btn-danger {
+            background-color: #f44336;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-buttons a.btn-danger:hover {
+            background-color: #d32f2f;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .form-buttons i {
+            margin-right: 8px;
+        }
+    </style>
+</head>
+<body>
+
+<form id="addProjectForm" th:action="@{/projects/add}" method="post" th:object="${project}">
+    <div class="mb-3">
+        <label class="form-label" for="projectTitle">Tytuł projektu</label>
+        <input class="form-control" id="projectTitle" type="text" th:field="*{name}" required>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="projectDescription">Opis projektu</label>
+        <textarea class="form-control" id="projectDescription" rows="3" th:field="*{description}"></textarea>
+    </div>
+    <div class="mb-3">
+        <label class="form-label" for="projectWeight">Waga projektu (1-10)</label>
+        <select class="form-select" id="projectWeight" th:field="*{weight}">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+        </select>
+    </div>
+
+    <div class="form-buttons">
+        <a class="btn btn-danger" th:href="@{/projects}">
+            <i class="fas fa-sign-out-alt me-1"></i> Cofnij
+        </a>
+        <button type="submit" class="add">Dodaj</button>
+    </div>
+</form>
+
+</body>
+</html>
