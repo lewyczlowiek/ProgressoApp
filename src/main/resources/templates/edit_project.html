@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formularz Projektu</title>
+    <title>Edycja Projektu</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
@@ -17,7 +17,7 @@
             min-height: 100vh;
         }
 
-        #addProjectForm {
+        #editProjectForm {
             max-width: 700px;
             width: 100%;
             margin: 20px;
@@ -28,7 +28,7 @@
             transition: all 0.3s ease;
         }
 
-        #addProjectForm:hover {
+        #editProjectForm:hover {
             box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
         }
 
@@ -87,13 +87,13 @@
             justify-content: center;
         }
 
-        .form-buttons button.add {
+        .form-buttons button.update {
             background-color: #5cb85c;
             color: white;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .form-buttons button.add:hover {
+        .form-buttons button.update:hover {
             background-color: #4cae4c;
             box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
         }
@@ -116,7 +116,8 @@
 </head>
 <body>
 
-<form id="addProjectForm" th:action="@{/api/project/add}" method="post" th:object="${project}">
+<!-- Formularz edycji projektu -->
+<form id="editProjectForm" th:action="@{/api/project/{id}/edit(id=${project.projectId})}" method="post" th:object="${project}">
     <div class="mb-3">
         <label class="form-label" for="projectTitle">Tytuł projektu</label>
         <input class="form-control" id="projectTitle" type="text" th:field="*{name}" required>
@@ -130,7 +131,7 @@
         <a class="btn btn-danger" th:href="@{/}">
             <i class="fas fa-sign-out-alt me-1"></i> Cofnij
         </a>
-        <button type="submit" class="add">Dodaj</button>
+        <button type="submit" class="update">Zaktualizuj</button>
     </div>
 </form>
 

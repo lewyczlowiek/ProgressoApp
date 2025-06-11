@@ -9,24 +9,17 @@ import ProgressoApp.repository.ProjectRepository;
 import ProgressoApp.repository.TaskRepository;
 import ProgressoApp.utils.ProjectSpecification;
 import ProgressoApp.utils.SearchCriteria;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import jakarta.transaction.Transactional;
-import java.util.Set;
-import java.util.stream.Collectors;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -37,8 +30,7 @@ public class ProjectService {
   private final TaskRepository taskRepository;
 
   @Autowired
-  public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository,
-      UserService userService) {
+  public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository, UserService userService) {
     this.projectRepository = projectRepository;
     this.userService = userService;
     this.taskRepository = taskRepository;
@@ -49,21 +41,19 @@ public class ProjectService {
     return projectRepository.save(project);
   }
 
-
   public Page<ProjectResponseDTO> getAllProjects(Pageable pageable) {
     Page<Project> page = projectRepository.findAll(pageable);
     return page.map(Project::toProjectResponseDTO);
   }
 
-  public Page<ProjectResponseDTO> getAllProjectsWithParams(Map<String, Object> filter,
-      Pageable pageable) {
+  public Page<ProjectResponseDTO> getAllProjectsWithParams(Map<String, Object> filter, Pageable pageable) {
     List<Specification<Project>> specs = filter.entrySet().stream()
-        .map(entry -> (Specification<Project>) new ProjectSpecification(
-            new SearchCriteria(entry.getKey(), entry.getValue())))
-        .toList();
+            .map(entry -> (Specification<Project>) new ProjectSpecification(
+                    new SearchCriteria(entry.getKey(), entry.getValue())))
+            .toList();
 
     Specification<Project> finalSpec = specs.stream()
-        .reduce(Specification.where(null), Specification::and);
+            .reduce(Specification.where(null), Specification::and);
 
     Page<Project> page = projectRepository.findAll(finalSpec, pageable);
     return page.map(Project::toProjectResponseDTO);
@@ -71,16 +61,17 @@ public class ProjectService {
 
   public Project findById(long id) {
     return projectRepository.findByProjectId(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
   }
 
   public Project updateProject(long id, ProjectRequestDTO projectDTO) {
     Project project = projectRepository.findByProjectId(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
 
+    // Aktualizacja danych projektu
     project.setName(projectDTO.name());
     project.setDescription(projectDTO.description());
-    
+
     if (projectDTO.users() != null) {
       Set<User> existingUsers = project.getUsers();
       if (existingUsers == null) {
@@ -90,8 +81,57 @@ public class ProjectService {
         existingUsers.clear();
       }
       Set<User> updatedUsers = projectDTO.users().stream()
-          .map(userDto -> userService.findById(userDto.userId()))
-          .collect(Collectors.toSet());
+              .map(userDto -> userService.findById(userDto.userId()))
+              .collect(Collectors.toSet());
+      existingUsers.addAll(updatedUsers);
+    } else {
+      project.getUsers().clear();
+    }
+
+    // Aktualizacja zadań
+    if (projectDTO.tasks() != null) {
+      List<Task> existingTasks = project.getTasks();
+      if (existingTasks == null) {
+        existingTasks = new ArrayList<>();
+        project.setTasks(existingTasks);
+      } else {
+        existingTasks.clear();
+      }
+      List<Task> updatedTasks = projectDTO.tasks().stream()
+              .map(taskDto -> {
+                Task task = taskRepository.findById(taskDto.id())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+                task.setProject(project);
+                return task;
+              })
+              .collect(Collectors.toList());
+      existingTasks.addAll(updatedTasks);
+    } else {
+      project.getTasks().clear();
+    }
+
+    return projectRepository.save(project);
+  }
+
+
+ /* public Project updateProject(long id, ProjectRequestDTO projectDTO) {
+    Project project = projectRepository.findByProjectId(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+
+    project.setName(projectDTO.name());
+    project.setDescription(projectDTO.description());
+
+    if (projectDTO.users() != null) {
+      Set<User> existingUsers = project.getUsers();
+      if (existingUsers == null) {
+        existingUsers = new HashSet<>();
+        project.setUsers(existingUsers);
+      } else {
+        existingUsers.clear();
+      }
+      Set<User> updatedUsers = projectDTO.users().stream()
+              .map(userDto -> userService.findById(userDto.userId()))
+              .collect(Collectors.toSet());
       existingUsers.addAll(updatedUsers);
     } else {
       project.getUsers().clear();
@@ -107,31 +147,34 @@ public class ProjectService {
         existingTasks.clear();
       }
       List<Task> updatedTasks = projectDTO.tasks().stream()
-          .map(taskDto -> {
-            Task task = taskRepository.findById(taskDto.id())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
-            task.setProject(project);
-            return task;
-          })
-          .collect(Collectors.toList());
+              .map(taskDto -> {
+                Task task = taskRepository.findById(taskDto.id())
+                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+                task.setProject(project);
+                return task;
+              })
+              .collect(Collectors.toList());
       existingTasks.addAll(updatedTasks);
     } else {
       project.getTasks().clear();
     }
 
     return projectRepository.save(project);
+  }*/
+
+
+  public void deleteProject(long id) {
+    Project project = projectRepository.findByProjectId(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+
+    projectRepository.delete(project);  // Usuwanie projektu z repozytorium
   }
 
 
-  public Project deleteProject(long id) {
-    Project project = projectRepository.findByProjectId(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
 
-    // Usuń powiązania z użytkownikami przed usunięciem projektu
-    project.getUsers().clear();
-
-    projectRepository.delete(project);
-    return project;
+  public Project findProjectById(long id) {
+    return projectRepository.findByProjectId(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
   }
 
 }
