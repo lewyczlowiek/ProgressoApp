@@ -1,35 +1,42 @@
 <!DOCTYPE html>
-<html lang="pl">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>Strona Logowania</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <div class="login-container">
   <h2>Logowanie</h2>
-  <form action="login.php" method="POST">
+  <form method="post" role="form" th:action="@{/auth/login}" th:object="${login}">
+
     <div class="input-group">
-      <label for="username">Nazwa użytkownika</label>
-      <input type="text" id="username" name="username" class="input-field" required>
+      <label for="username">Email</label>
+      <input class="input-field" id="username" name="username" required type="text">
     </div>
+
     <div class="input-group">
       <label for="password">Hasło</label>
-      <input type="password" id="password" name="password" class="input-field" required>
+      <input class="input-field" id="password" name="password" required type="password">
     </div>
+
     <div class="remember-me">
-      <input type="checkbox" id="remember" name="remember">
+      <input id="remember" name="remember" type="checkbox">
       <label for="remember">Zapamiętaj mnie</label>
     </div>
-    <button type="button" class="login-button" onclick="window.location.href='index.html';">Zaloguj się!</button>
+
+    <button class="login-button" type="submit">Zaloguj się</button>
   </form>
   <div class="links">
-    <a href="forgot-password.html" class="forgot-password">Zapomniałeś hasła?</a>
-    <a href="register.html" class="register-link">Zarejestruj się</a>
+    <a class="forgot-password" href="/auth/register">Zapomniałeś hasła?</a>
+    <a class="register-link" href="/auth/register">Zarejestruj się</a>
   </div>
+
 </div>
 </body>
 </html>
+
 
 <style>
   * {

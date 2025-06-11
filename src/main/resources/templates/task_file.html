@@ -1,187 +1,140 @@
 <!DOCTYPE html>
-<html lang="pl">
-
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista Zadań</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-</head>
-
-<body class="bg-light">
-<!-- NAVBAR -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-        <a class="navbar-brand" href="#">
-            <img src="/static/logo_biale.png" alt="Logo" class="logo-img">
-            <span class="brand-text">Project Manager</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-project-diagram me-1"></i> Projekty</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link active" href="#"><i class="fas fa-list-check me-1"></i> Zadania</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-users me-1"></i> Użytkownicy</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-comments me-1"></i> Czat</a>
-                </li>
-            </ul>
-            <div class="d-flex align-items-center">
-                <input class="form-control me-2" type="search" placeholder="Szukaj projektu...">
-                <button class="btn btn-light me-2" type="submit"><i class="fas fa-search"></i></button>
-                <button class="btn btn-outline-light" onclick="logout()">
-                    <i class="fas fa-sign-out-alt me-1"></i> Wyloguj
-                </button>
-            </div>
-        </div>
-    </div>
-</nav>
-
-<!-- TASKS LIST -->
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3"><i class="fas fa-tasks me-2"></i>Lista zadań</h1>
-                <button class="btn btn-primary" onclick="createTask()">
-                    <i class="fas fa-plus me-2"></i>Nowe zadanie
-                </button>
-            </div>
-            <div id="tasks-list" class="list-group shadow-sm">
-                <!-- Example task -->
-                <a href="#" class="list-group-item list-group-item-action">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-1">Zadanie testowe</h5>
-                            <small class="text-muted">Utworzono: 2024-01-20</small>
-                        </div>
-                        <div>
-                            <span class="badge bg-warning me-2">W toku</span>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(this)">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dodaj Zadanie</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    /* Skopiowany i lekko zmodyfikowany styl z formularza projektu */
     body {
-        background-color: #f8f9fa;
-        font-family: 'Segoe UI', sans-serif;
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
     }
 
-    .logo-img {
-        height: 40px;
-        width: auto;
-        margin-right: 10px;
+    #addTaskForm {
+      max-width: 700px;
+      width: 100%;
+      margin: 20px;
+      padding: 40px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
 
-    .navbar {
-        box-shadow: 0 2px 8px rgba(0,0,0,.15);
-        padding: 0.8rem 0;
+    .form-label {
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 8px;
+      display: block;
     }
 
-    .nav-link {
-        padding: 0.8rem 1.2rem !important;
-        transition: all 0.2s ease;
-        margin: 0 0.2rem;
-        border-radius: 6px;
+    .form-control,
+    .form-select {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      font-size: 16px;
+      box-sizing: border-box;
     }
 
-    .form-control {
-        border-radius: 20px;
-        padding: 0.5rem 1rem;
-        width: 250px;
+    textarea.form-control {
+      resize: vertical;
+      min-height: 120px;
     }
 
-    .list-group-item {
-        border-left: 4px solid transparent;
-        transition: all 0.2s ease;
-        padding: 1rem;
-        margin-bottom: 0.5rem;
-        border-radius: 8px !important;
+    .form-buttons {
+      text-align: right;
+      margin-top: 30px;
     }
 
-    .list-group-item:hover {
-        border-left-color: #0d6efd;
-        background-color: #f8f9fa;
-        transform: translateX(3px);
-        box-shadow: 0 2px 5px rgba(0,0,0,.08);
+    .form-buttons button,
+    .form-buttons a {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-left: 15px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .badge {
-        padding: 0.6em 1em;
-        font-weight: 500;
-        border-radius: 20px;
+    .form-buttons button.add {
+      background-color: #5cb85c;
+      color: white;
     }
 
-    .btn-outline-danger {
-        opacity: 0.7;
-        transition: all 0.2s ease;
+    .form-buttons button.add:hover {
+      background-color: #4cae4c;
     }
 
-    .btn-outline-danger:hover {
-        opacity: 1;
-        background-color: #dc3545;
-        color: white;
-    }
-</style>
-
-<script>
-    function logout() {
-        if (confirm("Czy na pewno chcesz się wylogować?")) {
-            window.location.href = "login.html";
-        }
+    .form-buttons a.btn-danger {
+      background-color: #f44336;
+      color: white;
     }
 
-    function createTask() {
-        const taskName = prompt("Podaj nazwę nowego zadania:");
-        if (taskName) {
-            const tasksList = document.getElementById("tasks-list");
-            const currentDate = new Date().toISOString().split('T')[0];
-
-            const newTask = document.createElement("a");
-            newTask.href = "#";
-            newTask.className = "list-group-item list-group-item-action";
-            newTask.innerHTML = `
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="mb-1">${taskName}</h5>
-                        <small class="text-muted">Utworzono: ${currentDate}</small>
-                    </div>
-                    <div>
-                        <span class="badge bg-warning me-2">W toku</span>
-                        <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(this)">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `;
-            tasksList.insertBefore(newTask, tasksList.firstChild);
-        }
+    .form-buttons a.btn-danger:hover {
+      background-color: #d32f2f;
     }
 
-    function deleteTask(button) {
-        if (confirm("Czy na pewno chcesz usunąć to zadanie?")) {
-            button.closest('.list-group-item').remove();
-        }
+    .form-buttons i {
+      margin-right: 8px;
     }
-</script>
+  </style>
+</head>
+<body>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<form id="addTaskForm" th:action="@{/tasks/add}" method="post" th:object="${task}">
+  <div class="mb-3">
+    <label class="form-label" for="taskTitle">Nazwa zadania</label>
+    <input class="form-control" id="taskTitle" type="text" th:field="*{title}" required>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label" for="taskDescription">Opis</label>
+    <textarea class="form-control" id="taskDescription" th:field="*{description}"></textarea>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label" for="dueDate">Termin wykonania</label>
+    <input class="form-control" id="dueDate" type="date" th:field="*{dueDate}" required>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label" for="status">Status</label>
+    <select class="form-select" id="status" th:field="*{status}">
+      <option value="NOWE">Nowe</option>
+      <option value="WTOKU">W toku</option>
+      <option value="ZAKONCZONE">Zakończone</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label" for="assignedUser">Przypisany użytkownik</label>
+    <input class="form-control" id="assignedUser" type="text" placeholder="np. Jan Kowalski" th:field="*{assignedTo}">
+    <!-- Można tu dać select z użytkownikami z backendu -->
+  </div>
+
+  <div class="form-buttons">
+    <a class="btn btn-danger" th:href="@{/tasks}">
+      <i class="fas fa-sign-out-alt"></i> Cofnij
+    </a>
+    <button type="submit" class="add">
+      <i class="fas fa-check"></i> Dodaj zadanie
+    </button>
+  </div>
+</form>
+
 </body>
-
 </html>
