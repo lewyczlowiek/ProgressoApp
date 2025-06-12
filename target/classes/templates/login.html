@@ -1,15 +1,14 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+
 <head>
   <meta charset="UTF-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>Strona Logowania</title>
-  <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
 <div class="login-container">
   <h2>Logowanie</h2>
-  <form method="post" role="form" th:action="@{/auth/login}" th:object="${login}">
+  <form id="login-form" role="form">
 
     <div class="input-group">
       <label for="username">Email</label>
@@ -25,7 +24,6 @@
       <input id="remember" name="remember" type="checkbox">
       <label for="remember">Zapamiętaj mnie</label>
     </div>
-
     <button class="login-button" type="submit">Zaloguj się</button>
   </form>
   <div class="links">
@@ -35,8 +33,48 @@
 
 </div>
 </body>
-</html>
 
+<script>
+  // Pobieramy formularz
+  const loginForm = document.getElementById('login-form');
+
+  loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();  // Zapobiegamy domyślnemu przesyłaniu formularza
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const remember = document.getElementById('remember').checked;
+
+    // Tworzymy obiekt JSON
+    const loginData = {
+      email: username,
+      password: password,
+    };
+
+    // Wysyłamy dane za pomocą fetch
+    try {
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(loginData),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('jwtToken', data.accessToken);
+        window.location.href = '/index';
+      } else {
+        alert('Nie udało się zalogować. Sprawdź dane logowania.');
+      }
+    } catch (error) {
+      alert('Wystąpił błąd podczas logowania.');
+      console.error(error);
+    }
+  });
+</script>
 
 <style>
   * {
