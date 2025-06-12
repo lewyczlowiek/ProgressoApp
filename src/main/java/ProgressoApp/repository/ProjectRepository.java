@@ -15,5 +15,7 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
   Optional<Project> findByProjectId(Long projectId);
 
   <T> Page<Project> findAll(Specification<T> tSpecification, Pageable pageable);
+  Page<Project> findByNameContainingIgnoreCase(String name, Pageable pageable);
+
 }
 

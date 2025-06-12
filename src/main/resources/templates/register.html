@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
   <title>Rejestracja</title>
@@ -56,6 +56,83 @@
   </form>
   <a href="/auth/login">Masz już konto? Zaloguj się</a>
 </div>
+</body>
+<script>
+  // Pobieramy formularz
+  const registerForm = document.querySelector('form');
+
+  registerForm.addEventListener('submit', (event) => {
+    // Sprawdzamy, czy pole "terms" jest zaznaczone
+    const termsCheckbox = document.getElementById('terms');
+    if (!termsCheckbox.checked) {
+      event.preventDefault();  // Zapobiegamy wysłaniu formularza
+      alert('Musisz zaakceptować regulamin i politykę prywatności!');
+    }
+  });
+</script>
+
+</html>-->
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Rejestracja</title>
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="register-container">
+  <div th:if="${param.success}">
+    <div class="alert alert-info">
+      You've registered successfully
+    </div>
+  </div>
+  <h2>Rejestracja</h2>
+  <form method="post" role="form" th:action="@{/auth/register/save}" th:object="${user}">
+    <div class="input-group">
+      <label for="firstName">Imię</label>
+      <input class="input-field" id="firstName" name="firstName" required th:field="*{firstName}" type="text">
+    </div>
+    <div class="input-group">
+      <label for="lastName">Nazwisko</label>
+      <input class="input-field" id="lastName" name="lastName" required th:field="*{lastName}" type="text">
+    </div>
+    <div class="input-group">
+      <label for="email">Adres e-mail</label>
+      <input class="input-field" id="email" name="email" required th:field="*{email}" type="email">
+    </div>
+    <div class="input-group">
+      <label for="numberIndex">Numer Indeksu:</label>
+      <input class="input-field" id="numberIndex" name="numberIndex" required th:field="*{numberIndex}" type="text">
+    </div>
+    <div class="input-group">
+      <label for="password">Hasło</label>
+      <input class="input-field" id="password" name="password" required th:field="*{password}" type="password">
+    </div>
+    <div class="input-group">
+      <label for="confirm-password">Potwierdź hasło</label>
+      <input class="input-field" id="confirm-password" name="confirm-password" required type="password">
+    </div>
+    <div class="terms">
+      <input id="terms" name="terms" required type="checkbox">
+      <label for="terms">Akceptuję <a href="privacy-policy" target="_blank">regulamin i politykę prywatności</a></label>
+    </div>
+    <button class="register-button" type="submit">Zarejestruj się</button>
+  </form>
+  <a href="/auth/login">Masz już konto? Zaloguj się</a>
+</div>
+
+<script>
+  // Walidacja formularza
+  const registerForm = document.querySelector('form');
+
+  registerForm.addEventListener('submit', function(event) {
+    const termsCheckbox = document.getElementById('terms');
+    if (!termsCheckbox.checked) {
+      event.preventDefault();
+      alert('Musisz zaakceptować regulamin i politykę prywatności!');
+    }
+  });
+</script>
 </body>
 </html>
 

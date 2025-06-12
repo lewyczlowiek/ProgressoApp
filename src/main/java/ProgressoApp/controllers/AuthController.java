@@ -118,4 +118,8 @@ public class AuthController {
 
     return "redirect:/";
   }
+  @GetMapping("/privacy-policy.html")
+  public String privacyPolicy() {
+    return "privacy-policy";
+  }
 }

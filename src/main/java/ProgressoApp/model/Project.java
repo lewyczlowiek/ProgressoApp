@@ -62,7 +62,7 @@ public class Project implements Serializable {
   public Project(ProjectRequestDTO dto) {
     this.name = dto.name();
     this.description = dto.description();
-    this.creationTimestamp = dto.creationTimestamp();
+    //this.creationTimestamp = dto.creationTimestamp();
 
   }
 

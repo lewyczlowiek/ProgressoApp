@@ -9,41 +9,51 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/navbar.css}">
     <style>
-        /* Dodatkowe style dla lepszego wyglądu */
         .btn-primary {
             background-color: #007bff;
             border-color: #007bff;
         }
-
         .btn-primary:hover {
             background-color: #0056b3;
             border-color: #0056b3;
         }
-
         .btn-outline-secondary:hover {
             background-color: #6c757d;
             border-color: #6c757d;
             color: white;
         }
-
         .btn-outline-danger:hover {
             background-color: #dc3545;
             border-color: #dc3545;
             color: white;
         }
-
+        .btn-outline-primary:hover {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+            color: white;
+        }
+        .btn-info {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+            color: white;
+        }
+        .btn-info:hover {
+            background-color: #138496;
+            border-color: #138496;
+        }
         .list-group-item-action:hover {
             background-color: #f8f9fa;
         }
-
         .list-group-item-action {
             transition: background-color 0.3s ease;
         }
-
-        /* Style dla przycisków obok siebie */
         .button-group {
             display: flex;
-            gap: 0.5rem; /* Odstęp między przyciskami */
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .header-row {
+            margin-bottom: 2rem;
         }
     </style>
 </head>
@@ -52,34 +62,66 @@
 <main class="container mt-4">
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3"><i class="fas fa-folder-open me-2"></i>Lista projektów</h1>
-                <div>
-                    <a class="btn btn-primary" th:href="@{/api/project/add}" role="button">
-                        <i class="fas fa-plus me-1"></i> Nowy Projekt
-                    </a>
-                </div>
+            &lt;!&ndash; Nagłówek + przycisk Nowy Projekt &ndash;&gt;
+            <div class="d-flex justify-content-between align-items-center header-row">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-folder-open me-2"></i>
+                    Lista projektów
+                </h1>
+                <a class="btn btn-primary" th:href="@{/api/project/add}" role="button">
+                    <i class="fas fa-plus me-1"></i>
+                    Nowy Projekt
+                </a>
             </div>
+
+            &lt;!&ndash; Filtrowanie projektów po nazwie &ndash;&gt;
+            <form class="mb-3" method="get" th:action="@{/api/project/}">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search"
+                           th:value="${param.search}" placeholder="Szukaj projektu po nazwie...">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="fas fa-search"></i> Szukaj
+                    </button>
+                </div>
+            </form>
+
+            &lt;!&ndash; Lista projektów &ndash;&gt;
             <div class="list-group shadow-sm" id="projects-list">
                 <th:block th:each="project : ${projects}">
-                    <a class="list-group-item list-group-item-action" href="#" role="button">
+                    <div class="list-group-item list-group-item-action p-3 mb-2">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h5 class="mb-1" th:text="${project.name}">Nazwa Projektu</h5>
-                                <small class="text-muted" th:text="${#temporals.format(project.creationTimestamp, 'yyyy-MM-dd HH:mm')}">Utworzono: 2025-06-10</small>
+                                <small class="text-muted" th:text="${#temporals.format(project.creationTimestamp, 'yyyy-MM-dd HH:mm')}"></small>
                             </div>
                             <div class="button-group">
+                                &lt;!&ndash; Przycisk szczegółów &ndash;&gt;
+                                <a class="btn btn-sm btn-info"
+                                   th:href="@{/api/project/details/{id}(id=${project.projectId})}" role="button">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Szczegóły
+                                </a>
                                 &lt;!&ndash; Przycisk edycji &ndash;&gt;
-                                <a class="btn btn-sm btn-outline-secondary" th:href="@{/api/project/edit/{id}(id=${project.projectId})}" role="button">
-                                    <i class="fas fa-edit me-2"></i> Edytuj
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   th:href="@{/api/project/edit/{id}(id=${project.projectId})}" role="button">
+                                    <i class="fas fa-edit me-1"></i>
+                                    Edytuj
+                                </a>
+                                &lt;!&ndash; Przycisk dodawania osób &ndash;&gt;
+                                <a class="btn btn-sm btn-outline-primary"
+                                   th:href="@{/api/project/add-person/{id}(id=${project.projectId})}" role="button">
+                                    <i class="fas fa-user-plus me-1"></i>
+                                    Dodaj osoby
                                 </a>
                                 &lt;!&ndash; Przycisk usuwania &ndash;&gt;
-                                <a class="btn btn-sm btn-outline-danger" th:href="@{/api/project/delete/{id}(id=${project.projectId})}" role="button">
-                                    <i class="fas fa-trash me-2"></i> Usuń
+                                <a class="btn btn-sm btn-outline-danger"
+                                   th:href="@{/api/project/delete/{id}(id=${project.projectId})}" role="button">
+                                    <i class="fas fa-trash me-1"></i>
+                                    Usuń
                                 </a>
                             </div>
                         </div>
-                    </a>
+                    </div>
                 </th:block>
             </div>
         </div>
@@ -102,81 +144,100 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" th:href="@{/navbar.css}">
     <style>
-        /* Dodatkowe style dla lepszego wyglądu */
-        .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
-        }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
-        }
-
-        .btn-outline-secondary:hover {
-            background-color: #6c757d;
-            border-color: #6c757d;
-            color: white;
-        }
-
-        .btn-outline-danger:hover {
-            background-color: #dc3545;
-            border-color: #dc3545;
-            color: white;
-        }
-
-        .list-group-item-action:hover {
-            background-color: #f8f9fa;
-        }
-
-        .list-group-item-action {
-            transition: background-color 0.3s ease;
-        }
-
-        /* Style dla przycisków obok siebie */
-        .button-group {
-            display: flex;
-            gap: 0.5rem; /* Odstęp między przyciskami */
-        }
+        .btn-primary { background-color: #007bff; border-color: #007bff; }
+        .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
+        .btn-outline-secondary:hover { background-color: #6c757d; border-color: #6c757d; color: white; }
+        .btn-outline-danger:hover { background-color: #dc3545; border-color: #dc3545; color: white; }
+        .btn-outline-primary:hover { background-color: #0d6efd; border-color: #0d6efd; color: white; }
+        .btn-info { background-color: #17a2b8; border-color: #17a2b8; color: white; }
+        .btn-info:hover { background-color: #138496; border-color: #138496; }
+        .list-group-item-action:hover { background-color: #f8f9fa; }
+        .list-group-item-action { transition: background-color 0.3s ease; }
+        .button-group { display: flex; gap: 0.5rem; align-items: center; }
+        .header-row { margin-bottom: 2rem; }
     </style>
 </head>
 <body class="bg-light">
-<div th:replace="fragments/navbar :: navbar"></div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 <main class="container mt-4">
     <div class="row">
         <div class="col-lg-8 mx-auto">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3"><i class="fas fa-folder-open me-2"></i>Lista projektów</h1>
-                <div>
-                    <a class="btn btn-primary" th:href="@{/api/project/add}" role="button">
-                        <i class="fas fa-plus me-1"></i> Nowy Projekt
-                    </a>
-                </div>
+            <!-- Nagłówek + przycisk Nowy Projekt -->
+            <div class="d-flex justify-content-between align-items-center header-row">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-folder-open me-2"></i>
+                    Lista projektów
+                </h1>
+                <a class="btn btn-primary" th:href="@{/api/project/add}" role="button">
+                    <i class="fas fa-plus me-1"></i>
+                    Nowy Projekt
+                </a>
             </div>
+
+            <!-- Filtrowanie projektów po nazwie -->
+            <form class="mb-3" method="get" th:action="@{/api/project/}">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search"
+                           th:value="${param.search}" placeholder="Szukaj projektu po nazwie...">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="fas fa-search"></i> Szukaj
+                    </button>
+                </div>
+            </form>
+
+            <!-- Sortowanie projektów -->
+            <div class="mb-3 d-flex gap-2">
+                <span>Sortuj:</span>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/api/project/?sort=name&dir=asc|}">Nazwa A-Z</a>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/api/project/?sort=name&dir=desc|}">Nazwa Z-A</a>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/api/project/?sort=creationTimestamp&dir=desc|}">Najnowsze</a>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/api/project/?sort=creationTimestamp&dir=asc|}">Najstarsze</a>
+            </div>
+
+            <!-- Lista projektów -->
             <div class="list-group shadow-sm" id="projects-list">
                 <th:block th:each="project : ${projects}">
-                    <a class="list-group-item list-group-item-action" href="#" role="button">
+                    <div class="list-group-item list-group-item-action p-3 mb-2">
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h5 class="mb-1" th:text="${project.name}">Nazwa Projektu</h5>
-                                <small class="text-muted" th:text="${#temporals.format(project.creationTimestamp, 'yyyy-MM-dd HH:mm')}">Utworzono: 2025-06-10</small>
+                                <small class="text-muted" th:text="${#temporals.format(project.creationTimestamp, 'yyyy-MM-dd HH:mm')}"></small>
                             </div>
                             <div class="button-group">
+                                <!-- Przycisk szczegółów -->
+                                <a class="btn btn-sm btn-info"
+                                   th:href="@{/api/project/details/{id}(id=${project.projectId})}" role="button">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Szczegóły
+                                </a>
                                 <!-- Przycisk edycji -->
-                                <a class="btn btn-sm btn-outline-secondary" th:href="@{/api/project/edit/{id}(id=${project.projectId})}" role="button">
-                                    <i class="fas fa-edit me-2"></i> Edytuj
+                                <a class="btn btn-sm btn-outline-secondary"
+                                   th:href="@{/api/project/edit/{id}(id=${project.projectId})}" role="button">
+                                    <i class="fas fa-edit me-1"></i>
+                                    Edytuj
                                 </a>
                                 <!-- Przycisk dodawania osób -->
-                                <a class="btn btn-sm btn-outline-primary" th:href="@{/api/project/add-person/{id}(id=${project.projectId})}" role="button">
-                                    <i class="fas fa-user-plus me-2"></i> Dodaj osoby
+                                <a class="btn btn-sm btn-outline-primary"
+                                   th:href="@{/api/project/add-person/{id}(id=${project.projectId})}" role="button">
+                                    <i class="fas fa-user-plus me-1"></i>
+                                    Dodaj osoby
                                 </a>
                                 <!-- Przycisk usuwania -->
-                                <a class="btn btn-sm btn-outline-danger" th:href="@{/api/project/delete/{id}(id=${project.projectId})}" role="button">
-                                    <i class="fas fa-trash me-2"></i> Usuń
+                                <a class="btn btn-sm btn-outline-danger"
+                                   href="#"
+                                   data-bs-toggle="modal"
+                                   data-bs-target="#confirmDeleteModal"
+                                   th:attr="data-delete-url=@{/api/project/delete/{id}(id=${project.projectId})}">
+                                    <i class="fas fa-trash me-1"></i>
+                                    Usuń
                                 </a>
                             </div>
                         </div>
-                    </a>
+                    </div>
                 </th:block>
             </div>
         </div>
@@ -185,5 +246,41 @@
 
 <!-- Bootstrap JS (Bundle - includes Popper.js) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- JavaScript do obsługi linku w modalu -->
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var confirmModal = document.getElementById('confirmDeleteModal');
+        var confirmBtn = document.getElementById('confirmDeleteBtn');
+
+        confirmModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;  // Element, który wywołał modal
+            var deleteUrl = button.getAttribute('data-delete-url');  // Pobieramy URL z atrybutu data-delete-url
+            confirmBtn.setAttribute('href', deleteUrl);  // Ustawiamy URL na przycisku Usuń w modalu
+        });
+    });
+</script>
+
+<!-- Modal potwierdzający usunięcie projektu -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">
+                    Potwierdź usunięcie
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Zamknij"></button>
+            </div>
+            <div class="modal-body">
+                Czy na pewno chcesz usunąć ten projekt?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                <a id="confirmDeleteBtn" class="btn btn-danger" href="#">Usuń</a>
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

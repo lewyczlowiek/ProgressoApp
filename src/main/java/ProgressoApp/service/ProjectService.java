@@ -12,7 +12,9 @@ import ProgressoApp.utils.SearchCriteria;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -175,6 +177,30 @@ public class ProjectService {
   public Project findProjectById(long id) {
     return projectRepository.findByProjectId(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+  }
+
+
+  // Sortowanie i filtrowanie po nazwie (dla widoku i controller'a)
+  public Page<ProjectResponseDTO> getAllProjects(Pageable pageable, String sort, String dir) {
+    Sort.Direction direction = "asc".equalsIgnoreCase(dir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+    Pageable sortedPageable = PageRequest.of(
+            pageable.getPageNumber(),
+            pageable.getPageSize(),
+            Sort.by(direction, sort)
+    );
+    Page<Project> page = projectRepository.findAll(sortedPageable);
+    return page.map(Project::toProjectResponseDTO);
+  }
+
+  public Page<ProjectResponseDTO> getProjectsByNameContaining(String name, Pageable pageable, String sort, String dir) {
+    Sort.Direction direction = "asc".equalsIgnoreCase(dir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+    Pageable sortedPageable = PageRequest.of(
+            pageable.getPageNumber(),
+            pageable.getPageSize(),
+            Sort.by(direction, sort)
+    );
+    Page<Project> page = projectRepository.findByNameContainingIgnoreCase(name, sortedPageable);
+    return page.map(Project::toProjectResponseDTO);
   }
 
 }

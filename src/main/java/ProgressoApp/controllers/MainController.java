@@ -8,17 +8,13 @@ public class MainController {
 
   @GetMapping("/")
   public String homePage() {
-    return "index";
-  }
-
-  @GetMapping("/login")
-  public String loginPage() {
     return "login";
   }
 
-/*    @GetMapping("/chat")
-    public String chatView() {
-      return "chat";
-    }*/
+  @GetMapping("/index")
+  public String loginPage() {
+    return "index";
+  }
+
 
 }
