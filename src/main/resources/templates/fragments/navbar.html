@@ -5,7 +5,7 @@
 <div th:fragment="navbar">
   <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-      <a class="navbar-brand" th:href="@{/}">
+      <a class="navbar-brand" th:href="@{/index}">
         <img alt="Logo" class="logo-img" th:src="@{/logo_biale.png}">
         <span class="brand-text">Project Manager</span>
       </a>
@@ -15,7 +15,7 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav me-auto">
-          <li class="nav-item"><a class="nav-link" th:href="@{/api/project/}">Projekty</a></li>
+          <li class="nav-item"><a class="nav-link" th:href="@{/index}">Projekty</a></li>
           <li class="nav-item"><a class="nav-link" th:href="@{/tasks}">Zadania</a></li>
           <li class="nav-item"><a class="nav-link" th:href="@{/users}">Użytkownicy</a></li>
           <li class="nav-item"><a class="nav-link" id="chat-link" th:href="@{/chat}">Chat</a></li>

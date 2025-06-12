@@ -116,55 +116,6 @@ public class ProjectService {
   }
 
 
- /* public Project updateProject(long id, ProjectRequestDTO projectDTO) {
-    Project project = projectRepository.findByProjectId(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
-
-    project.setName(projectDTO.name());
-    project.setDescription(projectDTO.description());
-
-    if (projectDTO.users() != null) {
-      Set<User> existingUsers = project.getUsers();
-      if (existingUsers == null) {
-        existingUsers = new HashSet<>();
-        project.setUsers(existingUsers);
-      } else {
-        existingUsers.clear();
-      }
-      Set<User> updatedUsers = projectDTO.users().stream()
-              .map(userDto -> userService.findById(userDto.userId()))
-              .collect(Collectors.toSet());
-      existingUsers.addAll(updatedUsers);
-    } else {
-      project.getUsers().clear();
-    }
-
-    // Update tasks (modyfikujemy istniejącą listę)
-    if (projectDTO.tasks() != null) {
-      List<Task> existingTasks = project.getTasks();
-      if (existingTasks == null) {
-        existingTasks = new ArrayList<>();
-        project.setTasks(existingTasks);
-      } else {
-        existingTasks.clear();
-      }
-      List<Task> updatedTasks = projectDTO.tasks().stream()
-              .map(taskDto -> {
-                Task task = taskRepository.findById(taskDto.id())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
-                task.setProject(project);
-                return task;
-              })
-              .collect(Collectors.toList());
-      existingTasks.addAll(updatedTasks);
-    } else {
-      project.getTasks().clear();
-    }
-
-    return projectRepository.save(project);
-  }*/
-
-
   public void deleteProject(long id) {
     Project project = projectRepository.findByProjectId(id)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));

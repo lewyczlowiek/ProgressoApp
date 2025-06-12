@@ -75,11 +75,6 @@ public String showEditProjectForm(@PathVariable long id, Model model) {
     }
   }
 
- /* @DeleteMapping
-  public ResponseEntity<ProjectResponseDTO> deleteProject(@RequestParam long id) {
-    return ResponseEntity.ok(projectService.deleteProject(id).toProjectResponseDTO());
-  }*/
-
   @GetMapping("/add")
   public String showAddProjectForm(Model model) {
     ProjectRequestDTO emptyProject = new ProjectRequestDTO(
@@ -100,48 +95,15 @@ public String showEditProjectForm(@PathVariable long id, Model model) {
     return "redirect:/api/project/";  // Przekierowanie po zapisaniu
   }
 
-/*  @GetMapping("/")
-  public String showProjectsPage(Model model, Pageable pageable) {
-    Page<ProjectResponseDTO> projects = projectService.getAllProjects(pageable);  // Pobierz projekty z serwisu
-    model.addAttribute("projects", projects.getContent());  // Dodaj projekty do modelu
-    return "index";  // Zwróć widok "index.html"
-  }*/
-@GetMapping("/")
-public String showProjectsPage(
-        @RequestParam(value = "search", required = false) String search,
-        @RequestParam(value = "sort", required = false, defaultValue = "creationTimestamp") String sort,
-        @RequestParam(value = "dir", required = false, defaultValue = "desc") String dir,
-        Model model, Pageable pageable) {
-
-  Page<ProjectResponseDTO> projects;
-
-  // W showProjectsPage()
-  if (search != null && !search.isBlank()) {
-    projects = projectService.getProjectsByNameContaining(search, pageable, sort, dir);
-  } else {
-    projects = projectService.getAllProjects(pageable, sort, dir);
-  }
-
-
-  model.addAttribute("projects", projects.getContent());
-  // To pozwoli Thymeleaf wypełnić pole szukania i parametry sortowania
-  Map<String, String> params = new HashMap<>();
-  params.put("search", search != null ? search : "");
-  params.put("sort", sort);
-  params.put("dir", dir);
-  model.addAttribute("param", params);
-
-  return "index";
-}
-
-
   @GetMapping("/delete/{id}")
   public String deleteProject(@PathVariable long id) {
     projectService.deleteProject(id);  // Wywołanie metody usuwania
     return "redirect:/api/project/";   // Przekierowanie po usunięciu projektu
   }
+
+
   @PostMapping("/add-person/{projectId}")
-  public String addUsersToProject(@PathVariable Long projectId, @RequestParam Set<Long> selectedUsers) {
+  public String addUsersToProject(@PathVariable Long projectId, @RequestParam(required = false) Set<Long> selectedUsers) {
     // Logowanie dla diagnostyki
     System.out.println("Próba dodania użytkowników do projektu o ID: " + projectId);
     System.out.println("Wybrani użytkownicy (ID): " + selectedUsers);
@@ -149,6 +111,11 @@ public String showProjectsPage(
     // Pobranie projektu na podstawie ID
     Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
+
+    // Jeśli nie wybrano żadnych użytkowników, przekierowujemy na stronę /index
+    if (selectedUsers == null || selectedUsers.isEmpty()) {
+      return "redirect:/index";  // Przekierowanie na stronę główną, jeśli żaden użytkownik nie został wybrany
+    }
 
     // Pobranie użytkowników, którzy są aktualnie przypisani do projektu
     Set<User> currentUsers = project.getUsers();
@@ -170,10 +137,9 @@ public String showProjectsPage(
     // Zapisanie zmian
     projectRepository.save(project);
 
-    return "redirect:/api/project/";  // Możesz dostosować tę ścieżkę, aby przekierować użytkownika na odpowiednią stronę
+    // Po zapisaniu zmian przekierowujemy na stronę z projektem lub listą projektów
+    return "redirect:/index";  // Możesz dostosować tę ścieżkę, aby przekierować użytkownika na odpowiednią stronę
   }
-
-
 
   @GetMapping("/add-person/{projectId}")
   public String showAddPeopleToProjectForm(@PathVariable Long projectId, Model model) {
