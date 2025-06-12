@@ -8,12 +8,12 @@ public class MainController {
 
   @GetMapping("/")
   public String homePage() {
-    return "index";
+    return "login";
   }
 
-  @GetMapping("/login")
+  @GetMapping("/index")
   public String loginPage() {
-    return "login";
+    return "index";
   }
 
 

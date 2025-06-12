@@ -42,7 +42,7 @@ public String showEditProjectForm(@PathVariable long id, Model model) {
   Project project = projectService.findById(id);
   if (project == null) {
     System.out.println("Projekt o ID " + id + " nie znaleziony.");
-    return "redirect:/"; // Przekierowanie na stronę główną, jeśli projekt nie istnieje
+    return "redirect:/index"; // Przekierowanie na stronę główną, jeśli projekt nie istnieje
   }
 
   model.addAttribute("project", project);

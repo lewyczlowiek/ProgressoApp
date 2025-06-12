@@ -24,7 +24,6 @@
       <input id="remember" name="remember" type="checkbox">
       <label for="remember">Zapamiętaj mnie</label>
     </div>
-
     <button class="login-button" type="submit">Zaloguj się</button>
   </form>
   <div class="links">
@@ -66,7 +65,7 @@
       if (response.ok) {
         const data = await response.json();
         localStorage.setItem('jwtToken', data.accessToken);
-        window.location.href = '/';
+        window.location.href = '/index';
       } else {
         alert('Nie udało się zalogować. Sprawdź dane logowania.');
       }
