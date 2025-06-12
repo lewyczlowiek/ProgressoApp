@@ -100,12 +100,40 @@ public String showEditProjectForm(@PathVariable long id, Model model) {
     return "redirect:/api/project/";  // Przekierowanie po zapisaniu
   }
 
-  @GetMapping("/")
+/*  @GetMapping("/")
   public String showProjectsPage(Model model, Pageable pageable) {
     Page<ProjectResponseDTO> projects = projectService.getAllProjects(pageable);  // Pobierz projekty z serwisu
     model.addAttribute("projects", projects.getContent());  // Dodaj projekty do modelu
     return "index";  // Zwróć widok "index.html"
+  }*/
+@GetMapping("/")
+public String showProjectsPage(
+        @RequestParam(value = "search", required = false) String search,
+        @RequestParam(value = "sort", required = false, defaultValue = "creationTimestamp") String sort,
+        @RequestParam(value = "dir", required = false, defaultValue = "desc") String dir,
+        Model model, Pageable pageable) {
+
+  Page<ProjectResponseDTO> projects;
+
+  // W showProjectsPage()
+  if (search != null && !search.isBlank()) {
+    projects = projectService.getProjectsByNameContaining(search, pageable, sort, dir);
+  } else {
+    projects = projectService.getAllProjects(pageable, sort, dir);
   }
+
+
+  model.addAttribute("projects", projects.getContent());
+  // To pozwoli Thymeleaf wypełnić pole szukania i parametry sortowania
+  Map<String, String> params = new HashMap<>();
+  params.put("search", search != null ? search : "");
+  params.put("sort", sort);
+  params.put("dir", dir);
+  model.addAttribute("param", params);
+
+  return "index";
+}
+
 
   @GetMapping("/delete/{id}")
   public String deleteProject(@PathVariable long id) {
@@ -163,15 +191,14 @@ public String showEditProjectForm(@PathVariable long id, Model model) {
     return "add_people_project";  // Widok do przypisywania użytkowników do projektu
   }
 
-
   @GetMapping("/details/{projectId}")
   public String showProjectDetails(@PathVariable Long projectId, Model model) {
     // Pobieramy projekt na podstawie ID
     Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
 
-    // Pobieramy wszystkich użytkowników, których można przypisać do projektu
-    List<User> users = userRepository.findAll();
+    // Pobieramy wszystkich użytkowników, którzy są przypisani do projektu
+    List<User> users = new ArrayList<>(project.getUsers());
 
     // Dodajemy projekt i listę użytkowników do modelu
     model.addAttribute("project", project);
