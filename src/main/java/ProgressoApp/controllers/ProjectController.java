@@ -54,7 +54,7 @@ public String showEditProjectForm(@PathVariable long id, Model model) {
   public String updateProject(@PathVariable long id, @ModelAttribute ProjectRequestDTO projectDto) {
     // Zaktualizowanie projektu na podstawie przekazanych danych
     projectService.updateProject(id, projectDto);
-    return "redirect:/api/project/"; // Po zapisaniu, przekierowanie na stronę z listą projektów
+    return "redirect:/index"; // Po zapisaniu, przekierowanie na stronę z listą projektów
   }
 
   @GetMapping("/all")
@@ -92,13 +92,13 @@ public String showEditProjectForm(@PathVariable long id, Model model) {
   @PostMapping("/add")
   public String createProject(@ModelAttribute ProjectRequestDTO projectDto) {
     projectService.createProject(projectDto);  // Zapisanie projektu
-    return "redirect:/api/project/";  // Przekierowanie po zapisaniu
+    return "redirect:/index";  // Przekierowanie po zapisaniu
   }
 
   @GetMapping("/delete/{id}")
   public String deleteProject(@PathVariable long id) {
     projectService.deleteProject(id);  // Wywołanie metody usuwania
-    return "redirect:/api/project/";   // Przekierowanie po usunięciu projektu
+    return "redirect:/index";   // Przekierowanie po usunięciu projektu
   }
 
 

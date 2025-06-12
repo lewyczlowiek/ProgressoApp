@@ -28,7 +28,6 @@ public class UserService implements UserDetailsService {
     this.passwordEncoder = passwordEncoder;
   }
 
-
   public void saveUser(RegisterDTO registerDTO) {
 
     User user = User.builder()
