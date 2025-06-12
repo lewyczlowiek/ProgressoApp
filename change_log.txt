@@ -1,0 +1,22 @@
+----- 16.06.2025 -----  By TOMEK
+
+Dodane zostało Basic Authentication. Działa rejestrowanie użytkowników do bazy danych, użytkownik posiada atrybutu: 
+- imie
+- nazwisko 
+- email 
+- numer indeksu 
+- hasło 
+
+Z automatu przydzielana jest rola student, na razie tylko w ten sposób. 
+
+Wprowadzone DTO do lepszej i bezpieczniejszej obsługi obiektów
+
+Dodane nowe szkielety logowania i rejestracji - trzeba będzie przerobić to bo wymaga nowych pól logowanie i rejestracja, więc Bartuś to pięknie dostosuje (jego pliki zostały zachowane, prawidłowe to index, login i register) 
+
+Do dodania jest JWT tak by obsłużyć do końca rejestrację i logowanie, dodanie hashowania HS256 bo jeszcze tego nie zrobiłem na haśle (mam pliki gotowe jak to zrobić na przykładzie swojej apliki więc myślę że wrzucenie JWT i HS256 nie będzie dużym problem). 
+
+AuthController jest odpowiedzialny za autoryzację całą. 
+MainController jest odpowiedzialny za główne strony, więc na nim bazujmy. 
+
+Schemat Model - Widok - Controller 
+

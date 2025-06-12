@@ -1,0 +1,84 @@
+<!-- templates/fragments/navbar.html -->
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="navbar">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+      <a class="navbar-brand" th:href="@{/}">
+        <img alt="Logo" class="logo-img" th:src="@{/logo_biale.png}">
+        <span class="brand-text">Project Manager</span>
+      </a>
+      <button class="navbar-toggler" data-bs-target="#navbarNav" data-bs-toggle="collapse"
+              type="button">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" th:href="@{/api/project/}">Projekty</a></li>
+          <li class="nav-item"><a class="nav-link" th:href="@{/tasks}">Zadania</a></li>
+          <li class="nav-item"><a class="nav-link" th:href="@{/users}">Użytkownicy</a></li>
+          <li class="nav-item"><a class="nav-link" id="chat-link" th:href="@{/chat}">Chat</a></li>
+        </ul>
+        <div class="d-flex">
+          <button class="btn btn-outline-light" onclick="window.location.href='/auth/logout'">
+            Wyloguj
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <script src="/webjars/sockjs-client/sockjs.min.js"></script>
+  <script src="/webjars/stomp-websocket/stomp.min.js"></script>
+  <script>
+    let stompClient; // <- tylko tutaj deklarujemy
+
+    const chatLink = document.getElementById('chat-link');
+
+    function initWebSocket() {
+      const socket = new SockJS('/ws-chat');
+      stompClient = Stomp.over(socket);
+      stompClient.connect({}, function () {
+        stompClient.subscribe('/topic/messages', function (message) {
+          const msg = JSON.parse(message.body);
+          showNotification(msg.from, msg.text);
+          if (!window.location.pathname.includes('/chat')) {
+            chatLink.classList.add('blinking');
+          }
+          if (window.location.pathname.includes('/chat') && typeof appendMessage === 'function') {
+            appendMessage(msg.from, msg.text);
+          }
+        });
+      });
+    }
+
+    function showNotification(from, text) {
+      if (Notification.permission === 'granted') {
+        new Notification(`Nowa wiadomość od ${from}`, {
+          body: text,
+          icon: '/logo_biale.png'
+        });
+      } else if (Notification.permission !== 'denied') {
+        Notification.requestPermission().then(permission => {
+          if (permission === 'granted') {
+            showNotification(from, text);
+          }
+        });
+      }
+    }
+
+    if (window.location.pathname.includes('/chat')) {
+      chatLink.classList.remove('blinking');
+    }
+
+    chatLink.addEventListener('click', () => chatLink.classList.remove('blinking'));
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initWebSocket();
+    });
+  </script>
+
+</div>
+</body>
+</html>
