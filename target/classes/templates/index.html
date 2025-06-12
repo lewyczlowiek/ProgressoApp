@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Lista projektów</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap i ikony -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Twój styl -->
+    <link rel="stylesheet" th:href="@{/navbar.css}">
+</head>
+<body class="bg-light">
+<!-- Navbar wspólny -->
+<div th:replace="fragments/navbar :: navbar"></div>
+<!-- Główna zawartość strony -->
+<main class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="h3"><i class="fas fa-folder-open me-2"></i>Lista projektów</h1>
+                <div>
+                    <a class="btn btn-primary" th:href="@{/projects/add}">
+                        <i class="fas fa-plus me-1"></i> Nowy Projekt
+                    </a>
+
+                </div>
+            </div>
+            <div class="list-group shadow-sm" id="projects-list">
+                <a class="list-group-item list-group-item-action" href="#">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1">Projekt testowy</h5>
+                            <small class="text-muted">Utworzono: 2024-01-20</small>
+                        </div>
+                        <div>
+                            <span class="badge bg-success me-2">Aktywny</span>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProject(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    function deleteProject(button) {
+        if (confirm("Czy na pewno chcesz usunąć ten projekt?")) {
+            button.closest('.list-group-item').remove();
+        }
+    }
+</script>
+</body>
+</html>

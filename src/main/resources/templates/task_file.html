@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dodaj Zadanie</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    /* Skopiowany i lekko zmodyfikowany styl z formularza projektu */
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f4f4;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    #addTaskForm {
+      max-width: 700px;
+      width: 100%;
+      margin: 20px;
+      padding: 40px;
+      background-color: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .form-label {
+      font-weight: 600;
+      color: #444;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .form-control,
+    .form-select {
+      width: 100%;
+      padding: 14px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 25px;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+
+    textarea.form-control {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-buttons {
+      text-align: right;
+      margin-top: 30px;
+    }
+
+    .form-buttons button,
+    .form-buttons a {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-left: 15px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .form-buttons button.add {
+      background-color: #5cb85c;
+      color: white;
+    }
+
+    .form-buttons button.add:hover {
+      background-color: #4cae4c;
+    }
+
+    .form-buttons a.btn-danger {
+      background-color: #f44336;
+      color: white;
+    }
+
+    .form-buttons a.btn-danger:hover {
+      background-color: #d32f2f;
+    }
+
+    .form-buttons i {
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+
+<form id="addTaskForm" th:action="@{/tasks/add}" method="post" th:object="${task}">
+  <div class="mb-3">
+    <label class="form-label" for="taskTitle">Nazwa zadania</label>
+    <input class="form-control" id="taskTitle" type="text" th:field="*{title}" required>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label" for="taskDescription">Opis</label>
+    <textarea class="form-control" id="taskDescription" th:field="*{description}"></textarea>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label" for="dueDate">Termin wykonania</label>
+    <input class="form-control" id="dueDate" type="date" th:field="*{dueDate}" required>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label" for="status">Status</label>
+    <select class="form-select" id="status" th:field="*{status}">
+      <option value="NOWE">Nowe</option>
+      <option value="WTOKU">W toku</option>
+      <option value="ZAKONCZONE">Zakończone</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label" for="assignedUser">Przypisany użytkownik</label>
+    <input class="form-control" id="assignedUser" type="text" placeholder="np. Jan Kowalski" th:field="*{assignedTo}">
+    <!-- Można tu dać select z użytkownikami z backendu -->
+  </div>
+
+  <div class="form-buttons">
+    <a class="btn btn-danger" th:href="@{/tasks}">
+      <i class="fas fa-sign-out-alt"></i> Cofnij
+    </a>
+    <button type="submit" class="add">
+      <i class="fas fa-check"></i> Dodaj zadanie
+    </button>
+  </div>
+</form>
+
+</body>
+</html>
