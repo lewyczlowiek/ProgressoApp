@@ -126,6 +126,12 @@
         <textarea class="form-control" id="projectDescription" rows="3" th:field="*{description}"></textarea>
     </div>
 
+    <!-- Dodane pole na datę zakończenia projektu -->
+    <div class="mb-3">
+        <label class="form-label" for="endDateTime">Data zakończenia projektu</label>
+        <input class="form-control" type="datetime-local" id="endDateTime" th:field="*{endDateTime}" required>
+    </div>
+
     <div class="form-buttons">
         <a class="btn btn-danger" th:href="@{/index}">
             <i class="fas fa-sign-out-alt me-1"></i> Cofnij

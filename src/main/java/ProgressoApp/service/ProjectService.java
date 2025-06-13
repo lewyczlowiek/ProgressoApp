@@ -73,6 +73,7 @@ public class ProjectService {
     // Aktualizacja danych projektu
     project.setName(projectDTO.name());
     project.setDescription(projectDTO.description());
+    project.setEndDateTime(projectDTO.endDateTime());
 
     if (projectDTO.users() != null) {
       Set<User> existingUsers = project.getUsers();
@@ -114,7 +115,6 @@ public class ProjectService {
 
     return projectRepository.save(project);
   }
-
 
   public void deleteProject(long id) {
     Project project = projectRepository.findByProjectId(id)

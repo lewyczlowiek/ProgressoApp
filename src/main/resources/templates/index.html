@@ -60,6 +60,10 @@
                    th:href="@{|/index?sort=creationTimestamp&dir=desc|}">Najnowsze</a>
                 <a class="btn btn-sm btn-outline-secondary"
                    th:href="@{|/index?sort=creationTimestamp&dir=asc|}">Najstarsze</a>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/index?sort=endDateTime&dir=asc|}">Najbliższy koniec</a>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/index?sort=endDateTime&dir=desc|}">Najdalszy koniec</a>
             </div>
 
             <!-- Lista projektów -->
@@ -69,36 +73,49 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <div>
                                 <h5 class="mb-1" th:text="${project.name}">Nazwa Projektu</h5>
-                                <small class="text-muted" th:text="${#temporals.format(project.creationTimestamp, 'yyyy-MM-dd HH:mm')}"></small>
+                                <div class="mt-2">
+                                    <small class="text-muted d-block">
+                                        <strong>Dodano:</strong>
+                                        <span th:text="${#temporals.format(project.creationTimestamp, 'yyyy-MM-dd HH:mm')}">2025-06-01 10:00</span>
+                                    </small>
+                                    <small class="text-muted d-block">
+                                        <strong>Koniec:</strong>
+                                        <span th:text="${#temporals.format(project.endDateTime, 'yyyy-MM-dd HH:mm')}">2025-06-20 18:00</span>
+                                    </small>
+                                </div>
                             </div>
-                            <div class="button-group">
-                                <!-- Przycisk szczegółów -->
-                                <a class="btn btn-sm btn-info"
-                                   th:href="@{/api/project/details/{id}(id=${project.projectId})}" role="button">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    Szczegóły
-                                </a>
-                                <!-- Przycisk edycji -->
-                                <a class="btn btn-sm btn-outline-secondary"
-                                   th:href="@{/api/project/edit/{id}(id=${project.projectId})}" role="button">
-                                    <i class="fas fa-edit me-1"></i>
-                                    Edytuj
-                                </a>
-                                <!-- Przycisk dodawania osób -->
-                                <a class="btn btn-sm btn-outline-primary"
-                                   th:href="@{/api/project/add-person/{id}(id=${project.projectId})}" role="button">
-                                    <i class="fas fa-user-plus me-1"></i>
-                                    Dodaj osoby
-                                </a>
-                                <!-- Przycisk usuwania -->
-                                <a class="btn btn-sm btn-outline-danger"
-                                   href="#"
-                                   data-bs-toggle="modal"
-                                   data-bs-target="#confirmDeleteModal"
-                                   th:attr="data-delete-url=@{/api/project/delete/{id}(id=${project.projectId})}">
-                                    <i class="fas fa-trash me-1"></i>
-                                    Usuń
-                                </a>
+                            <div class="d-flex flex-column align-items-end">
+                                <span class="mb-2"
+                                      th:classappend="
+                                        ${project.statusProject} == 'active' ? 'badge bg-success' : 'badge bg-secondary'"
+                                      th:text="${project.statusProject == 'active' ? 'Aktywny' : 'Zakończony'}">
+                                    Status
+                                </span>
+                                <div class="button-group">
+                                    <!-- Przycisk szczegółów -->
+                                    <a class="btn btn-sm btn-info"
+                                       th:href="@{/api/project/details/{id}(id=${project.projectId})}" role="button">
+                                        <i class="fas fa-info-circle me-1"></i> Szczegóły
+                                    </a>
+                                    <!-- Przycisk edycji -->
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       th:href="@{/api/project/edit/{id}(id=${project.projectId})}" role="button">
+                                        <i class="fas fa-edit me-1"></i> Edytuj
+                                    </a>
+                                    <!-- Przycisk dodawania osób -->
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       th:href="@{/api/project/add-person/{id}(id=${project.projectId})}" role="button">
+                                        <i class="fas fa-user-plus me-1"></i> Dodaj osoby
+                                    </a>
+                                    <!-- Przycisk usuwania -->
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       href="#"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#confirmDeleteModal"
+                                       th:attr="data-delete-url=@{/api/project/delete/{id}(id=${project.projectId})}">
+                                        <i class="fas fa-trash me-1"></i> Usuń
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -107,23 +124,6 @@
         </div>
     </div>
 </main>
-
-<!-- Bootstrap JS (Bundle - includes Popper.js) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- JavaScript do obsługi linku w modalu -->
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        var confirmModal = document.getElementById('confirmDeleteModal');
-        var confirmBtn = document.getElementById('confirmDeleteBtn');
-
-        confirmModal.addEventListener('show.bs.modal', function (event) {
-            var button = event.relatedTarget;  // Element, który wywołał modal
-            var deleteUrl = button.getAttribute('data-delete-url');  // Pobieramy URL z atrybutu data-delete-url
-            confirmBtn.setAttribute('href', deleteUrl);  // Ustawiamy URL na przycisku Usuń w modalu
-        });
-    });
-</script>
 
 <!-- Modal potwierdzający usunięcie projektu -->
 <div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
@@ -145,6 +145,20 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        var confirmModal = document.getElementById('confirmDeleteModal');
+        var confirmBtn = document.getElementById('confirmDeleteBtn');
+
+        confirmModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;  // Element, który wywołał modal
+            var deleteUrl = button.getAttribute('data-delete-url');  // Pobieramy URL z atrybutu data-delete-url
+            confirmBtn.setAttribute('href', deleteUrl);  // Ustawiamy URL na przycisku Usuń w modalu
+        });
+    });
+</script>
 
 </body>
 </html>

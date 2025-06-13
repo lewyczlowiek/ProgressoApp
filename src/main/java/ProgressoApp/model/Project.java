@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.hibernate.annotations.CreationTimestamp;
-
 @Entity
 @Table(name = "projects")
 public class Project implements Serializable {
@@ -32,6 +31,12 @@ public class Project implements Serializable {
   @Column(length = 1000)
   private String description;
 
+  @Column(name = "end_date_time")
+  private LocalDateTime endDateTime;  // Data i godzina zakończenia projektu.
+
+  @Column(name = "statusProject")
+  private String statusProject;  // Zmieniono z boolean na String ("active", "inactive")
+
   @CreationTimestamp
   @Column(name = "creation_timestamp", nullable = false, updatable = false)
   private LocalDateTime creationTimestamp;
@@ -42,8 +47,8 @@ public class Project implements Serializable {
 
   @ManyToMany
   @JoinTable(name = "project_user",
-      joinColumns = {@JoinColumn(name = "project_id")},
-      inverseJoinColumns = {@JoinColumn(name = "user_id")})
+          joinColumns = {@JoinColumn(name = "project_id")},
+          inverseJoinColumns = {@JoinColumn(name = "user_id")})
   private Set<User> users;
 
   public Project() {
@@ -56,28 +61,32 @@ public class Project implements Serializable {
     this.creationTimestamp = other.creationTimestamp;
     this.tasks = other.tasks;
     this.users = other.users;
+    this.endDateTime = other.endDateTime;
+    this.statusProject = other.statusProject;  // Zmieniono z boolean na String
   }
-
 
   public Project(ProjectRequestDTO dto) {
     this.name = dto.name();
     this.description = dto.description();
-    //this.creationTimestamp = dto.creationTimestamp();
-
+    this.endDateTime = dto.endDateTime();
+    this.statusProject = dto.statusProject();  // Zmieniono z boolean na String
   }
 
   public ProjectResponseDTO toProjectResponseDTO() {
     return new ProjectResponseDTO(
-        this.projectId,
-        this.name,
-        this.description,
-        this.creationTimestamp,
-        this.tasks != null ? this.tasks.stream().map(Task::toTaskResponseDTO).toList() : List.of(),
-        this.users != null ? this.users.stream().map(User::toUserResponseDTO)
-            .collect(java.util.stream.Collectors.toSet()) : Set.of()
+            this.projectId,
+            this.name,
+            this.description,
+            this.creationTimestamp,
+            this.endDateTime,
+            this.statusProject,  // Zmieniono z boolean na String
+            this.tasks != null ? this.tasks.stream().map(Task::toTaskResponseDTO).toList() : List.of(),
+            this.users != null ? this.users.stream().map(User::toUserResponseDTO)
+                    .collect(java.util.stream.Collectors.toSet()) : Set.of()
     );
   }
 
+  // Gettery i settery
   public Set<User> getUsers() {
     return users;
   }
@@ -126,4 +135,19 @@ public class Project implements Serializable {
     this.creationTimestamp = creationTimestamp;
   }
 
+  public LocalDateTime getEndDateTime() {
+    return endDateTime;
+  }
+
+  public void setEndDateTime(LocalDateTime endDateTime) {
+    this.endDateTime = endDateTime;
+  }
+
+  public String getStatusProject() {
+    return statusProject;  // Zmieniono z boolean na String
+  }
+
+  public void setStatusProject(String statusProject) {
+    this.statusProject = statusProject;  // Zmieniono z boolean na String
+  }
 }

@@ -92,6 +92,7 @@
                 <h4><strong>Nazwa:</strong> <span th:text="${project.name}">Nazwa Projektu</span></h4>
                 <p><strong>Opis:</strong> <span th:text="${project.description}">Opis projektu</span></p>
                 <p><strong>Data utworzenia:</strong> <span th:text="${#temporals.format(project.creationTimestamp, 'yyyy-MM-dd HH:mm')}">2025-06-12 14:00</span></p>
+                <p><strong>Data ukończenia:</strong> <span th:text="${#temporals.format(project.endDateTime, 'yyyy-MM-dd HH:mm')}">2025-06-12 14:00</span></p>
 
                 <h5>Przypisani użytkownicy:</h5>
                 <p class="user-count" th:text="'Liczba użytkowników: ' + ${users.size()}"></p>
