@@ -112,6 +112,7 @@
     </style>
 </head>
 <body class="bg-light">
+<div th:replace="fragments/navbar :: navbar"></div>
 <main class="container mt-4">
     <div class="row">
         <div class="col-lg-8 mx-auto">
@@ -143,19 +144,40 @@
                 <!-- Do zrobienia -->
                 <div class="kanban-column" id="todo">
                     <h3>Do zrobienia</h3>
-                    <div id="todo-list"></div>
+                    <div id="todo-list">
+                        <div th:each="task : ${todoTasks}" class="task-card">
+                            <h5 th:text="${task.name}">Zadanie 1</h5>
+                            <a th:href="@{'/tasks/details/' + ${task.taskId}}" class="btn btn-info btn-sm">
+                                Szczegóły
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- W trakcie -->
                 <div class="kanban-column" id="in-progress">
                     <h3>W trakcie</h3>
-                    <div id="in-progress-list"></div>
+                    <div id="in-progress-list">
+                        <div th:each="task : ${inProgressTasks}" class="task-card">
+                            <h5 th:text="${task.name}">Zadanie 2</h5>
+                            <a th:href="@{'/tasks/details/' + ${task.taskId}}" class="btn btn-info btn-sm">
+                                Szczegóły
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Zakończone -->
                 <div class="kanban-column" id="done">
                     <h3>Zakończone</h3>
-                    <div id="done-list"></div>
+                    <div id="done-list">
+                        <div th:each="task : ${doneTasks}" class="task-card">
+                            <h5 th:text="${task.name}">Zadanie 3</h5>
+                            <a th:href="@{'/tasks/details/' + ${task.taskId}}" class="btn btn-info btn-sm">
+                                Szczegóły
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 

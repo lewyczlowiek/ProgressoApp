@@ -47,7 +47,7 @@ public class Task {
   public Task(Task task) {
     this.name = task.name;
     this.description = task.description;
-    this.taskOrder = task.taskOrder;
+    /*this.taskOrder = task.taskOrder;*/
     this.creationTimestamp = task.creationTimestamp;
     this.taskStatus = task.taskStatus;
     this.submissions = task.submissions;
