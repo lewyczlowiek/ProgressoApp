@@ -3,13 +3,17 @@ package ProgressoApp.controllers;
 import ProgressoApp.dto.request.ProjectRequestDTO;
 import ProgressoApp.dto.response.ProjectResponseDTO;
 import ProgressoApp.model.Project;
+import ProgressoApp.model.Task;
+import ProgressoApp.model.TaskStatus;
 import ProgressoApp.model.User;
 import ProgressoApp.repository.ProjectRepository;
+import ProgressoApp.repository.TaskRepository;
 import ProgressoApp.repository.UserRepository;
 import ProgressoApp.service.ProjectService;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -34,6 +38,10 @@ public class ProjectController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private TaskRepository taskRepository;
+
     @GetMapping("/edit/{id}")
     public String showEditProjectForm(@PathVariable long id, Model model) {
         // Pobieramy projekt
@@ -61,6 +69,7 @@ public class ProjectController {
         projectService.updateProject(id, projectDto);
         return "redirect:/index"; // Po zapisaniu, przekierowanie na stronę z listą projektów
     }
+
 
     @GetMapping("/all")
     public ResponseEntity<Page<ProjectResponseDTO>> getAllProjects(
@@ -178,7 +187,7 @@ public class ProjectController {
         return "add_people_project";  // Widok do przypisywania użytkowników do projektu
     }
 
-    @GetMapping("/details/{projectId}")
+    /*@GetMapping("/details/{projectId}")
     public String showProjectDetails(@PathVariable Long projectId, Model model) {
         // Pobieramy projekt na podstawie ID
         Project project = projectRepository.findById(projectId)
@@ -192,6 +201,37 @@ public class ProjectController {
         model.addAttribute("users", users);
 
         return "details_project";  // Widok do wyświetlania szczegółów projektu
+    }*/
+
+    @GetMapping("/details/{projectId}")
+    public String showProjectDetails(@PathVariable Long projectId, Model model) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
+
+        List<User> users = new ArrayList<>(project.getUsers());
+
+        List<Task> allTasks = taskRepository.findByProject_ProjectId(projectId);
+
+        List<Task> todoTasks = allTasks.stream()
+                .filter(task -> TaskStatus.TO_DO.equals(task.getTaskStatus()))
+                .collect(Collectors.toList());
+
+        List<Task> inProgressTasks = allTasks.stream()
+                .filter(task -> TaskStatus.IN_PROGRESS.equals(task.getTaskStatus()))
+                .collect(Collectors.toList());
+
+        List<Task> doneTasks = allTasks.stream()
+                .filter(task -> TaskStatus.DONE.equals(task.getTaskStatus()))
+                .collect(Collectors.toList());
+
+        model.addAttribute("project", project);
+        model.addAttribute("users", users);
+        model.addAttribute("todoTasks", todoTasks);
+        model.addAttribute("inProgressTasks", inProgressTasks);
+        model.addAttribute("doneTasks", doneTasks);
+
+        return "details_project";
     }
+
 
 }

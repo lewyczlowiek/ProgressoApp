@@ -1,141 +1,93 @@
 package ProgressoApp.controllers;
 
 import ProgressoApp.dto.request.TaskRequestDTO;
-import ProgressoApp.dto.response.TaskResponseDTO;
-import ProgressoApp.model.TaskStatus;
+import ProgressoApp.model.*;
+import ProgressoApp.repository.ProjectRepository;
+import ProgressoApp.repository.TaskRepository;
+import ProgressoApp.repository.TaskSubmissionRepository;
+import ProgressoApp.repository.UserRepository;
 import ProgressoApp.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
-import jakarta.validation.Valid;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
-@RestController
-@RequestMapping("/api/tasks")
+@Controller
+@RequestMapping("/tasks")  // Zmieniam na webowy kontroler (thymeleaf), a nie RestController
 public class TaskController {
 
   private final TaskService taskService;
+  private final ProjectRepository projectRepository;
+  private final TaskRepository taskRepository;
+  private final UserRepository userRepository;
+  private final TaskSubmissionRepository taskSubmissionRepository;
 
   @Autowired
-  public TaskController(TaskService taskService) {
+  public TaskController(TaskService taskService,
+                        ProjectRepository projectRepository,
+                        TaskRepository taskRepository,
+                        UserRepository userRepository,
+                        TaskSubmissionRepository taskSubmissionRepository) {
     this.taskService = taskService;
+    this.projectRepository = projectRepository;
+    this.taskRepository = taskRepository;
+    this.userRepository = userRepository;
+    this.taskSubmissionRepository = taskSubmissionRepository;
   }
 
 
-  @PostMapping
-  public ResponseEntity<TaskResponseDTO> createTask(
-          @Valid @RequestBody TaskRequestDTO dto
-  ) {
-    var created = taskService.createTask(dto);
-    return new ResponseEntity<>(created.toTaskResponseDTO(), HttpStatus.CREATED);
+  @GetMapping("/addTasks/{projectId}")
+  public String showAddTaskForm(@PathVariable Long projectId, Model model) {
+    TaskRequestDTO taskDTO = new TaskRequestDTO(
+            "", "", 1, null, projectId, null // status null - ustalisz na backendzie
+    );
+    model.addAttribute("task", taskDTO);
+
+    Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new RuntimeException("Projekt nie znaleziony"));
+
+    // Pobierz użytkowników przypisanych do projektu
+    Set<User> assignedUsersSet = project.getUsers();
+    List<User> assignedUsers = new ArrayList<>(assignedUsersSet);
+
+    model.addAttribute("assignedUsers", assignedUsers);
+    model.addAttribute("project", project);
+
+    return "task_file"; // nazwa szablonu formularza
   }
 
-
-  @GetMapping
-  public Page<TaskResponseDTO> getAllTasks(
-          @RequestParam(required = false) Map<String, String> allRequestParams,
-          Pageable pageable
+  @PostMapping("/addTasks/{projectId}")
+  public String addTask(
+          @PathVariable Long projectId,
+          @ModelAttribute TaskRequestDTO taskRequestDTO,
+          @RequestParam(required = false, name = "selectedUsers") List<Long> selectedUsersIds
   ) {
-    if (allRequestParams.isEmpty()) {
-      return taskService.getAllTasks(pageable);
-    }
+    Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new RuntimeException("Projekt nie znaleziony"));
 
-    // Konwersja String → właściwy typ (TaskStatus, LocalDate, Long, Integer, lub String)
-    Map<String, Object> filter = new HashMap<>();
-    for (var entry : allRequestParams.entrySet()) {
-      String key = entry.getKey();
-      String raw = entry.getValue();
+    Task task = new Task(taskRequestDTO);
+    task.setProject(project);
+    task.setTaskStatus(TaskStatus.TO_DO);
 
-      switch (key) {
-        case "taskStatus":
-          try {
-            filter.put(key, TaskStatus.valueOf(raw));
-          } catch (IllegalArgumentException ex) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Nieprawidłowa wartość dla taskStatus: " + raw
-            );
-          }
-          break;
+    taskRepository.save(task);
 
-        case "dueDate":
-          // Format: yyyy-MM-dd
-          try {
-            filter.put(key, LocalDate.parse(raw));
-          } catch (Exception ex) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Nieprawidłowy format dueDate (wymagany yyyy-MM-dd): " + raw
-            );
-          }
-          break;
-
-        case "projectId":
-          try {
-            filter.put(key, Long.valueOf(raw));
-          } catch (NumberFormatException ex) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Nieprawidłowy format projectId (wymagany Long): " + raw
-            );
-          }
-          break;
-
-        case "taskOrder":
-          try {
-            filter.put(key, Integer.valueOf(raw));
-          } catch (NumberFormatException ex) {
-            throw new ResponseStatusException(
-                    HttpStatus.BAD_REQUEST,
-                    "Nieprawidłowy format taskOrder (wymagany Integer): " + raw
-            );
-          }
-          break;
-
-        case "name":
-          filter.put(key, raw);
-          break;
-
-        default:
-          throw new ResponseStatusException(
-                  HttpStatus.BAD_REQUEST,
-                  "Nieobsługiwany parametr filtra: " + key
-          );
+    if (selectedUsersIds != null && !selectedUsersIds.isEmpty()) {
+      for (Long userId : selectedUsersIds) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony: " + userId));
+        // Tworzymy TaskSubmission - oznacza, że użytkownik jest przypisany do zadania
+        TaskSubmission submission = new TaskSubmission();
+        submission.setTask(task);
+        submission.setUser(user);
+        // Możesz ustawić inne pola TaskSubmission, np. submittedAt na null jeśli jeszcze nie było zgłoszenia
+        taskSubmissionRepository.save(submission);
       }
     }
 
-    return taskService.getAllTasksWithParams(filter, pageable);
+    return "redirect:/api/projects/details/" + projectId;
   }
-
-
-  @GetMapping("/{id}")
-  public TaskResponseDTO getTaskById(@PathVariable Long id) {
-    var task = taskService.findById(id);
-    return task.toTaskResponseDTO();
-  }
-
-
-  @PutMapping("/{id}")
-  public TaskResponseDTO updateTask(
-          @PathVariable Long id,
-          @Valid @RequestBody TaskRequestDTO dto
-  ) {
-    var updated = taskService.updateTask(id, dto);
-    return updated.toTaskResponseDTO();
-  }
-
-  @DeleteMapping("/{id}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteTask(@PathVariable Long id) {
-    taskService.deleteTask(id);
-  }
-
 }

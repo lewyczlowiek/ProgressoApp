@@ -150,4 +150,8 @@ public class Project implements Serializable {
   public void setStatusProject(String statusProject) {
     this.statusProject = statusProject;  // Zmieniono z boolean na String
   }
+
+    public Project orElseThrow(Object projektNieIstnieje) {
+    return null; // Placeholder for method implementation
+    }
 }
