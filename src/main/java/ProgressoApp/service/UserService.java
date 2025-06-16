@@ -2,7 +2,6 @@ package ProgressoApp.service;
 
 import ProgressoApp.dto.request.RegisterDTO;
 import ProgressoApp.dto.request.UserRequestDTO;
-import ProgressoApp.dto.response.UserResponseDTO;
 import ProgressoApp.model.Role;
 import ProgressoApp.model.User;
 import ProgressoApp.repository.UserRepository;
@@ -26,13 +25,12 @@ public class UserService implements UserDetailsService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
-  public UserResponseDTO saveUser(RegisterDTO registerDTO) {
+  public void saveUser(RegisterDTO registerDTO) {
     if (userRepository.existsByEmail(registerDTO.getEmail())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already in use");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Ten adres email jest już zajęty");
     }
-
     if (userRepository.existsByNumberIndex(registerDTO.getNumberIndex())) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Number index already in use");
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Numer indeksu jest już zajęty");
     }
 
     User user = User.builder()
@@ -41,12 +39,10 @@ public class UserService implements UserDetailsService {
             .email(registerDTO.getEmail())
             .password(passwordEncoder.encode(registerDTO.getPassword()))
             .numberIndex(registerDTO.getNumberIndex())
-            .role(Role.STUDENT) // lub domyślna logika roli
+            .role(Role.STUDENT)
             .build();
 
-    User saved = userRepository.save(user);
-
-    return saved.toUserResponseDTO();
+    userRepository.save(user);
   }
 
   public User createUser(UserRequestDTO dto){
