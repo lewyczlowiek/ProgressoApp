@@ -1,310 +1,164 @@
 <!DOCTYPE html>
-<html lang="pl">
-
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
+    <title>Lista projektów</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Project Manager</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/navbar.css}">
+    <style>
+        .btn-primary { background-color: #007bff; border-color: #007bff; }
+        .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
+        .btn-outline-secondary:hover { background-color: #6c757d; border-color: #6c757d; color: white; }
+        .btn-outline-danger:hover { background-color: #dc3545; border-color: #dc3545; color: white; }
+        .btn-outline-primary:hover { background-color: #0d6efd; border-color: #0d6efd; color: white; }
+        .btn-info { background-color: #17a2b8; border-color: #17a2b8; color: white; }
+        .btn-info:hover { background-color: #138496; border-color: #138496; }
+        .list-group-item-action:hover { background-color: #f8f9fa; }
+        .list-group-item-action { transition: background-color 0.3s ease; }
+        .button-group { display: flex; gap: 0.5rem; align-items: center; }
+        .header-row { margin-bottom: 2rem; }
+    </style>
 </head>
-
 <body class="bg-light">
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-    <div class="container">
-        <a class="navbar-brand" href="#">
-            <img src="/static/logo_biale.png" alt="Logo" class="logo-img">
-            <span class="brand-text">Project Manager</span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav me-auto">
-                <li class="nav-item">
-                    <a class="nav-link active" href="#"><i class="fas fa-project-diagram me-1"></i> Projekty</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-list-check me-1"></i> Zadania</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-users me-1"></i> Użytkownicy</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#"><i class="fas fa-comments me-1"></i> Czat</a>
-                </li>
-            </ul>
-            <div class="d-flex align-items-center">
-                <input class="form-control me-2" type="search" placeholder="Szukaj projektu...">
-                <button class="btn btn-light me-2" type="submit"><i class="fas fa-search"></i></button>
-                <button class="btn btn-outline-light" onclick="logout()">
-                    <i class="fas fa-sign-out-alt me-1"></i> Wyloguj
-                </button>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<main class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <!-- Nagłówek + przycisk Nowy Projekt -->
+            <div class="d-flex justify-content-between align-items-center header-row">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-folder-open me-2"></i>
+                    Lista projektów
+                </h1>
+                <a class="btn btn-primary" th:href="@{/api/project/add}" role="button">
+                    <i class="fas fa-plus me-1"></i>
+                    Nowy Projekt
+                </a>
+            </div>
+
+            <!-- Filtrowanie projektów po nazwie -->
+            <form class="mb-3" method="get" th:action="@{/index}">
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search"
+                           th:value="${param.search}" placeholder="Szukaj projektu po nazwie...">
+                    <button class="btn btn-outline-primary" type="submit">
+                        <i class="fas fa-search"></i> Szukaj
+                    </button>
+                </div>
+            </form>
+
+            <!-- Sortowanie projektów -->
+            <div class="mb-3 d-flex gap-2">
+                <span>Sortuj:</span>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/index?sort=name&dir=asc|}">Nazwa A-Z</a>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/index?sort=name&dir=desc|}">Nazwa Z-A</a>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/index?sort=creationTimestamp&dir=desc|}">Najnowsze</a>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/index?sort=creationTimestamp&dir=asc|}">Najstarsze</a>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/index?sort=endDateTime&dir=asc|}">Najbliższy koniec</a>
+                <a class="btn btn-sm btn-outline-secondary"
+                   th:href="@{|/index?sort=endDateTime&dir=desc|}">Najdalszy koniec</a>
+            </div>
+
+            <!-- Lista projektów -->
+            <div class="list-group shadow-sm" id="projects-list">
+                <th:block th:each="project : ${projects}">
+                    <div class="list-group-item list-group-item-action p-3 mb-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1" th:text="${project.name}">Nazwa Projektu</h5>
+                                <div class="mt-2">
+                                    <small class="text-muted d-block">
+                                        <strong>Dodano:</strong>
+                                        <span th:text="${#temporals.format(project.creationTimestamp, 'yyyy-MM-dd HH:mm')}">2025-06-01 10:00</span>
+                                    </small>
+                                    <small class="text-muted d-block">
+                                        <strong>Koniec:</strong>
+                                        <span th:text="${#temporals.format(project.endDateTime, 'yyyy-MM-dd HH:mm')}">2025-06-20 18:00</span>
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="d-flex flex-column align-items-end">
+                                <span class="mb-2"
+                                      th:classappend="
+                                        ${project.statusProject} == 'active' ? 'badge bg-success' : 'badge bg-secondary'"
+                                      th:text="${project.statusProject == 'active' ? 'Aktywny' : 'Zakończony'}">
+                                    Status
+                                </span>
+                                <div class="button-group">
+                                    <!-- Przycisk szczegółów -->
+                                    <a class="btn btn-sm btn-info"
+                                       th:href="@{/api/project/details/{id}(id=${project.projectId})}" role="button">
+                                        <i class="fas fa-info-circle me-1"></i> Szczegóły
+                                    </a>
+                                    <!-- Przycisk edycji -->
+                                    <a class="btn btn-sm btn-outline-secondary"
+                                       th:href="@{/api/project/edit/{id}(id=${project.projectId})}" role="button">
+                                        <i class="fas fa-edit me-1"></i> Edytuj
+                                    </a>
+                                    <!-- Przycisk dodawania osób -->
+                                    <a class="btn btn-sm btn-outline-primary"
+                                       th:href="@{/api/project/add-person/{id}(id=${project.projectId})}" role="button">
+                                        <i class="fas fa-user-plus me-1"></i> Dodaj osoby
+                                    </a>
+                                    <!-- Przycisk usuwania -->
+                                    <a class="btn btn-sm btn-outline-danger"
+                                       href="#"
+                                       data-bs-toggle="modal"
+                                       data-bs-target="#confirmDeleteModal"
+                                       th:attr="data-delete-url=@{/api/project/delete/{id}(id=${project.projectId})}">
+                                        <i class="fas fa-trash me-1"></i> Usuń
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </th:block>
             </div>
         </div>
     </div>
-</nav>
+</main>
 
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h1 class="h3"><i class="fas fa-folder-open me-2"></i>Lista projektów</h1>
-                <button class="btn btn-primary" onclick="createProject()">
-                    <i class="fas fa-plus me-2"></i>Nowy projekt
-                </button>
+<!-- Modal potwierdzający usunięcie projektu -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">
+                    Potwierdź usunięcie
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Zamknij"></button>
             </div>
-            <div id="projects-list" class="list-group shadow-sm">
-                <a href="#" class="list-group-item list-group-item-action">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-1">Projekt testowy</h5>
-                            <small class="text-muted">Utworzono: 2024-01-20</small>
-                        </div>
-                        <div>
-                            <span class="badge bg-success me-2">Aktywny</span>
-                            <button class="btn btn-sm btn-outline-danger">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                </a>
+            <div class="modal-body">
+                Czy na pewno chcesz usunąć ten projekt?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Anuluj</button>
+                <a id="confirmDeleteBtn" class="btn btn-danger" href="#">Usuń</a>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    body {
-        background-color: #f8f9fa;
-        font-family: 'Segoe UI', sans-serif;
-        min-height: 100vh;
-    }
-
-    /* Logo styles */
-    .logo-img {
-        height: 40px;
-        width: auto;
-        margin-right: 10px;
-        vertical-align: middle;
-    }
-
-    .navbar-brand {
-        display: flex;
-        align-items: center;
-        font-weight: 600;
-        font-size: 1.4rem;
-        padding: 0;
-    }
-
-    .brand-text {
-        vertical-align: middle;
-        color: white;
-        margin-left: 8px;
-    }
-
-    /* Navbar styles */
-    .navbar {
-        box-shadow: 0 2px 8px rgba(0,0,0,.15);
-        padding: 0.8rem 0;
-    }
-
-    .navbar .container {
-        padding: 0.5rem 1rem;
-    }
-
-    .nav-link {
-        padding: 0.8rem 1.2rem !important;
-        transition: all 0.2s ease;
-        margin: 0 0.2rem;
-        border-radius: 6px;
-    }
-
-    .nav-link:hover {
-        background-color: rgba(255,255,255,0.15);
-    }
-
-    /* Search bar improvements */
-    .form-control {
-        border-radius: 20px;
-        padding: 0.5rem 1rem;
-        width: 250px;
-    }
-
-    /* Logout button safety improvements */
-    .btn-outline-light {
-        margin-left: 15px;
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-size: 0.9rem;
-        position: relative;
-    }
-
-    .btn-outline-light:before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -10px;
-        height: 100%;
-        width: 10px;
-    }
-
-    /* Projects list improvements */
-    .list-group-item {
-        border-left: 4px solid transparent;
-        transition: all 0.2s ease;
-        padding: 1rem;
-        margin-bottom: 0.5rem;
-        border-radius: 8px !important;
-    }
-
-    .list-group-item:hover {
-        border-left-color: #0d6efd;
-        background-color: #f8f9fa;
-        transform: translateX(3px);
-        box-shadow: 0 2px 5px rgba(0,0,0,.08);
-    }
-
-    /* Button improvements */
-    .btn {
-        transition: all 0.2s ease;
-        border-radius: 6px;
-    }
-
-    .btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 2px 5px rgba(0,0,0,.1);
-    }
-
-    .btn-sm {
-        padding: 0.4rem 0.8rem;
-    }
-
-    /* Badge improvements */
-    .badge {
-        padding: 0.6em 1em;
-        font-weight: 500;
-        border-radius: 20px;
-    }
-
-    /* New project button improvements */
-    .btn-primary {
-        padding: 0.6rem 1.2rem;
-        font-weight: 500;
-    }
-
-    /* Delete button improvements */
-    .btn-outline-danger {
-        opacity: 0.7;
-        transition: all 0.2s ease;
-    }
-
-    .btn-outline-danger:hover {
-        opacity: 1;
-        background-color: #dc3545;
-        color: white;
-    }
-
-    /* Responsive improvements */
-    @media (max-width: 768px) {
-        .container {
-            padding: 0 15px;
-        }
-
-        .form-control {
-            width: 100%;
-            margin-bottom: 10px;
-        }
-
-        .btn-outline-light {
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .navbar-nav {
-            margin: 1rem 0;
-        }
-
-        .logo-img {
-            height: 32px;
-        }
-
-        .navbar-brand {
-            font-size: 1.2rem;
-        }
-    }
-
-    .btn-outline-danger,
-    .btn-outline-light {
-        cursor: pointer;
-        user-select: none;
-    }
-
-    .confirmation-dialog {
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0,0,0,.15);
-    }
-
-    body::before {
-        content: "";
-        background-image: url('/static/logo_czarne.png');
-        background-size: 20%;
-        background-repeat: no-repeat;
-        background-position: center;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0.6;
-        z-index: -1;
-        pointer-events: none;
-    }
-</style>
-
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function logout() {
-        if (confirm("Czy na pewno chcesz się wylogować?")) {
-            window.location.href = "login.html";
-        }
-    }
+    document.addEventListener("DOMContentLoaded", function() {
+        var confirmModal = document.getElementById('confirmDeleteModal');
+        var confirmBtn = document.getElementById('confirmDeleteBtn');
 
-    function createProject() {
-        const projectName = prompt("Podaj nazwę nowego projektu:");
-        if (projectName) {
-            const projectsList = document.getElementById("projects-list");
-            const currentDate = new Date().toISOString().split('T')[0];
-
-            const newProject = document.createElement("a");
-            newProject.href = "#";
-            newProject.className = "list-group-item list-group-item-action";
-            newProject.innerHTML = `
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <h5 class="mb-1">${projectName}</h5>
-                            <small class="text-muted">Utworzono: ${currentDate}</small>
-                        </div>
-                        <div>
-                            <span class="badge bg-success me-2">Aktywny</span>
-                            <button class="btn btn-sm btn-outline-danger" onclick="deleteProject(this)">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
-                `;
-            projectsList.insertBefore(newProject, projectsList.firstChild);
-        }
-    }
-
-    function deleteProject(button) {
-        if (confirm("Czy na pewno chcesz usunąć ten projekt?")) {
-            button.closest('.list-group-item').remove();
-        }
-    }
+        confirmModal.addEventListener('show.bs.modal', function (event) {
+            var button = event.relatedTarget;  // Element, który wywołał modal
+            var deleteUrl = button.getAttribute('data-delete-url');  // Pobieramy URL z atrybutu data-delete-url
+            confirmBtn.setAttribute('href', deleteUrl);  // Ustawiamy URL na przycisku Usuń w modalu
+        });
+    });
 </script>
-</body>
 
+</body>
 </html>

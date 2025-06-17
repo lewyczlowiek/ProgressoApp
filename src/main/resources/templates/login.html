@@ -1,35 +1,80 @@
 <!DOCTYPE html>
-<html lang="pl">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>Strona Logowania</title>
 </head>
 <body>
 <div class="login-container">
   <h2>Logowanie</h2>
-  <form action="login.php" method="POST">
+  <form id="login-form" role="form">
+
     <div class="input-group">
-      <label for="username">Nazwa użytkownika</label>
-      <input type="text" id="username" name="username" class="input-field" required>
+      <label for="username">Email</label>
+      <input class="input-field" id="username" name="username" required type="text">
     </div>
+
     <div class="input-group">
       <label for="password">Hasło</label>
-      <input type="password" id="password" name="password" class="input-field" required>
+      <input class="input-field" id="password" name="password" required type="password">
     </div>
+
     <div class="remember-me">
-      <input type="checkbox" id="remember" name="remember">
+      <input id="remember" name="remember" type="checkbox">
       <label for="remember">Zapamiętaj mnie</label>
     </div>
-    <button type="button" class="login-button" onclick="window.location.href='index.html';">Zaloguj się!</button>
+    <button class="login-button" type="submit">Zaloguj się</button>
   </form>
   <div class="links">
-    <a href="forgot-password.html" class="forgot-password">Zapomniałeś hasła?</a>
-    <a href="register.html" class="register-link">Zarejestruj się</a>
+    <a class="forgot-password" href="/auth/register">Zapomniałeś hasła?</a>
+    <a class="register-link" href="/auth/register">Zarejestruj się</a>
   </div>
+
 </div>
 </body>
-</html>
+
+<script>
+  // Pobieramy formularz
+  const loginForm = document.getElementById('login-form');
+
+  loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();  // Zapobiegamy domyślnemu przesyłaniu formularza
+
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const remember = document.getElementById('remember').checked;
+
+    // Tworzymy obiekt JSON
+    const loginData = {
+      email: username,
+      password: password,
+    };
+
+    // Wysyłamy dane za pomocą fetch
+    try {
+      const response = await fetch('/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(loginData),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.setItem('jwtToken', data.accessToken);
+        window.location.href = '/index';
+      } else {
+        alert('Nie udało się zalogować. Sprawdź dane logowania.');
+      }
+    } catch (error) {
+      alert('Wystąpił błąd podczas logowania.');
+      console.error(error);
+    }
+  });
+</script>
 
 <style>
   * {
