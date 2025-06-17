@@ -115,7 +115,6 @@
     </style>
 </head>
 <body>
-
 <!-- Formularz edycji projektu -->
 <form id="editProjectForm" th:action="@{/api/project/{id}/edit(id=${project.projectId})}" method="post" th:object="${project}">
     <div class="mb-3">
@@ -126,14 +125,20 @@
         <label class="form-label" for="projectDescription">Opis projektu</label>
         <textarea class="form-control" id="projectDescription" rows="3" th:field="*{description}"></textarea>
     </div>
-
+    <div class="mb-3">
+        <label class="form-label" for="endDateTime">Data zakończenia projektu</label>
+        <!-- Sformatowanie endDateTime w formularzu -->
+        <input class="form-control" type="datetime-local" id="endDateTime"
+               th:value="${formattedEndDateTime}" name="endDateTime" required>
+    </div>
     <div class="form-buttons">
-        <a class="btn btn-danger" th:href="@{/api/project/}">
+        <a class="btn btn-danger" th:href="@{/index}">
             <i class="fas fa-sign-out-alt me-1"></i> Cofnij
         </a>
         <button type="submit" class="update">Zaktualizuj</button>
     </div>
 </form>
+
 
 </body>
 </html>

@@ -14,4 +14,5 @@ public class HomeController {
     /**
      * Zrobione przekierowanie na stronę logowania, nie obsługuję dalej logowania na dany moment.
      */
+
 }

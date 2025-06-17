@@ -4,137 +4,188 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dodaj Zadanie</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+<!--
+  <link rel="stylesheet" th:href="@{/navbar.css}">
+-->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+
   <style>
-    /* Skopiowany i lekko zmodyfikowany styl z formularza projektu */
     body {
-      font-family: 'Arial', sans-serif;
-      background-color: #f4f4f4;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      background-color: #f8f9fa;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     #addTaskForm {
-      max-width: 700px;
-      width: 100%;
-      margin: 20px;
+      background-color: white;
       padding: 40px;
-      background-color: #fff;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      margin: auto;
+      margin-top: 50px;
+    }
+
+    h2 {
+      color: #343a40;
+      font-weight: bold;
     }
 
     .form-label {
-      font-weight: 600;
-      color: #444;
-      margin-bottom: 8px;
-      display: block;
+      font-weight: 500;
+      color: #495057;
     }
 
-    .form-control,
-    .form-select {
-      width: 100%;
-      padding: 14px;
-      border: 1px solid #ddd;
+    .form-control {
       border-radius: 8px;
-      margin-bottom: 25px;
-      font-size: 16px;
-      box-sizing: border-box;
+      padding: 12px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     }
 
-    textarea.form-control {
-      resize: vertical;
-      min-height: 120px;
+    .form-control:focus {
+      border-color: #80bdff;
+      box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.25);
     }
 
-    .form-buttons {
-      text-align: right;
-      margin-top: 30px;
+    .table th, .table td {
+      vertical-align: middle;
     }
 
-    .form-buttons button,
-    .form-buttons a {
-      padding: 12px 25px;
+    .table th {
+      background-color: #f1f1f1;
+      color: #495057;
+    }
+
+    .table tbody tr:hover {
+      background-color: #f1f1f1;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #f9f9f9;
+    }
+
+    .btn {
+      border-radius: 8px;
+      padding: 10px 20px;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 16px;
-      margin-left: 15px;
-      text-decoration: none;
-      display: inline-flex;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    .btn-success {
+      background-color: #28a745;
+      border: none;
+    }
+
+    .btn-success:hover {
+      background-color: #218838;
+    }
+
+    .d-flex {
+      display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
     }
 
-    .form-buttons button.add {
-      background-color: #5cb85c;
-      color: white;
+    .form-check-input {
+      border-radius: 5px;
     }
 
-    .form-buttons button.add:hover {
-      background-color: #4cae4c;
+    .form-check-label {
+      font-weight: 500;
     }
 
-    .form-buttons a.btn-danger {
-      background-color: #f44336;
-      color: white;
+    .table-responsive {
+      margin-top: 20px;
     }
 
-    .form-buttons a.btn-danger:hover {
-      background-color: #d32f2f;
+    .table th, .table td {
+      padding: 12px;
     }
 
-    .form-buttons i {
-      margin-right: 8px;
+    .user-checkbox {
+      margin-left: 10px;
+    }
+
+    .mb-3 {
+      margin-bottom: 1.5rem;
     }
   </style>
 </head>
-<body>
-
-<form id="addTaskForm" th:action="@{/tasks/add}" method="post" th:object="${task}">
+<body class="bg-light">
+<form th:action="@{/tasks/addTasks/{projectId}(projectId=${project.projectId})}" method="post" th:object="${task}" id="addTaskForm">
+  <h2>Dodaj nowe zadanie</h2>
   <div class="mb-3">
-    <label class="form-label" for="taskTitle">Nazwa zadania</label>
-    <input class="form-control" id="taskTitle" type="text" th:field="*{title}" required>
+    <label for="taskTitle" class="form-label">Nazwa zadania</label>
+    <input type="text" class="form-control" id="taskTitle" th:field="*{name}" required>
   </div>
 
   <div class="mb-3">
-    <label class="form-label" for="taskDescription">Opis</label>
-    <textarea class="form-control" id="taskDescription" th:field="*{description}"></textarea>
+    <label for="taskDescription" class="form-label">Opis</label>
+    <textarea class="form-control" id="taskDescription" th:field="*{description}" rows="4"></textarea>
   </div>
 
   <div class="mb-3">
-    <label class="form-label" for="dueDate">Termin wykonania</label>
-    <input class="form-control" id="dueDate" type="date" th:field="*{dueDate}" required>
+    <label for="dueDate" class="form-label">Termin wykonania</label>
+    <input type="date" class="form-control" id="dueDate" th:field="*{dueDate}" required>
   </div>
 
   <div class="mb-3">
-    <label class="form-label" for="status">Status</label>
-    <select class="form-select" id="status" th:field="*{status}">
-      <option value="NOWE">Nowe</option>
-      <option value="WTOKU">W toku</option>
-      <option value="ZAKONCZONE">Zakończone</option>
-    </select>
+    <label class="form-label">Wybierz użytkowników</label>
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="checkbox" id="selectAllCheckbox" />
+      <label class="form-check-label" for="selectAllCheckbox">Wybierz wszystkich</label>
+    </div>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th>Imię</th>
+          <th>Nazwisko</th>
+          <th>Numer Indeksu</th>
+          <th>Wybierz</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${assignedUsers}">
+          <td th:text="${user.firstName}">Jan</td>
+          <td th:text="${user.lastName}">Kowalski</td>
+          <td th:text="${user.numberIndex}">12345</td>
+          <td>
+            <input type="checkbox" class="user-checkbox" name="assignedUsersIds" th:value="${user.userId}" />
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
-  <div class="mb-3">
-    <label class="form-label" for="assignedUser">Przypisany użytkownik</label>
-    <input class="form-control" id="assignedUser" type="text" placeholder="np. Jan Kowalski" th:field="*{assignedTo}">
-    <!-- Można tu dać select z użytkownikami z backendu -->
-  </div>
-
-  <div class="form-buttons">
-    <a class="btn btn-danger" th:href="@{/tasks}">
+  <div class="d-flex">
+    <a class="btn btn-danger" th:href="@{/index}">
       <i class="fas fa-sign-out-alt"></i> Cofnij
     </a>
-    <button type="submit" class="add">
+    <button type="submit" class="btn btn-success">
       <i class="fas fa-check"></i> Dodaj zadanie
     </button>
   </div>
 </form>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('selectAllCheckbox').addEventListener('change', function() {
+    const checked = this.checked;
+    document.querySelectorAll('.user-checkbox').forEach(cb => {
+      cb.checked = checked;
+    });
+  });
+</script>
 
 </body>
 </html>

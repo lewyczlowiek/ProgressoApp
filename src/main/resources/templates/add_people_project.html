@@ -35,6 +35,8 @@
             <div class="table-responsive">
                 <!-- Formularz do przypisania użytkowników -->
                 <form action="#" method="post" th:action="@{/api/project/add-person/{projectId}(projectId=${project.projectId})}">
+                    <input type="hidden" name="selectedUsers" value=""/>  <!-- Dodajemy ukryte pole -->
+
                     <table class="table table-striped">
                         <thead>
                         <tr>
@@ -51,7 +53,7 @@
                                 <td th:text="${user.lastName}">Nazwisko</td>
                                 <td th:text="${user.numberIndex}">Numer Indeksu</td>
                                 <td>
-                                    <!-- Zaznaczenie checkboxa, jeśli użytkownik jest przypisany do projektu -->
+                                    <!-- Sprawdzamy, czy użytkownik jest przypisany do projektu -->
                                     <input type="checkbox" name="selectedUsers" th:value="${user.userId}"
                                            th:checked="${project.users.contains(user)}" />
                                 </td>

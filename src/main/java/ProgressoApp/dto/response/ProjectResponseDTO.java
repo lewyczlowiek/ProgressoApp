@@ -8,9 +8,15 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-public record ProjectResponseDTO(Long projectId, String name, String description,
-                                 @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-                                 LocalDateTime creationTimestamp, List<TaskResponseDTO> tasks,
-                                 Set<UserResponseDTO> users) {
-
+public record ProjectResponseDTO(
+        Long projectId,
+        String name,
+        String description,
+        @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+        LocalDateTime creationTimestamp,
+        LocalDateTime endDateTime,  // Dodajemy pole endDateTime
+        String statusProject,      // Dodajemy pole statusProject
+        List<TaskResponseDTO> tasks,
+        Set<UserResponseDTO> users
+) {
 }
