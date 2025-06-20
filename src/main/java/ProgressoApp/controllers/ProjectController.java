@@ -231,6 +231,7 @@ public class ProjectController {
         model.addAttribute("doneTasks", doneTasks);
 
         return "details_project";
+
     }
 
 
