@@ -30,7 +30,7 @@ public class SecurityWebConfig {
         .cors(AbstractHttpConfigurer::disable)
         .csrf(AbstractHttpConfigurer::disable) // Disable CSRF (since we're using stateless JWT)
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/login", "/auth/register", "/")
+            .requestMatchers("/login", "/register", "/auth/login", "/auth/register/save", "/")
             .permitAll()
             .anyRequest().authenticated())
         .formLogin(login -> login

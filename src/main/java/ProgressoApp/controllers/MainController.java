@@ -18,49 +18,46 @@ import java.util.Map;
 @Controller
 public class MainController {
 
-    private final ProjectService projectService;
+  private final ProjectService projectService;
 
-    @Autowired
-    public MainController(ProjectService projectService) {
-        this.projectService = projectService;
+  @Autowired
+  public MainController(ProjectService projectService) {
+    this.projectService = projectService;
+  }
+
+
+  @GetMapping("/index")
+  public String showProjectsPage(
+      @RequestParam(value = "search", required = false) String search,
+      @RequestParam(value = "sort", required = false, defaultValue = "creationTimestamp") String sort,
+      @RequestParam(value = "dir", required = false, defaultValue = "desc") String dir,
+      Model model, Pageable pageable) {
+
+    // Pobieramy informacje o użytkowniku (rola)
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String currentUserRole = authentication.getAuthorities()
+        .toString();  // Pobieramy role użytkownika
+
+    // Pobieramy projekty na podstawie parametrów
+    Page<ProjectResponseDTO> projects;
+    if (search != null && !search.isBlank()) {
+      projects = projectService.getProjectsByNameContaining(search, pageable, sort, dir);
+    } else {
+      projects = projectService.getAllProjects(pageable, sort, dir);
     }
 
-    @GetMapping("/")
-    public String homePage() {
-        return "login";
-    }
+    model.addAttribute("projects", projects.getContent());
 
-    @GetMapping("/index")
-    public String showProjectsPage(
-            @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "sort", required = false, defaultValue = "creationTimestamp") String sort,
-            @RequestParam(value = "dir", required = false, defaultValue = "desc") String dir,
-            Model model, Pageable pageable) {
+    // Parametry do formularza
+    Map<String, String> params = new HashMap<>();
+    params.put("search", search != null ? search : "");
+    params.put("sort", sort);
+    params.put("dir", dir);
+    model.addAttribute("param", params);
 
-        // Pobieramy informacje o użytkowniku (rola)
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserRole = authentication.getAuthorities().toString();  // Pobieramy role użytkownika
+    // Dodajemy rolę użytkownika do modelu
+    model.addAttribute("currentUserRole", currentUserRole);
 
-        // Pobieramy projekty na podstawie parametrów
-        Page<ProjectResponseDTO> projects;
-        if (search != null && !search.isBlank()) {
-            projects = projectService.getProjectsByNameContaining(search, pageable, sort, dir);
-        } else {
-            projects = projectService.getAllProjects(pageable, sort, dir);
-        }
-
-        model.addAttribute("projects", projects.getContent());
-
-        // Parametry do formularza
-        Map<String, String> params = new HashMap<>();
-        params.put("search", search != null ? search : "");
-        params.put("sort", sort);
-        params.put("dir", dir);
-        model.addAttribute("param", params);
-
-        // Dodajemy rolę użytkownika do modelu
-        model.addAttribute("currentUserRole", currentUserRole);
-
-        return "index";  // Zwracamy widok 'index'
-    }
+    return "index";  // Zwracamy widok 'index'
+  }
 }
