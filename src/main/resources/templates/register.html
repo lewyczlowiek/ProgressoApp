@@ -90,11 +90,13 @@
   <form method="post" role="form" th:action="@{/auth/register/save}" th:object="${user}">
     <div class="input-group">
       <label for="firstName">Imię</label>
-      <input class="input-field" id="firstName" name="firstName" required th:field="*{firstName}" type="text">
+      <input class="input-field" id="firstName" name="firstName" required th:field="*{firstName}"
+             type="text">
     </div>
     <div class="input-group">
       <label for="lastName">Nazwisko</label>
-      <input class="input-field" id="lastName" name="lastName" required th:field="*{lastName}" type="text">
+      <input class="input-field" id="lastName" name="lastName" required th:field="*{lastName}"
+             type="text">
     </div>
     <div class="input-group">
       <label for="email">Adres e-mail</label>
@@ -102,19 +104,23 @@
     </div>
     <div class="input-group">
       <label for="numberIndex">Numer Indeksu:</label>
-      <input class="input-field" id="numberIndex" name="numberIndex" required th:field="*{numberIndex}" type="text">
+      <input class="input-field" id="numberIndex" name="numberIndex" required
+             th:field="*{numberIndex}" type="text">
     </div>
     <div class="input-group">
       <label for="password">Hasło</label>
-      <input class="input-field" id="password" name="password" required th:field="*{password}" type="password">
+      <input class="input-field" id="password" name="password" required th:field="*{password}"
+             type="password">
     </div>
     <div class="input-group">
       <label for="confirm-password">Potwierdź hasło</label>
-      <input class="input-field" id="confirm-password" name="confirm-password" required type="password">
+      <input class="input-field" id="confirm-password" name="confirm-password" required
+             type="password">
     </div>
     <div class="terms">
       <input id="terms" name="terms" required type="checkbox">
-      <label for="terms">Akceptuję <a href="privacy-policy" target="_blank">regulamin i politykę prywatności</a></label>
+      <label for="terms">Akceptuję <a href="privacy-policy" target="_blank">regulamin i politykę
+        prywatności</a></label>
     </div>
     <button class="register-button" type="submit">Zarejestruj się</button>
   </form>
@@ -122,17 +128,66 @@
 </div>
 
 <script>
-  // Walidacja formularza
-  const registerForm = document.querySelector('form');
-
-  registerForm.addEventListener('submit', function(event) {
+  document.addEventListener('DOMContentLoaded', () => {
+    const registerForm = document.querySelector('form');
     const termsCheckbox = document.getElementById('terms');
-    if (!termsCheckbox.checked) {
+
+    registerForm.addEventListener('submit', async (event) => {
       event.preventDefault();
-      alert('Musisz zaakceptować regulamin i politykę prywatności!');
-    }
+
+      if (!termsCheckbox.checked) {
+        alert('Musisz zaakceptować regulamin i politykę prywatności!');
+        return;
+      }
+
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+      const email = document.getElementById('email').value;
+      const numberIndex = document.getElementById('numberIndex').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (password !== confirmPassword) {
+        alert('Hasła nie są takie same!');
+        return;
+      }
+
+      const payload = {
+        firstName,
+        lastName,
+        email,
+        numberIndex,
+        password
+      };
+
+      try {
+        const response = await fetch('/auth/register/save', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        if (response.ok) {
+          window.location.href = '/auth/register?success';
+        } else {
+          const data = await response.json();
+          if (data.message && data.message.includes("email")) {
+            alert("Ten adres e-mail jest już zarejestrowany.");
+          } else {
+            alert("Rejestracja nie powiodła się. Spróbuj ponownie.");
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        alert("Błąd połączenia z serwerem.");
+      }
+    });
   });
 </script>
+
+
 </body>
 </html>
 

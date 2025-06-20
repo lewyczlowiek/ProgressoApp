@@ -1,93 +1,60 @@
 package ProgressoApp.controllers;
 
 import ProgressoApp.dto.request.TaskRequestDTO;
-import ProgressoApp.model.*;
-import ProgressoApp.repository.ProjectRepository;
-import ProgressoApp.repository.TaskRepository;
-import ProgressoApp.repository.TaskSubmissionRepository;
-import ProgressoApp.repository.UserRepository;
+import ProgressoApp.dto.response.TaskResponseDTO;
+import ProgressoApp.model.Task;
 import ProgressoApp.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
-@Controller
-@RequestMapping("/tasks")  // Zmieniam na webowy kontroler (thymeleaf), a nie RestController
+@RestController
+@RequestMapping("/api/tasks")
 public class TaskController {
 
   private final TaskService taskService;
-  private final ProjectRepository projectRepository;
-  private final TaskRepository taskRepository;
-  private final UserRepository userRepository;
-  private final TaskSubmissionRepository taskSubmissionRepository;
 
   @Autowired
-  public TaskController(TaskService taskService,
-                        ProjectRepository projectRepository,
-                        TaskRepository taskRepository,
-                        UserRepository userRepository,
-                        TaskSubmissionRepository taskSubmissionRepository) {
+  public TaskController(TaskService taskService) {
     this.taskService = taskService;
-    this.projectRepository = projectRepository;
-    this.taskRepository = taskRepository;
-    this.userRepository = userRepository;
-    this.taskSubmissionRepository = taskSubmissionRepository;
   }
 
-
-  @GetMapping("/addTasks/{projectId}")
-  public String showAddTaskForm(@PathVariable Long projectId, Model model) {
-    TaskRequestDTO taskDTO = new TaskRequestDTO(
-            "", "", 1, null, projectId, null // status null - ustalisz na backendzie
-    );
-    model.addAttribute("task", taskDTO);
-
-    Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new RuntimeException("Projekt nie znaleziony"));
-
-    // Pobierz użytkowników przypisanych do projektu
-    Set<User> assignedUsersSet = project.getUsers();
-    List<User> assignedUsers = new ArrayList<>(assignedUsersSet);
-
-    model.addAttribute("assignedUsers", assignedUsers);
-    model.addAttribute("project", project);
-
-    return "task_file"; // nazwa szablonu formularza
+  @PostMapping
+  @ResponseStatus(HttpStatus.CREATED)
+  public Task createTask(@RequestBody TaskRequestDTO dto) {
+    return taskService.createTask(dto);
   }
 
-  @PostMapping("/addTasks/{projectId}")
-  public String addTask(
-          @PathVariable Long projectId,
-          @ModelAttribute TaskRequestDTO taskRequestDTO,
-          @RequestParam(required = false, name = "selectedUsers") List<Long> selectedUsersIds
+  @GetMapping
+  public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
+    return taskService.getAllTasks(pageable);
+  }
+
+  @GetMapping("/search")
+  public Page<TaskResponseDTO> getTasksWithParams(
+      @RequestParam Map<String, Object> params,
+      Pageable pageable
   ) {
-    Project project = projectRepository.findById(projectId)
-            .orElseThrow(() -> new RuntimeException("Projekt nie znaleziony"));
+    return taskService.getAllTasksWithParams(params, pageable);
+  }
 
-    Task task = new Task(taskRequestDTO);
-    task.setProject(project);
-    task.setTaskStatus(TaskStatus.TO_DO);
+  @GetMapping("/{id}")
+  public Task getTaskById(@PathVariable Long id) {
+    return taskService.findById(id);
+  }
 
-    taskRepository.save(task);
+  @PutMapping("/{id}")
+  public Task updateTask(@PathVariable Long id, @RequestBody TaskRequestDTO dto) {
+    return taskService.updateTask(id, dto);
+  }
 
-    if (selectedUsersIds != null && !selectedUsersIds.isEmpty()) {
-      for (Long userId : selectedUsersIds) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony: " + userId));
-        // Tworzymy TaskSubmission - oznacza, że użytkownik jest przypisany do zadania
-        TaskSubmission submission = new TaskSubmission();
-        submission.setTask(task);
-        submission.setUser(user);
-        // Możesz ustawić inne pola TaskSubmission, np. submittedAt na null jeśli jeszcze nie było zgłoszenia
-        taskSubmissionRepository.save(submission);
-      }
-    }
-
-    return "redirect:/api/projects/details/" + projectId;
+  @DeleteMapping("/{id}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteTask(@PathVariable Long id) {
+    taskService.deleteTask(id);
   }
 }

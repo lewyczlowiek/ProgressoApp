@@ -76,7 +76,7 @@ public class JwtService {
     return extractUserName(token, this.accessSecretKey);
   }
 
-  public String extractUserNameFromRefreshToken(String token) {
+  public String extractUserNameFromRefrewshToken(String token) {
     return extractUserName(token, this.refreshSecretKey);
   }
 

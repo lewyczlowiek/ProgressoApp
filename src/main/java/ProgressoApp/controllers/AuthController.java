@@ -113,11 +113,19 @@ public class AuthController {
 
 
   @GetMapping("/logout")
-  public String logout(HttpSession session) {
+  public String logout(HttpServletResponse response, HttpSession session) {
     session.invalidate();
 
-    return "redirect:/";
+    Cookie cookie = new Cookie("jwtToken", null);  // nazwa cookie musi być zgodna
+    cookie.setHttpOnly(true);
+    cookie.setSecure(true); // ustaw jak w loginie (HTTPS true, lokalnie false)
+    cookie.setPath("/");
+    cookie.setMaxAge(0); // usuń cookie
+    response.addCookie(cookie);
+
+    return "redirect:/auth/login";
   }
+
   @GetMapping("/privacy-policy.html")
   public String privacyPolicy() {
     return "privacy-policy";

@@ -53,6 +53,7 @@ public class User implements UserDetails {
   @Column(nullable = false)
   private Role role;
 
+  @ToString.Exclude
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<TaskSubmission> submissions;
 
