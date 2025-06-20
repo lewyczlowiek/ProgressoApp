@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Szczegóły zadania</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light p-4">
+<div class="container">
+  <h2 class="mb-4">Szczegóły zadania</h2>
+
+  <!-- Formularz edycji zadania -->
+  <form th:action="@{/tasks/{id}/save(id=${task.taskId})}" method="post">
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="mb-3">
+          <label class="form-label">Nazwa zadania</label>
+          <input type="text" name="name" class="form-control" th:value="${task.name}" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Opis</label>
+          <textarea name="description" class="form-control" rows="3" th:text="${task.description}"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <select name="taskStatus" class="form-select">
+            <option th:value="TO_DO" th:selected="${task.taskStatus == 'TO_DO'}">Nowe</option>
+            <option th:value="IN_PROGRESS" th:selected="${task.taskStatus == 'IN_PROGRESS'}">W toku</option>
+            <option th:value="DONE" th:selected="${task.taskStatus == 'DONE'}">Zakończone</option>
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Termin</label>
+          <input type="date" name="dueDate" class="form-control"
+                 th:value="${task.dueDate != null ? task.dueDate.toString() : ''}">
+        </div>
+
+        <button type="submit" class="btn btn-success">Zapisz zmiany</button>
+      </div>
+    </div>
+  </form>
+
+  <!-- Formularz dodawania pliku -->
+  <div class="card mb-4">
+    <div class="card-header">Dodaj plik</div>
+    <div class="card-body">
+      <form th:action="@{/tasks/{id}/upload(id=${task.taskId})}" method="post" enctype="multipart/form-data">
+        <div class="mb-3">
+          <input type="file" name="file" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Prześlij</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Lista plików -->
+  <div class="card">
+    <div class="card-header">Przesłane pliki</div>
+    <ul class="list-group list-group-flush">
+      <li class="list-group-item d-flex justify-content-between align-items-center"
+          th:each="sub : ${submissions}">
+        <div>
+          <strong th:text="${sub.fileName}">plik.pdf</strong><br>
+          <small th:text="${#dates.format(sub.createdAt, 'yyyy-MM-dd HH:mm')}">data</small>
+        </div>
+        <form th:action="@{/tasks/{taskId}/files/{id}/delete(taskId=${task.task.taskId}, id=${sub.submissionId})}"
+              method="post" th:object="${sub}">
+          <button type="submit" class="btn btn-sm btn-outline-danger">Usuń</button>
+        </form>
+      </li>
+      <li class="list-group-item" th:if="${#lists.isEmpty(submissions)}">Brak plików</li>
+    </ul>
+  </div>
+
+  <div class="mt-4">
+    <a th:href="@{/tasks}" class="btn btn-secondary">← Wróć do listy zadań</a>
+  </div>
+</div>
+</body>
+</html>

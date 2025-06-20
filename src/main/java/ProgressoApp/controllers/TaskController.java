@@ -8,6 +8,7 @@ import ProgressoApp.repository.TaskSubmissionRepository;
 import ProgressoApp.repository.UserRepository;
 import ProgressoApp.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -64,8 +65,8 @@ public class TaskController {
   public String addTask(
           @PathVariable Long projectId,
           @ModelAttribute TaskRequestDTO taskRequestDTO,
-          @RequestParam(required = false, name = "selectedUsers") List<Long> selectedUsersIds
-  ) {
+          @RequestParam(required = false, name = "selectedUsers") List<Long> selectedUsersIds,
+          Model model) {
     Project project = projectRepository.findById(projectId)
             .orElseThrow(() -> new RuntimeException("Projekt nie znaleziony"));
 
@@ -87,7 +88,46 @@ public class TaskController {
         taskSubmissionRepository.save(submission);
       }
     }
-
     return "redirect:/api/projects/details/" + projectId;
+  }
+  @GetMapping
+  public String showTasks(Model model) {
+    List<Task> tasks = taskRepository.findAll();
+    model.addAttribute("tasks", tasks);
+    return "task";
+  }
+  @GetMapping("/{taskId}")
+  public String showTaskDetails(@PathVariable Long taskId, Model model) {
+    Task task = taskRepository.findById(taskId)
+            .orElseThrow(() -> new RuntimeException("Zadanie nie znalezione"));
+
+    List<TaskSubmission> submissions = taskSubmissionRepository.findByTask(task); // jeśli chcesz pliki
+    model.addAttribute("task", task);
+    model.addAttribute("submissions", submissions);
+    return "task_details";
+  }
+  @GetMapping("/{id}/edit")
+  public String editTaskForm(@PathVariable Long id, Model model) {
+    Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Zadanie nie znalezione"));
+    model.addAttribute("task", task);
+    return "task_edit";
+  }
+  @PostMapping("/{id}/save")
+  public String saveTask(@PathVariable Long id,
+                         @RequestParam String name,
+                         @RequestParam String description,
+                         @RequestParam TaskStatus taskStatus,
+                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate) {
+    Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Zadanie nie znalezione"));
+
+    task.setName(name);
+    task.setDescription(description);
+    task.setTaskStatus(taskStatus);
+    task.setDueDate(dueDate);
+    taskRepository.save(task);
+
+    return "redirect:/tasks/" + id;
   }
 }
