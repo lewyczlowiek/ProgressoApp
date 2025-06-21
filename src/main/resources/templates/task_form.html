@@ -30,27 +30,28 @@
     </style>
 </head>
 <body class="bg-light">
-<form th:action="@{/tasks/addTasks}" method="post" th:object="${task}" id="addTaskForm">
+
+<form th:action="@{/tasks}" method="post" id="addTaskForm">
     <h2>Dodaj nowe zadanie</h2>
 
     <div class="mb-3">
         <label for="taskTitle" class="form-label">Nazwa zadania</label>
-        <input type="text" class="form-control" id="taskTitle" th:field="*{name}" required>
+        <input type="text" class="form-control" id="taskTitle" name="name" required>
     </div>
 
     <div class="mb-3">
         <label for="taskDescription" class="form-label">Opis</label>
-        <textarea class="form-control" id="taskDescription" th:field="*{description}" rows="4"></textarea>
+        <textarea class="form-control" id="taskDescription" name="description" rows="4"></textarea>
     </div>
 
     <div class="mb-3">
         <label for="dueDate" class="form-label">Termin wykonania</label>
-        <input type="date" class="form-control" id="dueDate" th:field="*{dueDate}" required>
+        <input type="date" class="form-control" id="dueDate" name="dueDate" required>
     </div>
 
     <div class="mb-3">
         <label for="projectSelect" class="form-label">Wybierz projekt</label>
-        <select class="form-control" id="projectSelect" th:field="*{projectId}" required>
+        <select class="form-control" id="projectSelect" name="projectId" required>
             <option th:each="project : ${projects}"
                     th:value="${project.projectId}"
                     th:text="${project.name}">
@@ -89,7 +90,7 @@
     </div>
 
     <div class="d-flex">
-        <a class="btn btn-danger" th:href="@{/index}">
+        <a class="btn btn-danger" th:href="@{/tasks}">
             <i class="fas fa-sign-out-alt"></i> Cofnij
         </a>
         <button type="submit" class="btn btn-success">
@@ -107,5 +108,6 @@
         });
     });
 </script>
+
 </body>
 </html>
