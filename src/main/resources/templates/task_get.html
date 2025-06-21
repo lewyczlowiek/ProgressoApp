@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,7 @@
 <body class="bg-light">
 
 <!-- NAVBAR -->
-<div th:replace="fragments/navbar :: navbar"></div>
+<div th:insert="~{fragments/navbar :: navbar}"></div>
 
 <!-- TASKS LIST -->
 <div class="container mt-4">
@@ -32,15 +32,15 @@
                         <div>
                             <h5 class="mb-1 editable-title" th:text="${task.name}">Tytuł zadania</h5>
                             <small class="text-muted">
-                                Utworzono: <span th:text="${#dates.format(task.creationTimestamp, 'yyyy-MM-dd')}">2024-01-01</span>
+                                Utworzono: <span th:text="${task.formattedCreationDate}">2024-01-01</span>
                             </small>
                         </div>
                         <div class="d-flex align-items-center">
                             <span class="badge me-2"
                                   th:text="${task.taskStatus}"
-                                  th:classappend="${task.taskStatus} == 'Nowe' ? 'bg-secondary' :
-                                                   task.taskStatus == 'W toku' ? 'bg-warning' :
-                                                   task.taskStatus == 'Zakończone' ? 'bg-success' : 'bg-secondary'">Status</span>
+                                  th:classappend="${task.taskStatus == 'Nowe' ? ' bg-secondary' :
+                 (task.taskStatus == 'W toku' ? ' bg-warning' :
+                 (task.taskStatus == 'Zakończone' ? ' bg-success' : ' bg-secondary'))}">Status</span>
 
                             <select class="form-select form-select-sm me-2" onchange="changeStatus(this)">
                                 <option th:selected="${task.taskStatus == 'Nowe'}">Nowe</option>

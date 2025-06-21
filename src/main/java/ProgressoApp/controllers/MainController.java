@@ -11,6 +11,7 @@ import ProgressoApp.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -22,11 +23,14 @@ import ProgressoApp.model.*;
 
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 public class MainController {
@@ -132,5 +136,60 @@ public class MainController {
     }
 
     return "redirect:/api/project/details/" + projectId;
+  }
+
+  @GetMapping("/tasks")
+  public String showTasks(Model model) {
+    List<Task> tasks = taskRepository.findAll();
+
+    // Formatowanie daty do Stringa
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    // Mapowanie zadań z dodaną sformatowaną datą
+    List<Map<String, Object>> taskList = tasks.stream().map(task -> {
+      Map<String, Object> taskMap = new HashMap<>();
+      taskMap.put("taskId", task.getTaskId());
+      taskMap.put("name", task.getName());
+      taskMap.put("taskStatus", task.getTaskStatus());
+      taskMap.put("formattedCreationDate", task.getCreationTimestamp().format(formatter));
+      return taskMap;
+    }).collect(Collectors.toList());
+
+    model.addAttribute("tasks", taskList);
+    return "task_get";
+  }
+  @GetMapping("/tasks/{taskId}")
+  public String showTaskDetails(@PathVariable Long taskId, Model model) {
+    Task task = taskRepository.findById(taskId)
+            .orElseThrow(() -> new RuntimeException("Zadanie nie znalezione"));
+
+    List<TaskSubmission> submissions = taskSubmissionRepository.findByTask(task); // jeśli chcesz pliki
+    model.addAttribute("task", task);
+    model.addAttribute("submissions", submissions);
+    return "task_details";
+  }
+  @GetMapping("/tasks/{id}/edit")
+  public String editTaskForm(@PathVariable Long id, Model model) {
+    Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Zadanie nie znalezione"));
+    model.addAttribute("task", task);
+    return "task_edit";
+  }
+  @PostMapping("/tasks/{id}/save")
+  public String saveTask(@PathVariable Long id,
+                         @RequestParam String name,
+                         @RequestParam String description,
+                         @RequestParam TaskStatus taskStatus,
+                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate) {
+    Task task = taskRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Zadanie nie znalezione"));
+
+    task.setName(name);
+    task.setDescription(description);
+    task.setTaskStatus(taskStatus);
+    task.setDueDate(dueDate);
+    taskRepository.save(task);
+
+    return "redirect:/tasks/" + id;
   }
 }
