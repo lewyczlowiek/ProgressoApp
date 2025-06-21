@@ -1,20 +1,17 @@
 <!DOCTYPE html>
-<html lang="pl" xmlns:th="http://www.thymeleaf.org">
-
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lista Zadań</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
 </head>
 
 <body class="bg-light">
-<!-- NAVBAR -->
-<div th:replace="fragments/navbar :: navbar"></div>
 
-<!-- TASKS LIST -->
+<div th:insert="~{fragments/navbar :: navbar}"></div>
+
 <div class="container mt-4">
     <div class="row">
         <div class="col-lg-8 mx-auto">
@@ -25,35 +22,50 @@
                 </a>
             </div>
 
-            <!-- Lista zadań z backendu -->
             <div id="tasks-list" class="list-group shadow-sm">
                 <div th:each="task : ${tasks}" class="list-group-item list-group-item-action">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h5 class="mb-1 editable-title" th:text="${task.title}">Tytuł zadania</h5>
-                            <small class="text-muted">Utworzono: <span th:text="${#dates.format(task.createdAt, 'yyyy-MM-dd')}">2024-01-01</span></small>
+                            <h5 class="mb-1" th:text="${task.name}">Tytuł zadania</h5>
+                            <small class="text-muted">
+                                Utworzono: <span th:text="${task.formattedCreationDate}">2024-01-01</span>
+                            </small>
                         </div>
                         <div class="d-flex align-items-center">
-                            <span class="badge me-2"
-                                  th:text="${task.status}"
-                                  th:classappend="${task.status} == 'Nowe' ? 'bg-secondary' :
-                                                   task.status == 'W toku' ? 'bg-warning' :
-                                                   task.status == 'Zakończone' ? 'bg-success' : 'bg-secondary'">Status</span>
 
-                            <select class="form-select form-select-sm me-2" onchange="changeStatus(this)">
-                                <option th:selected="${task.status == 'Nowe'}">Nowe</option>
-                                <option th:selected="${task.status == 'W toku'}">W toku</option>
-                                <option th:selected="${task.status == 'Zakończone'}">Zakończone</option>
+                            <span class="badge me-2"
+                                  th:text="${task.taskStatus}"
+                                  th:classappend="${task.taskStatus == 'Nowe' ? ' bg-secondary' :
+                                                   (task.taskStatus == 'W toku' ? ' bg-warning' :
+                                                   (task.taskStatus == 'Zakończone' ? ' bg-success' : ' bg-secondary'))}">
+                                Status
+                            </span>
+
+                            <select class="form-select form-select-sm me-2"
+                                    th:attr="data-task-id=${task.taskId}"
+                                    onchange="changeStatus(this)">
+                                <option th:selected="${task.taskStatus == 'Nowe'}">Nowe</option>
+                                <option th:selected="${task.taskStatus == 'W toku'}">W toku</option>
+                                <option th:selected="${task.taskStatus == 'Zakończone'}">Zakończone</option>
                             </select>
 
-                            <button class="btn btn-sm btn-outline-secondary me-2" onclick="editTask(this)">
-                                <i class="fas fa-pen"></i>
-                            </button>
+                            <a class="btn btn-sm btn-outline-info me-2"
+                               th:href="@{/tasks/{id}(id=${task.taskId})}">
+                                <i class="fas fa-info-circle"></i> Szczegóły
+                            </a>
 
-                            <button class="btn btn-sm btn-outline-danger" th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''LEKTOR'')')}"
-                                    onclick="deleteTask(this)">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                            <a class="btn btn-sm btn-outline-secondary me-2"
+                               th:href="@{/tasks/{id}/edit(id=${task.taskId})}">
+                                <i class="fas fa-pen"></i>
+                            </a>
+
+                            <form th:action="@{/tasks/{id}/delete(id=${task.taskId})}" method="post"
+                                  th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''LEKTOR'')')}"
+                                  onsubmit="return confirm('Czy na pewno chcesz usunąć to zadanie?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -107,26 +119,29 @@
 </style>
 
 <script>
-    function deleteTask(button) {
-        if (confirm("Czy na pewno chcesz usunąć to zadanie?")) {
-            button.closest('.list-group-item').remove();
-        }
-    }
-
-    function editTask(button) {
-        const titleElement = button.closest('.list-group-item').querySelector('.editable-title');
-        const currentTitle = titleElement.textContent;
-        const newTitle = prompt("Zmień nazwę zadania:", currentTitle);
-        if (newTitle && newTitle.trim() !== '') {
-            titleElement.textContent = newTitle.trim();
-        }
-    }
-
     function changeStatus(selectElement) {
         const status = selectElement.value;
+        const taskId = selectElement.dataset.taskId;
         const badge = selectElement.parentElement.querySelector('.badge');
+
         badge.className = `badge me-2 ${getBadgeClass(status)}`;
         badge.textContent = status;
+
+        const statusMap = {
+            "Nowe": "TO_DO",
+            "W toku": "IN_PROGRESS",
+            "Zakończone": "DONE"
+        };
+
+        fetch(`/api/tasks/${taskId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ taskStatus: statusMap[status] })
+        }).then(response => {
+            if (!response.ok) {
+                alert('Nie udało się zaktualizować statusu.');
+            }
+        });
     }
 
     function getBadgeClass(status) {
