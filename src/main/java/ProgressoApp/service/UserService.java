@@ -1,13 +1,12 @@
 package ProgressoApp.service;
 
 import ProgressoApp.dto.request.RegisterDTO;
+import ProgressoApp.dto.request.UserRequestDTO;
 import ProgressoApp.model.Role;
-import ProgressoApp.model.Task;
 import ProgressoApp.model.User;
 import ProgressoApp.repository.UserRepository;
-import java.util.List;
-import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,51 +15,93 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
+@RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
-  @Autowired
-  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-    this.userRepository = userRepository;
-    this.passwordEncoder = passwordEncoder;
-  }
-
   public void saveUser(RegisterDTO registerDTO) {
+    if (userRepository.existsByEmail(registerDTO.getEmail())) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Ten adres email jest już zajęty");
+    }
+    if (userRepository.existsByNumberIndex(registerDTO.getNumberIndex())) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Numer indeksu jest już zajęty");
+    }
 
     User user = User.builder()
-        .firstName(registerDTO.getFirstName())
-        .lastName(registerDTO.getLastName())
-        .email(registerDTO.getEmail())
-        .password(passwordEncoder.encode(registerDTO.getPassword()))
-        .numberIndex(registerDTO.getNumberIndex())
-        .role(Role.STUDENT)
-        .build();
+            .firstName(registerDTO.getFirstName())
+            .lastName(registerDTO.getLastName())
+            .email(registerDTO.getEmail())
+            .password(passwordEncoder.encode(registerDTO.getPassword()))
+            .numberIndex(registerDTO.getNumberIndex())
+            .role(Role.STUDENT)
+            .build();
 
     userRepository.save(user);
   }
 
-  public User findById(long id) {
+  public User createUser(UserRequestDTO dto){
+    if (userRepository.existsByEmail(dto.email())){
+      throw new ResponseStatusException(HttpStatus.CONFLICT,  "Użytkownik z takim e-mailem już istnieje!");
+    }
+
+    if (userRepository.existsByNumberIndex(dto.numberIndex())) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT, "Numer indesku już jest zajęty przez innego użytkownika!");
+    }
+
+    User user = User.builder()
+            .firstName(dto.firstName())
+            .lastName(dto.lastName())
+            .email(dto.email())
+            .password(dto.password())
+            .numberIndex(dto.numberIndex())
+            .role(Role.STUDENT)
+            .build();
+
+      return userRepository.save(user);
+  }
+
+  public User updateUser(Long id, UserRequestDTO dto) {
+    User user = findById(id);
+
+    user.setFirstName(dto.firstName());
+    user.setLastName(dto.lastName());
+    user.setEmail(dto.email());
+    user.setNumberIndex(dto.numberIndex());
+
+    if (dto.password() != null && !dto.password().isEmpty()) {
+      user.setPassword(passwordEncoder.encode(dto.password()));
+    }
+    return userRepository.save(user);
+  }
+
+  @Transactional
+  public void deleteUser(Long id) {
+    User user = findById(id);
+    userRepository.delete(user);
+  }
+
+  public User findById(Long id) {
     return userRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nie znaleziono użytkownika"));
   }
 
-  public Optional<User>
-  findByEmail(String email) {
+  public Optional<User> findByEmail(String email) {
     return userRepository.findByEmail(email);
-  }
-
-  @Override
-  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-    return userRepository.findByEmail(username)
-        .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + username));
   }
 
   public List<User> findAll() {
     return userRepository.findAll();
   }
 
-
+  @Override
+  public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    return userRepository.findByEmail(email)
+            .orElseThrow(() -> new UsernameNotFoundException("Użytkownik nie istnieje: " + email));
+  }
 }

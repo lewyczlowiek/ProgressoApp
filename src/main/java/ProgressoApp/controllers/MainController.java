@@ -1,7 +1,13 @@
 package ProgressoApp.controllers;
 
+import ProgressoApp.dto.request.TaskRequestDTO;
+import ProgressoApp.repository.ProjectRepository;
+import ProgressoApp.repository.TaskRepository;
+import ProgressoApp.repository.TaskSubmissionRepository;
+import ProgressoApp.repository.UserRepository;
 import ProgressoApp.service.ProjectService;
 import ProgressoApp.dto.response.ProjectResponseDTO;
+import ProgressoApp.service.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,57 +16,121 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import ProgressoApp.model.*;
 
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.HashMap;
 import java.util.Map;
 
 @Controller
 public class MainController {
 
-    private final ProjectService projectService;
+  private final ProjectService projectService;
+  private final TaskService taskService;
+  private final ProjectRepository projectRepository;
+  private final TaskRepository taskRepository;
+  private final UserRepository userRepository;
+  private final TaskSubmissionRepository taskSubmissionRepository;
+  @Autowired
+  public MainController(ProjectService projectService, TaskService taskService, ProjectRepository projectRepository, TaskRepository taskRepository, UserRepository userRepository, TaskSubmissionRepository taskSubmissionRepository) {
+    this.projectService = projectService;
+      this.taskService = taskService;
+      this.projectRepository = projectRepository;
+      this.taskRepository = taskRepository;
+      this.userRepository = userRepository;
+      this.taskSubmissionRepository = taskSubmissionRepository;
+  }
 
-    @Autowired
-    public MainController(ProjectService projectService) {
-        this.projectService = projectService;
+
+  @GetMapping("/index")
+  public String showProjectsPage(
+      @RequestParam(value = "search", required = false) String search,
+      @RequestParam(value = "sort", required = false, defaultValue = "creationTimestamp") String sort,
+      @RequestParam(value = "dir", required = false, defaultValue = "desc") String dir,
+      Model model, Pageable pageable) {
+
+    // Pobieramy informacje o użytkowniku (rola)
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String currentUserRole = authentication.getAuthorities()
+        .toString();  // Pobieramy role użytkownika
+
+    // Pobieramy projekty na podstawie parametrów
+    Page<ProjectResponseDTO> projects;
+    if (search != null && !search.isBlank()) {
+      projects = projectService.getProjectsByNameContaining(search, pageable, sort, dir);
+    } else {
+      projects = projectService.getAllProjects(pageable, sort, dir);
     }
 
-    @GetMapping("/")
-    public String homePage() {
-        return "login";
+    model.addAttribute("projects", projects.getContent());
+
+    // Parametry do formularza
+    Map<String, String> params = new HashMap<>();
+    params.put("search", search != null ? search : "");
+    params.put("sort", sort);
+    params.put("dir", dir);
+    model.addAttribute("param", params);
+
+    // Dodajemy rolę użytkownika do modelu
+    model.addAttribute("currentUserRole", currentUserRole);
+
+    return "index";  // Zwracamy widok 'index'
+  }
+
+  @GetMapping("/tasks/addTasks/{projectId}")
+  public String showAddTaskForm(@PathVariable Long projectId, Model model) {
+    TaskRequestDTO taskDTO = new TaskRequestDTO(
+            "", "", 1, null, projectId, null // status null - ustalisz na backendzie
+    );
+    model.addAttribute("task", taskDTO);
+
+    Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new RuntimeException("Projekt nie znaleziony"));
+
+    // Pobierz użytkowników przypisanych do projektu
+    Set<User> assignedUsersSet = project.getUsers();
+    List<User> assignedUsers = new ArrayList<>(assignedUsersSet);
+
+    model.addAttribute("assignedUsers", assignedUsers);
+    model.addAttribute("project", project);
+
+    return "task_file"; // nazwa szablonu formularza
+  }
+
+  @PostMapping("/tasks/addTasks/{projectId}")
+  public String addTask(
+          @PathVariable Long projectId,
+          @ModelAttribute TaskRequestDTO taskRequestDTO,
+          @RequestParam(required = false, name = "selectedUsers") List<Long> selectedUsersIds
+  ) {
+    Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new RuntimeException("Projekt nie znaleziony"));
+
+    Task task = new Task(taskRequestDTO);
+    task.setProject(project);
+    task.setTaskStatus(TaskStatus.TO_DO);
+
+    taskRepository.save(task);
+
+    if (selectedUsersIds != null && !selectedUsersIds.isEmpty()) {
+      for (Long userId : selectedUsersIds) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Użytkownik nie znaleziony: " + userId));
+        // Tworzymy TaskSubmission - oznacza, że użytkownik jest przypisany do zadania
+        TaskSubmission submission = new TaskSubmission();
+        submission.setTask(task);
+        submission.setUser(user);
+        // Możesz ustawić inne pola TaskSubmission, np. submittedAt na null jeśli jeszcze nie było zgłoszenia
+        taskSubmissionRepository.save(submission);
+      }
     }
 
-    @GetMapping("/index")
-    public String showProjectsPage(
-            @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "sort", required = false, defaultValue = "creationTimestamp") String sort,
-            @RequestParam(value = "dir", required = false, defaultValue = "desc") String dir,
-            Model model, Pageable pageable) {
-
-        // Pobieramy informacje o użytkowniku (rola)
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserRole = authentication.getAuthorities().toString();  // Pobieramy role użytkownika
-
-        // Pobieramy projekty na podstawie parametrów
-        Page<ProjectResponseDTO> projects;
-        if (search != null && !search.isBlank()) {
-            projects = projectService.getProjectsByNameContaining(search, pageable, sort, dir);
-        } else {
-            projects = projectService.getAllProjects(pageable, sort, dir);
-        }
-
-        model.addAttribute("projects", projects.getContent());
-
-        // Parametry do formularza
-        Map<String, String> params = new HashMap<>();
-        params.put("search", search != null ? search : "");
-        params.put("sort", sort);
-        params.put("dir", dir);
-        model.addAttribute("param", params);
-
-        // Dodajemy rolę użytkownika do modelu
-        model.addAttribute("currentUserRole", currentUserRole);
-
-        return "index";  // Zwracamy widok 'index'
-    }
+    return "redirect:/api/project/details/" + projectId;
+  }
 }

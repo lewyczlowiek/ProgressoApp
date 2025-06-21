@@ -21,9 +21,7 @@
           <li class="nav-item"><a class="nav-link" id="chat-link" th:href="@{/chat}">Chat</a></li>
         </ul>
         <div class="d-flex">
-          <button class="btn btn-outline-light" onclick="window.location.href='/auth/logout'">
-            Wyloguj
-          </button>
+          <a class="btn btn-outline-light" href="#" id="logoutBtn">Wyloguj</a>
         </div>
       </div>
     </div>
@@ -78,6 +76,41 @@
       initWebSocket();
     });
   </script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initWebSocket(); // Twoje istniejące
+
+      const logoutBtn = document.getElementById('logoutBtn');
+
+      logoutBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        if (!confirm("Czy na pewno chcesz się wylogować?")) {
+          return;
+        }
+
+        try {
+          // Jeśli używasz JWT w localStorage/sessionStorage
+          localStorage.removeItem('token');
+          sessionStorage.removeItem('token');
+
+          // Wyślij żądanie do logout endpointu (opcjonalnie)
+          await fetch('/auth/logout', {
+            method: 'POST',
+            credentials: 'include' // dla ciastek, jeśli używasz JWT w cookie
+          });
+
+          // Przekierowanie na stronę główną lub login
+          window.location.href = '/login';
+
+        } catch (error) {
+          console.error("Błąd przy wylogowaniu:", error);
+          alert("Wystąpił problem podczas wylogowania.");
+        }
+      });
+    });
+  </script>
+
 
 </div>
 </body>

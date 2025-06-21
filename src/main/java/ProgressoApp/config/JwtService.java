@@ -11,10 +11,12 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class JwtService {
@@ -23,16 +25,20 @@ public class JwtService {
   private final Integer accessTokenValidityInMin;
   private final SecretKey refreshSecretKey;
   private final Integer refreshTokenValidityInMin;
+  private final UserDetailsService userDetailsService;
 
+  @Autowired
   public JwtService(@Value("${jwt.access-secret-key}") String accessSecretKey,
       @Value("${jwt.access-token-validity-in-min}") Integer accessTokenValidityInMin,
       @Value("${jwt.refresh-secret-key}") String refreshSecretKey,
-      @Value("${jwt.refresh-token-validity-in-min}") Integer refreshTokenValidityInMin) {
+      @Value("${jwt.refresh-token-validity-in-min}") Integer refreshTokenValidityInMin,
+      UserDetailsService userDetailsService) {
     System.out.println("accessSecretKey = " + accessSecretKey); // for debugging
     this.accessSecretKey = Keys.hmacShaKeyFor(accessSecretKey.getBytes(StandardCharsets.UTF_8));
     this.accessTokenValidityInMin = accessTokenValidityInMin;
     this.refreshSecretKey = Keys.hmacShaKeyFor(refreshSecretKey.getBytes(StandardCharsets.UTF_8));
     this.refreshTokenValidityInMin = refreshTokenValidityInMin;
+    this.userDetailsService = userDetailsService;
   }
 
   private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails,
@@ -54,7 +60,6 @@ public class JwtService {
   }
 
   public Claims extractAllClaims(String token, SecretKey secretKey) {
-
     return Jwts.parserBuilder()
         .setSigningKey(secretKey)
         .build()
@@ -78,6 +83,23 @@ public class JwtService {
 
   public String extractUserNameFromRefreshToken(String token) {
     return extractUserName(token, this.refreshSecretKey);
+  }
+
+  /**
+   * Publiczna metoda walidująca token dostępu — wyciąga username i ładuje UserDetails.
+   */
+  public boolean isTokenValid(String token) {
+    try {
+      String username = extractUserNameFromAccessToken(token);
+      if (username == null) {
+        return false;
+      }
+
+      UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+      return isTokenValid(token, this.accessSecretKey, userDetails);
+    } catch (Exception e) {
+      return false;
+    }
   }
 
   private boolean isTokenValid(String token, SecretKey secretKey, UserDetails userDetails) {

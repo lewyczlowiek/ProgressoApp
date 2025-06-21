@@ -30,11 +30,21 @@ public class SecurityWebConfig {
         .cors(AbstractHttpConfigurer::disable)
         .csrf(AbstractHttpConfigurer::disable) // Disable CSRF (since we're using stateless JWT)
         .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/auth/login", "/auth/register", "/auth/**", "/**")
-            .permitAll()  // Allow unauthenticated access
-            .anyRequest().authenticated())  // All other endpoints require authentication
+            .requestMatchers("/login", "/register", "/auth/login", "/auth/register/save", "/")
+            .permitAll()
+            .anyRequest().authenticated())
+        .formLogin(login -> login
+            .loginPage("/login")
+            .permitAll()
+        )// All other endpoints require authentication
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
+        .logout(logout -> logout
+            .logoutUrl("/auth/logout")  // dopasuj do twojego endpointa
+            .logoutSuccessUrl("/auth/login?logout")
+            .deleteCookies("jwtToken")
+            .permitAll()
+        )
         .addFilterBefore(jwtAuthFilter,
             UsernamePasswordAuthenticationFilter.class)  // Add JWT filter
         .build();

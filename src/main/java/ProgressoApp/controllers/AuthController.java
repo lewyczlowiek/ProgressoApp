@@ -11,6 +11,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
+import java.util.Map;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -46,34 +47,25 @@ public class AuthController {
   }
 
 
-  @GetMapping("/register")
-  public String showRegisterForm(Model model) {
-    RegisterDTO user = new RegisterDTO();
-    model.addAttribute("user", user);
-    return "register";
-  }
-
   @PostMapping("/register/save")
-  public String register(@RequestBody @Valid RegisterDTO user,
-      BindingResult result, Model model) {
+  public ResponseEntity<Map<String, String>> register(@RequestBody @Valid RegisterDTO user,
+      BindingResult result) {
     Optional<User> existingUser = userService.findByEmail(user.getEmail());
 
     if (existingUser.isPresent()) {
-      result.rejectValue("email", null, "Ten adres email jest niedostępny");
+      return ResponseEntity
+          .badRequest()
+          .body(Map.of("message", "EMAIL_IN_USE"));
     }
 
     if (result.hasErrors()) {
-      model.addAttribute("user", user);
-      return "register";
+      return ResponseEntity
+          .badRequest()
+          .body(Map.of("message", "VALIDATION_ERROR"));
     }
 
     userService.saveUser(user);
-    return "redirect:/auth/register?success";
-  }
-
-  @GetMapping("/login")
-  public String loginPage() {
-    return "login";
+    return ResponseEntity.ok(Map.of("message", "SUCCESS"));
   }
 
 
@@ -113,11 +105,19 @@ public class AuthController {
 
 
   @GetMapping("/logout")
-  public String logout(HttpSession session) {
+  public String logout(HttpServletResponse response, HttpSession session) {
     session.invalidate();
 
-    return "redirect:/";
+    Cookie cookie = new Cookie("jwtToken", null);  // nazwa cookie musi być zgodna
+    cookie.setHttpOnly(true);
+    cookie.setSecure(true); // ustaw jak w loginie (HTTPS true, lokalnie false)
+    cookie.setPath("/");
+    cookie.setMaxAge(0); // usuń cookie
+    response.addCookie(cookie);
+
+    return "redirect:/login";
   }
+
   @GetMapping("/privacy-policy.html")
   public String privacyPolicy() {
     return "privacy-policy";
