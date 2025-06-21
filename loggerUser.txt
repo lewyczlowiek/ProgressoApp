@@ -1,0 +1,15 @@
+/*** PLIK DO LOGOWANIA DLA PRE-DEFINIOWANYCH UŻYTKOWNIKÓW ***/
+
+1. Użytkownik ADMIN:
+email: admin.admin@op.pl
+hasło: admin1234
+
+
+2. Użytkownik LECTURER (wykładowca):
+email: lecturer.lecturer@op.pl
+hasło: lecturer1234
+
+3. Użytkownik STUDENT:
+email: student.student@op.pl
+hasło: student1234
+
