@@ -2,16 +2,15 @@ package ProgressoApp.controllers.api;
 
 import ProgressoApp.dto.request.ProjectRequestDTO;
 import ProgressoApp.dto.response.ProjectResponseDTO;
+import ProgressoApp.dto.response.UserResponseDTO;
 import ProgressoApp.model.Project;
-import ProgressoApp.model.Task;
-import ProgressoApp.model.TaskStatus;
 import ProgressoApp.model.User;
 import ProgressoApp.repository.ProjectRepository;
 import ProgressoApp.repository.TaskRepository;
 import ProgressoApp.repository.UserRepository;
 import ProgressoApp.service.ProjectService;
+import ProgressoApp.service.UserService;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -19,15 +18,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/api/project")
 public class ProjectController {
 
   private final ProjectService projectService;
+  private final UserService userService;
   @Autowired
   private ProjectRepository projectRepository;
   @Autowired
@@ -36,36 +35,17 @@ public class ProjectController {
   private TaskRepository taskRepository;
 
   @Autowired
-  public ProjectController(ProjectService projectService) {
+  public ProjectController(ProjectService projectService, UserService userService) {
     this.projectService = projectService;
+    this.userService = userService;
   }
 
-  @GetMapping("/edit/{id}")
-  public String showEditProjectForm(@PathVariable long id, Model model) {
-    // Pobieramy projekt
-    Project project = projectService.findById(id);
-    if (project == null) {
-      return "redirect:/index";  // Jeśli projekt nie istnieje, przekierowanie na stronę główną
-    }
-
-    // Formatowanie endDateTime na 'yyyy-MM-dd'T'HH:mm'
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-    String formattedEndDateTime = project.getEndDateTime().format(formatter);
-
-    // Dodanie projektu do modelu
-    model.addAttribute("project", project);
-    model.addAttribute("formattedEndDateTime", formattedEndDateTime);
-
-    return "edit_project";  // Przekazanie modelu do widoku
-  }
-
-
-  @PostMapping("/{id}/edit")
-  public String updateProject(@PathVariable long id, @ModelAttribute ProjectRequestDTO projectDto) {
-    // Zaktualizowanie projektu na podstawie przekazanych danych
-    projectService.updateProject(id, projectDto);
-    return "redirect:/index"; // Po zapisaniu, przekierowanie na stronę z listą projektów
-  }
+//  @PostMapping("/{id}/edit")
+//  public String updateProject(@PathVariable long id, @ModelAttribute ProjectRequestDTO projectDto) {
+//    // Zaktualizowanie projektu na podstawie przekazanych danych
+//    projectService.updateProject(id, projectDto);
+//    return "redirect:/index"; // Po zapisaniu, przekierowanie na stronę z listą projektów
+//  }
 
 
   @GetMapping("/all")
@@ -84,6 +64,16 @@ public class ProjectController {
     } else {
       return ResponseEntity.ok(projectService.getAllProjectsWithParams(params, pageable));
     }
+  }
+
+  @GetMapping("/users/{id}")
+  public ResponseEntity<List<UserResponseDTO>> getProjectUsersById(@PathVariable Long id) {
+    Project project = projectService.findProjectById(id);
+    Set<User> users = project.getUsers();
+
+    return ResponseEntity.ok(
+        users.stream().map(User::toUserResponseDTO).collect(Collectors.toList())
+    );
   }
 
   @GetMapping("/add")
@@ -184,5 +174,5 @@ public class ProjectController {
 
     return "add_people_project";  // Widok do przypisywania użytkowników do projektu
   }
-  
+
 }

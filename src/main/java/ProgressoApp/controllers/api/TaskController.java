@@ -38,12 +38,6 @@ public class TaskController {
     this.taskSubmissionService = taskSubmissionService;
   }
 
-  @PostMapping
-  @ResponseStatus(HttpStatus.CREATED)
-  public Task createTask(@RequestBody TaskRequestDTO dto) {
-    return taskService.createTask(dto);
-  }
-
   @GetMapping
   public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
     return taskService.getAllTasks(pageable);
@@ -67,13 +61,34 @@ public class TaskController {
     return taskService.updateTask(id, dto);
   }
 
-  @DeleteMapping("/{id}")
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  public void deleteTask(@PathVariable Long id) {
-    taskService.deleteTask(id);
+  @PutMapping("/status/{id}")
+  public Task updateStatus(@PathVariable Long id, @RequestBody TaskStatus status) {
+
+    return taskService.updateStatus(id, status);
   }
 
-  @PostMapping("/tasks/addTasks/{projectId}")
+  @PostMapping
+  public String createTask(
+      @RequestParam String name,
+      @RequestParam String description,
+      @RequestParam Integer taskOrder,
+      @RequestParam TaskStatus taskStatus,
+      @RequestParam Long projectId,
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate
+  ) {
+    TaskRequestDTO dto = new TaskRequestDTO(name, description, taskOrder, taskStatus, projectId,
+        dueDate);
+    taskService.createTask(dto);
+    return "redirect:/tasks";
+  }
+
+  @DeleteMapping("/{id}")
+  public String deleteTask(@PathVariable Long id) {
+    taskService.deleteTask(id);
+    return "redirect:/tasks";
+  }
+
+  @PostMapping("/addTasks/{projectId}")
   public String addTask(
       @PathVariable Long projectId,
       @ModelAttribute TaskRequestDTO taskRequestDTO,
@@ -81,47 +96,39 @@ public class TaskController {
   ) {
     Project project = projectService.findById(projectId);
 
-    Task task = new Task(taskRequestDTO);
-    task.setProject(project);
-    task.setTaskStatus(TaskStatus.TO_DO);
-    TaskRequestDTO taskRequest = new TaskRequestDTO(task.getName(), task.getDescription(),
-        task.getTaskOrder(), task.getTaskStatus(), project.getProjectId(), task.getDueDate());
+    // Nadpisujemy DTO poprawnym statusem i projektem
+    TaskRequestDTO updatedRequest = new TaskRequestDTO(
+        taskRequestDTO.name(),
+        taskRequestDTO.description(),
+        taskRequestDTO.taskOrder(),
+        TaskStatus.TO_DO,
+        project.getProjectId(),
+        taskRequestDTO.dueDate()
+    );
 
-    taskService.createTask(taskRequest);
+    // ZAPISUJEMY TASK i otrzymujemy taskId
+    Task createdTask = taskService.createTask(updatedRequest);
 
+    // Teraz createdTask.getTaskId() nie jest null
     if (selectedUsersIds != null && !selectedUsersIds.isEmpty()) {
       for (Long userId : selectedUsersIds) {
         User user = userService.findById(userId);
 
         TaskSubmissionRequestDTO submission = new TaskSubmissionRequestDTO(
-            task.getTaskId(),
+            createdTask.getTaskId(), // teraz to działa!
             user.getUserId(),
             "",
             null,
             "",
-            null);
+            null
+        );
 
         taskSubmissionService.createTaskSubmission(submission);
       }
     }
 
-    return "redirect:/api/project/details/" + projectId;
+    return "redirect:/project/details/" + projectId;
   }
-//  @PostMapping("/tasks/{id}/save")
-//  public String saveTask(@PathVariable Long id,
-//                         @RequestParam String name,
-//                         @RequestParam String description,
-//                         @RequestParam TaskStatus taskStatus,
-//                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate) {
-//    Task task = taskService.findById(id);
-//    task.setName(name);
-//    task.setDescription(description);
-//    task.setTaskStatus(taskStatus);
-//    task.setDueDate(dueDate);
-//    taskService.createTask(task);
-//
-//    return "redirect:/tasks/" + id;
-//  }
 }
 
 

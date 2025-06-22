@@ -1,113 +1,159 @@
 <!DOCTYPE html>
 <html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dodaj Zadanie</title>
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-
-    <style>
-        body { background-color: #f8f9fa; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        #addTaskForm { background-color: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); max-width: 800px; margin: auto; margin-top: 50px; }
-        h2 { color: #343a40; font-weight: bold; }
-        .form-label { font-weight: 500; color: #495057; }
-        .form-control { border-radius: 8px; padding: 12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
-        .form-control:focus { border-color: #80bdff; box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.25); }
-        .table th, .table td { vertical-align: middle; padding: 12px; }
-        .table-striped tbody tr:nth-of-type(odd) { background-color: #f9f9f9; }
-        .btn { border-radius: 8px; padding: 10px 20px; }
-        .btn-danger { background-color: #dc3545; border: none; }
-        .btn-danger:hover { background-color: #c82333; }
-        .btn-success { background-color: #28a745; border: none; }
-        .btn-success:hover { background-color: #218838; }
-        .d-flex { display: flex; justify-content: space-between; align-items: center; }
-        .form-check-input { border-radius: 5px; }
-        .form-check-label { font-weight: 500; }
-        .table-responsive { margin-top: 20px; }
-        .mb-3 { margin-bottom: 1.5rem; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Dodaj Zadanie</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        rel="stylesheet">
+  <style>
+    body { background-color: #f8f9fa; padding: 20px; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    #addTaskForm { background-color: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); max-width: 800px; margin: auto; margin-top: 50px; }
+    h2 { color: #343a40; font-weight: bold; }
+    .form-label { font-weight: 500; color: #495057; }
+    .form-control { border-radius: 8px; padding: 12px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); }
+    .form-control:focus { border-color: #80bdff; box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.25); }
+    .table th, .table td { vertical-align: middle; padding: 12px; }
+    .table-striped tbody tr:nth-of-type(odd) { background-color: #f9f9f9; }
+    .btn { border-radius: 8px; padding: 10px 20px; }
+    .btn-danger { background-color: #dc3545; border: none; }
+    .btn-danger:hover { background-color: #c82333; }
+    .btn-success { background-color: #28a745; border: none; }
+    .btn-success:hover { background-color: #218838; }
+    .d-flex { display: flex; justify-content: space-between; align-items: center; }
+    .form-check-input { border-radius: 5px; }
+    .form-check-label { font-weight: 500; }
+    .table-responsive { margin-top: 20px; }
+    .mb-3 { margin-bottom: 1.5rem; }
+  </style>
 </head>
 <body class="bg-light">
 
-<form th:action="@{/tasks}" method="post" id="addTaskForm">
-    <h2>Dodaj nowe zadanie</h2>
+<form id="addTaskForm" method="post"
+      th:action="@{/api/tasks/addTasks/{projectId}(projectId=${projectId})}">
+  <h2>Dodaj nowe zadanie</h2>
 
-    <div class="mb-3">
-        <label for="taskTitle" class="form-label">Nazwa zadania</label>
-        <input type="text" class="form-control" id="taskTitle" name="name" required>
-    </div>
+  <div class="mb-3">
+    <label class="form-label" for="taskTitle">Nazwa zadania</label>
+    <input class="form-control" id="taskTitle" name="name" required type="text">
+  </div>
 
-    <div class="mb-3">
-        <label for="taskDescription" class="form-label">Opis</label>
-        <textarea class="form-control" id="taskDescription" name="description" rows="4"></textarea>
-    </div>
+  <div class="mb-3">
+    <label class="form-label" for="taskDescription">Opis</label>
+    <textarea class="form-control" id="taskDescription" name="description" rows="4"></textarea>
+  </div>
 
-    <div class="mb-3">
-        <label for="dueDate" class="form-label">Termin wykonania</label>
-        <input type="date" class="form-control" id="dueDate" name="dueDate" required>
-    </div>
+  <div class="mb-3">
+    <label class="form-label" for="dueDate">Termin wykonania</label>
+    <input class="form-control" id="dueDate" name="dueDate" required type="date">
+  </div>
 
-    <div class="mb-3">
-        <label for="projectSelect" class="form-label">Wybierz projekt</label>
-        <select class="form-control" id="projectSelect" name="projectId" required>
-            <option th:each="project : ${projects}"
-                    th:value="${project.projectId}"
-                    th:text="${project.name}">
-            </option>
-        </select>
-    </div>
+  <div class="mb-3">
+    <label class="form-label" for="projectSelect">Wybierz projekt</label>
+    <select class="form-control" id="projectSelect" name="projectId" required>
+      <option disabled selected value="">-- Wybierz projekt --</option>
+      <option th:each="project : ${projects}"
+              th:text="${project.name}"
+              th:value="${project.projectId}">
+      </option>
+    </select>
+  </div>
 
-    <div class="mb-3">
-        <label class="form-label">Wybierz użytkowników</label>
-        <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="selectAllCheckbox" />
-            <label class="form-check-label" for="selectAllCheckbox">Wybierz wszystkich</label>
-        </div>
-        <div class="table-responsive">
-            <table class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Imię</th>
-                    <th>Nazwisko</th>
-                    <th>Numer Indeksu</th>
-                    <th>Wybierz</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr th:each="user : ${assignedUsers}">
-                    <td th:text="${user.firstName}">Jan</td>
-                    <td th:text="${user.lastName}">Kowalski</td>
-                    <td th:text="${user.numberIndex}">12345</td>
-                    <td>
-                        <input type="checkbox" class="user-checkbox" name="selectedUsers" th:value="${user.userId}" />
-                    </td>
-                </tr>
-                </tbody>
-            </table>
-        </div>
+  <div class="mb-3">
+    <label class="form-label">Wybierz użytkowników</label>
+    <div class="form-check mb-2">
+      <input class="form-check-input" id="selectAllCheckbox" type="checkbox"/>
+      <label class="form-check-label" for="selectAllCheckbox">Wybierz wszystkich</label>
     </div>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+        <tr>
+          <th>Imię</th>
+          <th>Nazwisko</th>
+          <th>Numer Indeksu</th>
+          <th>Wybierz</th>
+        </tr>
+        </thead>
+        <tbody id="userTableBody">
+        <!-- AJAX wstawi tutaj użytkowników -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-    <div class="d-flex">
-        <a class="btn btn-danger" th:href="@{/tasks}">
-            <i class="fas fa-sign-out-alt"></i> Cofnij
-        </a>
-        <button type="submit" class="btn btn-success">
-            <i class="fas fa-check"></i> Dodaj zadanie
-        </button>
-    </div>
+  <div class="d-flex">
+    <a class="btn btn-danger" th:href="@{/tasks}">
+      <i class="fas fa-sign-out-alt"></i> Cofnij
+    </a>
+    <button class="btn btn-success" type="submit">
+      <i class="fas fa-check"></i> Dodaj zadanie
+    </button>
+  </div>
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.getElementById('selectAllCheckbox').addEventListener('change', function() {
+  document.addEventListener('DOMContentLoaded', () => {
+    // Obsługa "Zaznacz wszystkie"
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', function () {
         const checked = this.checked;
         document.querySelectorAll('.user-checkbox').forEach(cb => {
-            cb.checked = checked;
+          cb.checked = checked;
         });
-    });
+      });
+    }
+
+    // Obsługa zmiany wyboru projektu
+    const projectSelect = document.getElementById('projectSelect');
+    if (projectSelect) {
+      projectSelect.addEventListener('change', function () {
+        const projectId = this.value;
+        const tbody = document.getElementById('userTableBody');
+
+        if (!projectId) {
+          tbody.innerHTML = "";
+          return;
+        }
+
+        console.log('Wybrany projectId:', projectId);
+
+       fetch(`/api/project/users/${projectId}`)
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.json();
+  })
+          .then(users => {
+            console.log('Otrzymani użytkownicy:', users);
+            tbody.innerHTML = "";
+
+            users.forEach(user => {
+              const row = `
+                <tr>
+                  <td>${user.firstName}</td>
+                  <td>${user.lastName}</td>
+                  <td>${user.numberIndex}</td>
+                  <td>
+                    <input type="checkbox" class="user-checkbox" name="selectedUsers" value="${user.userId}" />
+                  </td>
+                </tr>`;
+              tbody.insertAdjacentHTML('beforeend', row);
+            });
+          })
+          .catch(err => {
+            console.error('Błąd w fetch:', err);
+            tbody.innerHTML = '<tr><td colspan="4">Błąd podczas ładowania użytkowników</td></tr>';
+          });
+      });
+    }
+  });
 </script>
+
 
 </body>
 </html>

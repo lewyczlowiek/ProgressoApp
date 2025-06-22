@@ -1,8 +1,6 @@
 package ProgressoApp.service;
 
-import ProgressoApp.dto.request.TaskRequestDTO;
 import ProgressoApp.dto.request.TaskSubmissionRequestDTO;
-import ProgressoApp.model.Project;
 import ProgressoApp.model.Task;
 import ProgressoApp.model.TaskSubmission;
 import ProgressoApp.model.User;
@@ -25,13 +23,13 @@ public class TaskSubmissionService {
     this.taskService = taskService;
   }
 
-  public TaskSubmission createTaskSubmission(TaskSubmissionRequestDTO dto) {
+  public void createTaskSubmission(TaskSubmissionRequestDTO dto) {
 
     User user = new User(userService.findById(dto.userId()));
     Task task = new Task(taskService.findById(dto.taskId()));
 
     TaskSubmission taskSubmission = new TaskSubmission(dto, user, task);
 
-    return taskSubmissionRepository.save(taskSubmission);
+    taskSubmissionRepository.save(taskSubmission);
   }
 }

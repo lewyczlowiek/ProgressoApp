@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Szczegóły zadania</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        rel="stylesheet">
 </head>
 <body class="bg-light">
 
@@ -14,91 +16,140 @@
 
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h4"><i class="fas fa-info-circle me-2"></i>Szczegóły zadania</h1>
-        <a th:href="@{/tasks}" class="btn btn-secondary"><i class="fas fa-arrow-left me-2"></i>Wróć</a>
+        <a class="btn btn-secondary" th:href="@{/tasks}"><i class="fas fa-arrow-left me-2"></i>Wróć</a>
       </div>
 
       <!-- Edycja zadania -->
-      <form th:action="@{/tasks/{id}(id=${task.taskId})}" method="post" class="list-group shadow-sm mb-4">
+      <form id="updateTaskForm">
         <div class="list-group-item">
 
           <div class="mb-3">
             <label class="form-label">Nazwa zadania</label>
-            <input type="text" name="name" class="form-control" th:value="${task.name}" required>
+            <input class="form-control" name="name" required th:value="${task.name}" type="text">
           </div>
 
           <div class="mb-3">
             <label class="form-label">Opis</label>
-            <textarea name="description" class="form-control" rows="3" th:text="${task.description}"></textarea>
+            <textarea class="form-control" name="description" rows="3"
+                      th:text="${task.description}"></textarea>
           </div>
 
           <div class="mb-3">
             <label class="form-label">Status</label>
-            <select name="taskStatus" class="form-select" required>
-              <option value="TO_DO" th:selected="${task.taskStatus == 'TO_DO'}">Nowe</option>
-              <option value="IN_PROGRESS" th:selected="${task.taskStatus == 'IN_PROGRESS'}">W toku</option>
-              <option value="DONE" th:selected="${task.taskStatus == 'DONE'}">Zakończone</option>
-              <option value="CANCELED" th:selected="${task.taskStatus == 'CANCELED'}">Anulowane</option>
+            <select class="form-select" name="taskStatus" required>
+              <option th:selected="${task.taskStatus == 'TO_DO'}" value="TO_DO">Nowe</option>
+              <option th:selected="${task.taskStatus == 'IN_PROGRESS'}" value="IN_PROGRESS">W toku
+              </option>
+              <option th:selected="${task.taskStatus == 'DONE'}" value="DONE">Zakończone</option>
+              <option th:selected="${task.taskStatus == 'CANCELED'}" value="CANCELED">Anulowane
+              </option>
             </select>
           </div>
 
           <div class="mb-3">
             <label class="form-label">Termin</label>
-            <input type="date" name="dueDate" class="form-control"
-                   th:value="${#temporals.format(task.dueDate, 'yyyy-MM-dd')}" required>
+            <input class="form-control" name="dueDate" required
+                   th:value="${#temporals.format(task.dueDate, 'yyyy-MM-dd')}" type="date">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Kolejność zadania</label>
+            <input class="form-control" name="taskOrder" required
+                   th:value="${task.taskOrder}" type="number">
           </div>
 
           <div class="mb-3">
             <label class="form-label">ID projektu</label>
-            <input type="number" name="projectId" class="form-control"
-                   th:value="${task.project.projectId}" required>
+            <input class="form-control" name="projectId" required
+                   th:value="${task.project.projectId}" type="number">
           </div>
 
           <div class="d-flex justify-content-end">
-            <button type="submit" class="btn btn-success">
+            <button class="btn btn-success" type="submit">
               <i class="fas fa-save me-2"></i>Zapisz zmiany
             </button>
           </div>
         </div>
       </form>
 
-      <!-- Przesyłanie pliku -->
-      <form th:action="@{/tasks/{id}/upload(id=${task.taskId})}" method="post" enctype="multipart/form-data"
-            class="list-group shadow-sm mb-4">
-        <div class="list-group-item">
-          <label class="form-label">Dodaj plik</label>
-          <div class="input-group">
-            <input type="file" name="file" class="form-control" required>
-            <button type="submit" class="btn btn-primary">
-              <i class="fas fa-upload me-2"></i>Prześlij
-            </button>
-          </div>
-        </div>
-      </form>
+      <!--      &lt;!&ndash; Przesyłanie pliku &ndash;&gt;-->
+      <!--      <form class="list-group shadow-sm mb-4" enctype="multipart/form-data"-->
+      <!--            method="post"-->
+      <!--            th:action="@{/tasks/{id}/upload(id=${task.taskId})}">-->
+      <!--        <div class="list-group-item">-->
+      <!--          <label class="form-label">Dodaj plik</label>-->
+      <!--          <div class="input-group">-->
+      <!--            <input class="form-control" name="file" required type="file">-->
+      <!--            <button class="btn btn-primary" type="submit">-->
+      <!--              <i class="fas fa-upload me-2"></i>Prześlij-->
+      <!--            </button>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </form>-->
 
-      <!-- Lista przesłanych plików -->
-      <div class="list-group shadow-sm">
-        <div class="list-group-item bg-light fw-bold">Przesłane pliki</div>
-        <div th:if="${#lists.isEmpty(submissions)}" class="list-group-item">Brak plików</div>
+      <!--      &lt;!&ndash; Lista przesłanych plików &ndash;&gt;-->
+      <!--      <div class="list-group shadow-sm">-->
+      <!--        <div class="list-group-item bg-light fw-bold">Przesłane pliki</div>-->
+      <!--        <div class="list-group-item" th:if="${#lists.isEmpty(submissions)}">Brak plików</div>-->
 
-        <div class="list-group-item d-flex justify-content-between align-items-center"
-             th:each="sub : ${submissions}">
-          <div>
-            <strong th:text="${sub.fileName}">plik.pdf</strong><br>
-            <small th:text="${#dates.format(sub.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</small>
-          </div>
-          <form th:action="@{/tasks/{taskId}/files/{id}/delete(taskId=${task.taskId}, id=${sub.submissionId})}"
-                method="post">
-            <button type="submit" class="btn btn-sm btn-outline-danger">
-              <i class="fas fa-trash"></i> Usuń
-            </button>
-          </form>
-        </div>
-      </div>
+      <!--        <div class="list-group-item d-flex justify-content-between align-items-center"-->
+      <!--             th:each="sub : ${submissions}">-->
+      <!--          <div>-->
+      <!--            <strong th:text="${sub.fileName}">plik.pdf</strong><br>-->
+      <!--            <small th:text="${#dates.format(sub.createdAt, 'yyyy-MM-dd HH:mm')}">2024-01-01</small>-->
+      <!--          </div>-->
+      <!--          <form-->
+      <!--              method="post"-->
+      <!--              th:action="@{/tasks/{taskId}/files/{id}/delete(taskId=${task.taskId}, id=${sub.submissionId})}">-->
+      <!--            <button class="btn btn-sm btn-outline-danger" type="submit">-->
+      <!--              <i class="fas fa-trash"></i> Usuń-->
+      <!--            </button>-->
+      <!--          </form>-->
+      <!--        </div>-->
+      <!--      </div>-->
 
     </div>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+
+  document.getElementById("updateTaskForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const form = e.target;
+const taskId = document.getElementById("updateTaskForm").dataset.taskId;
+
+   const taskData = {
+  name: form.name.value,
+  description: form.description.value,
+  taskOrder: parseInt(form.taskOrder.value),
+  taskStatus: form.taskStatus.value,
+  projectId: parseInt(form.projectId.value),
+  dueDate: form.dueDate.value
+};
+
+console.log(taskData)
+    try {
+      const response = await fetch(`/api/tasks/${taskId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(taskData)
+      });
+
+      if (!response.ok) {
+        throw new Error("Nie udało się zaktualizować zadania.");
+      }
+
+      // np. przekieruj po sukcesie
+      window.location.href = `/project/details/${taskData.projectId}`;
+    } catch (err) {
+      alert("Błąd: " + err.message);
+    }
+  });
+</script>
 </body>
 </html>

@@ -32,7 +32,8 @@ public class ProjectService {
   private final TaskRepository taskRepository;
 
   @Autowired
-  public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository, UserService userService) {
+  public ProjectService(ProjectRepository projectRepository, TaskRepository taskRepository,
+      UserService userService) {
     this.projectRepository = projectRepository;
     this.userService = userService;
     this.taskRepository = taskRepository;
@@ -48,14 +49,15 @@ public class ProjectService {
     return page.map(Project::toProjectResponseDTO);
   }
 
-  public Page<ProjectResponseDTO> getAllProjectsWithParams(Map<String, Object> filter, Pageable pageable) {
+  public Page<ProjectResponseDTO> getAllProjectsWithParams(Map<String, Object> filter,
+      Pageable pageable) {
     List<Specification<Project>> specs = filter.entrySet().stream()
-            .map(entry -> (Specification<Project>) new ProjectSpecification(
-                    new SearchCriteria(entry.getKey(), entry.getValue())))
-            .toList();
+        .map(entry -> (Specification<Project>) new ProjectSpecification(
+            new SearchCriteria(entry.getKey(), entry.getValue())))
+        .toList();
 
     Specification<Project> finalSpec = specs.stream()
-            .reduce(Specification.where(null), Specification::and);
+        .reduce(Specification.where(null), Specification::and);
 
     Page<Project> page = projectRepository.findAll(finalSpec, pageable);
     return page.map(Project::toProjectResponseDTO);
@@ -63,12 +65,16 @@ public class ProjectService {
 
   public Project findById(long id) {
     return projectRepository.findByProjectId(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+  }
+
+  public List<Project> findAll() {
+    return projectRepository.findAll();
   }
 
   public Project updateProject(long id, ProjectRequestDTO projectDTO) {
     Project project = projectRepository.findByProjectId(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
 
     // Aktualizacja danych projektu
     project.setName(projectDTO.name());
@@ -84,8 +90,8 @@ public class ProjectService {
         existingUsers.clear();
       }
       Set<User> updatedUsers = projectDTO.users().stream()
-              .map(userDto -> userService.findById(userDto.userId()))
-              .collect(Collectors.toSet());
+          .map(userDto -> userService.findById(userDto.userId()))
+          .collect(Collectors.toSet());
       existingUsers.addAll(updatedUsers);
     } else {
       project.getUsers().clear();
@@ -101,13 +107,14 @@ public class ProjectService {
         existingTasks.clear();
       }
       List<Task> updatedTasks = projectDTO.tasks().stream()
-              .map(taskDto -> {
-                Task task = taskRepository.findById(taskDto.id())
-                        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
-                task.setProject(project);
-                return task;
-              })
-              .collect(Collectors.toList());
+          .map(taskDto -> {
+            Task task = taskRepository.findById(taskDto.id())
+                .orElseThrow(
+                    () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+            task.setProject(project);
+            return task;
+          })
+          .collect(Collectors.toList());
       existingTasks.addAll(updatedTasks);
     } else {
       project.getTasks().clear();
@@ -118,40 +125,54 @@ public class ProjectService {
 
   public void deleteProject(long id) {
     Project project = projectRepository.findByProjectId(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
 
     projectRepository.delete(project);  // Usuwanie projektu z repozytorium
   }
 
 
-
   public Project findProjectById(long id) {
     return projectRepository.findByProjectId(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Project not found"));
   }
 
 
   // Sortowanie i filtrowanie po nazwie (dla widoku i controller'a)
   public Page<ProjectResponseDTO> getAllProjects(Pageable pageable, String sort, String dir) {
-    Sort.Direction direction = "asc".equalsIgnoreCase(dir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+    Sort.Direction direction =
+        "asc".equalsIgnoreCase(dir) ? Sort.Direction.ASC : Sort.Direction.DESC;
     Pageable sortedPageable = PageRequest.of(
-            pageable.getPageNumber(),
-            pageable.getPageSize(),
-            Sort.by(direction, sort)
+        pageable.getPageNumber(),
+        pageable.getPageSize(),
+        Sort.by(direction, sort)
     );
     Page<Project> page = projectRepository.findAll(sortedPageable);
     return page.map(Project::toProjectResponseDTO);
   }
 
-  public Page<ProjectResponseDTO> getProjectsByNameContaining(String name, Pageable pageable, String sort, String dir) {
-    Sort.Direction direction = "asc".equalsIgnoreCase(dir) ? Sort.Direction.ASC : Sort.Direction.DESC;
+  public Page<ProjectResponseDTO> getProjectsByNameContaining(String name, Pageable pageable,
+      String sort, String dir) {
+    Sort.Direction direction =
+        "asc".equalsIgnoreCase(dir) ? Sort.Direction.ASC : Sort.Direction.DESC;
     Pageable sortedPageable = PageRequest.of(
-            pageable.getPageNumber(),
-            pageable.getPageSize(),
-            Sort.by(direction, sort)
+        pageable.getPageNumber(),
+        pageable.getPageSize(),
+        Sort.by(direction, sort)
     );
     Page<Project> page = projectRepository.findByNameContainingIgnoreCase(name, sortedPageable);
     return page.map(Project::toProjectResponseDTO);
   }
 
+  public Page<ProjectResponseDTO> getProjectsForUser(String username, Pageable pageable) {
+    Page<Project> projectsPage = projectRepository.findByUserEmail(username, pageable);
+    return projectsPage.map(Project::toProjectResponseDTO);
+  }
+
+  public Page<ProjectResponseDTO> getProjectsByNameContainingForUser(String username, String search,
+      Pageable pageable) {
+    Page<Project> projectsPage = projectRepository.findByUserEmailAndNameContaining(
+        username,
+        search, pageable);
+    return projectsPage.map(Project::toProjectResponseDTO);
+  }
 }

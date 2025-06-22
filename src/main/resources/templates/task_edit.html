@@ -3,8 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>Edytuj zadanie</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        rel="stylesheet">
 </head>
 <body class="bg-light">
 
@@ -19,44 +21,42 @@
         </a>
       </div>
 
-      <form th:action="@{/tasks/{id}(id=${task.taskId})}" method="post" class="list-group shadow-sm">
+      <form class="list-group shadow-sm" method="post"
+            th:action="@{/tasks/{id}(id=${task.taskId})}">
         <div class="list-group-item list-group-item-action">
 
           <div class="mb-3">
-            <label for="name" class="form-label">Nazwa zadania</label>
-            <input type="text" id="name" name="name" class="form-control" th:value="${task.name}" required>
+            <label class="form-label" for="name">Nazwa zadania</label>
+            <input class="form-control" id="name" name="name" required th:value="${task.name}"
+                   type="text">
           </div>
 
           <div class="mb-3">
-            <label for="description" class="form-label">Opis</label>
-            <textarea id="description" name="description" class="form-control" rows="3"
+            <label class="form-label" for="description">Opis</label>
+            <textarea class="form-control" id="description" name="description" rows="3"
                       th:text="${task.description}"></textarea>
           </div>
 
           <div class="mb-3">
-            <label for="taskStatus" class="form-label">Status</label>
-            <select id="taskStatus" name="taskStatus" class="form-select" required>
-              <option value="TO_DO" th:selected="${task.taskStatus == 'TO_DO'}">Nowe</option>
-              <option value="IN_PROGRESS" th:selected="${task.taskStatus == 'IN_PROGRESS'}">W toku</option>
-              <option value="DONE" th:selected="${task.taskStatus == 'DONE'}">Zakończone</option>
-              <option value="CANCELED" th:selected="${task.taskStatus == 'CANCELED'}">Anulowane</option>
+            <label class="form-label" for="taskStatus">Status</label>
+            <select class="form-select" id="taskStatus" name="taskStatus" required>
+              <option th:selected="${task.taskStatus == 'TO_DO'}" value="TO_DO">Nowe</option>
+              <option th:selected="${task.taskStatus == 'IN_PROGRESS'}" value="IN_PROGRESS">W toku
+              </option>
+              <option th:selected="${task.taskStatus == 'DONE'}" value="DONE">Zakończone</option>
+              <option th:selected="${task.taskStatus == 'CANCELED'}" value="CANCELED">Anulowane
+              </option>
             </select>
           </div>
 
           <div class="mb-3">
-            <label for="dueDate" class="form-label">Termin wykonania</label>
-            <input type="date" id="dueDate" name="dueDate" class="form-control"
-                   th:value="${#temporals.format(task.dueDate, 'yyyy-MM-dd')}" required>
-          </div>
-
-          <div class="mb-3">
-            <label for="projectId" class="form-label">ID projektu</label>
-            <input type="number" id="projectId" name="projectId" class="form-control"
-                   th:value="${task.project.projectId}" required>
+            <label class="form-label" for="dueDate">Termin wykonania</label>
+            <input class="form-control" id="dueDate" name="dueDate" required
+                   th:value="${#temporals.format(task.dueDate, 'yyyy-MM-dd')}" type="date">
           </div>
 
           <div class="d-flex justify-content-end">
-            <button type="submit" class="btn btn-success">
+            <button class="btn btn-success" type="submit">
               <i class="fas fa-save me-2"></i>Zapisz zmiany
             </button>
           </div>

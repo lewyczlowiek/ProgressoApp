@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -68,15 +70,31 @@ public class HomeViewController {
       Model model) {
 
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String currentUserRole = authentication.getAuthorities().toString();
+    String username = authentication.getName();
 
-    Pageable pageable = PageRequest.of(page, size);
+    boolean isAdminOrLecturer = authentication.getAuthorities().stream()
+        .map(GrantedAuthority::getAuthority)
+        .anyMatch(role -> role.equals("ROLE_ADMIN") || role.equals("ROLE_LECTURER"));
+
+    Sort.Direction direction =
+        dir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+    Sort sortObj = Sort.by(direction, sort);
+    Pageable pageable = PageRequest.of(page, size, sortObj);
 
     Page<ProjectResponseDTO> projects;
-    if (search != null && !search.isBlank()) {
-      projects = projectService.getProjectsByNameContaining(search, pageable, sort, dir);
+
+    if (isAdminOrLecturer) {
+      if (search != null && !search.isBlank()) {
+        projects = projectService.getProjectsByNameContaining(search, pageable, sort, dir);
+      } else {
+        projects = projectService.getAllProjects(pageable);
+      }
     } else {
-      projects = projectService.getAllProjects(pageable, sort, dir);
+      if (search != null && !search.isBlank()) {
+        projects = projectService.getProjectsByNameContainingForUser(username, search, pageable);
+      } else {
+        projects = projectService.getProjectsForUser(username, pageable);
+      }
     }
 
     model.addAttribute("projects", projects.getContent());
@@ -91,7 +109,7 @@ public class HomeViewController {
     params.put("dir", dir);
     model.addAttribute("param", params);
 
-    model.addAttribute("currentUserRole", currentUserRole);
+    model.addAttribute("currentUserRole", authentication.getAuthorities().toString());
 
     return "index";
   }

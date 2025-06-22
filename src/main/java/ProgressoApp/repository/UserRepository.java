@@ -1,5 +1,6 @@
 package ProgressoApp.repository;
 
+import ProgressoApp.model.Project;
 import ProgressoApp.model.User;
 
 import org.springframework.data.domain.Page;
@@ -23,5 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
   Page<User> findByEmailContainingIgnoreCase(String email, Pageable pageable);
 
   Optional<User> findByEmail(String email);
+
 
 }

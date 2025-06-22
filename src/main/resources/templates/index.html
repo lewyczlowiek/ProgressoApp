@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<html lang="pl" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
   <title>Lista projektów</title>
@@ -34,7 +34,8 @@
           <i class="fas fa-folder-open me-2"></i>
           Lista projektów
         </h1>
-        <a class="btn btn-primary" role="button" th:href="@{/api/project/add}">
+        <a class="btn btn-primary" role="button" sec:authorize="hasAnyRole('ADMIN','LECTURER')"
+           th:href="@{/api/project/add}">
           <i class="fas fa-plus me-1"></i>
           Nowy Projekt
         </a>
@@ -96,25 +97,29 @@
                                 </span>
                 <div class="button-group">
                   <a class="btn btn-sm btn-info"
-                     role="button" th:href="@{/api/project/details/{id}(id=${project.projectId})}">
+                     role="button" th:href="@{/project/details/{id}(id=${project.projectId})}">
                     <i class="fas fa-info-circle me-1"></i> Szczegóły
                   </a>
-                  <a class="btn btn-sm btn-outline-secondary"
-                     role="button" th:href="@{/api/project/edit/{id}(id=${project.projectId})}">
-                    <i class="fas fa-edit me-1"></i> Edytuj
-                  </a>
-                  <a class="btn btn-sm btn-outline-primary"
-                     role="button"
-                     th:href="@{/api/project/add-person/{id}(id=${project.projectId})}">
-                    <i class="fas fa-user-plus me-1"></i> Dodaj osoby
-                  </a>
-                  <a class="btn btn-sm btn-outline-danger"
-                     data-bs-target="#confirmDeleteModal"
-                     data-bs-toggle="modal"
-                     href="#"
-                     th:attr="data-delete-url=@{/api/project/delete/{id}(id=${project.projectId})}">
-                    <i class="fas fa-trash me-1"></i> Usuń
-                  </a>
+
+                  <!-- Przyciski dostępne tylko dla ADMIN i LECTURER -->
+                  <span sec:authorize="hasAnyRole('ADMIN', 'LECTURER')">
+    <a class="btn btn-sm btn-outline-secondary"
+       role="button" th:href="@{/project/edit/{id}(id=${project.projectId})}">
+      <i class="fas fa-edit me-1"></i> Edytuj
+    </a>
+    <a class="btn btn-sm btn-outline-primary"
+       role="button"
+       th:href="@{/project/add-person/{id}(id=${project.projectId})}">
+      <i class="fas fa-user-plus me-1"></i> Dodaj osoby
+    </a>
+    <a class="btn btn-sm btn-outline-danger"
+       data-bs-target="#confirmDeleteModal"
+       data-bs-toggle="modal"
+       href="#"
+       th:attr="data-delete-url=@{/api/project/delete/{id}(id=${project.projectId})}">
+      <i class="fas fa-trash me-1"></i> Usuń
+    </a>
+  </span>
                 </div>
               </div>
             </div>
