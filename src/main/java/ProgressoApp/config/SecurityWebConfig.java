@@ -8,6 +8,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.access.AccessDeniedHandlerImpl;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -32,11 +34,15 @@ public class SecurityWebConfig {
         .authorizeHttpRequests(auth -> auth
             .requestMatchers("/login", "/register", "/auth/login", "/auth/register/save", "/")
             .permitAll()
+            .requestMatchers("/admin/*", "/admin").hasAnyRole("ADMIN")
             .anyRequest().authenticated())
+        .exceptionHandling(ex -> ex
+            .accessDeniedHandler(accessDeniedHandler()) // ⬅️ Dodajemy handler
+        )
         .formLogin(login -> login
             .loginPage("/login")
             .permitAll()
-        )// All other endpoints require authentication
+        )
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
         .logout(logout -> logout
@@ -48,5 +54,12 @@ public class SecurityWebConfig {
         .addFilterBefore(jwtAuthFilter,
             UsernamePasswordAuthenticationFilter.class)  // Add JWT filter
         .build();
+  }
+
+  @Bean
+  public AccessDeniedHandler accessDeniedHandler() {
+    AccessDeniedHandlerImpl handler = new AccessDeniedHandlerImpl();
+    handler.setErrorPage("/"); // ⬅️ Przekierowanie na stronę główną
+    return handler;
   }
 }

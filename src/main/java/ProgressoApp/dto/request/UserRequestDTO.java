@@ -1,5 +1,6 @@
 package ProgressoApp.dto.request;
 
+import ProgressoApp.model.Role;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import lombok.Builder;
@@ -11,5 +12,6 @@ public record UserRequestDTO(
         @NotEmpty String lastName,
         @NotEmpty String numberIndex,
         @Email String email,
-        @NotEmpty String password
+        @NotEmpty String password,
+        @NotEmpty Role role
 ) {}

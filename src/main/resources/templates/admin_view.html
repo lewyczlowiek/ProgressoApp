@@ -1,66 +1,146 @@
 <!DOCTYPE html>
 <html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Panel administratora - Użytkownicy</title>
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
-    <link rel="stylesheet" th:href="@{/navbar.css}">
+  <meta charset="UTF-8">
+  <title>Panel administratora - Użytkownicy</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/navbar.css}">
+  <style>
+    .admin-sort a {
+    display: inline-flex;
+    align-items: center;
+     gap: 4px;
+      text-decoration: none;
+      white-space: nowrap;
+      color: inherit;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+    }
+   .admin-sort a:hover {
+      background-color: #e0e0e0;
+    }
+  </style>
 </head>
 <body>
+
 <div th:replace="~{fragments/navbar :: navbar}"></div>
+
 <div class="container mt-5">
-    <h2 class="mb-4">Użytkownicy</h2>
-    <table class="table table-striped align-middle">
-        <thead class="table-primary"> <!-- zmieniony kolor nagłówka na niebieski -->
-        <tr>
-            <th>ID</th>
-            <th>Imię</th>
-            <th>Nazwisko</th>
-            <th>Email</th>
-            <th>Numer indeksu</th>
-            <th>Rola</th>
-            <th>Nowe hasło</th>
-            <th>Akcje</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="user : ${users}">
-            <form th:action="@{'/admin/users/edit/' + ${user.userId}}" method="post">
-                <td th:text="${user.userId}"></td>
-                <td>
-                    <input type="text" class="form-control" name="firstName" th:value="${user.firstName}" required>
-                </td>
-                <td>
-                    <input type="text" class="form-control" name="lastName" th:value="${user.lastName}" required>
-                </td>
-                <td>
-                    <input type="email" class="form-control" name="email" th:value="${user.email}" required>
-                </td>
-                <td>
-                    <input type="text" class="form-control" name="numberIndex" th:value="${user.numberIndex}" required>
-                </td>
-                <td>
-                    <select class="form-select" name="role" required>
-                        <option th:each="role : ${roles}" th:value="${role}"
-                                th:selected="${role} == ${user.role}"
-                                th:text="${role}"></option>
-                    </select>
-                </td>
-                <td>
-                    <input type="password" class="form-control" name="password" placeholder="Nowe hasło">
-                </td>
-                <td>
-                    <button type="submit" class="btn btn-success btn-sm">Zapisz</button>
-                    <button type="button" class="btn btn-danger btn-sm"
-                            th:onclick="'if(confirm(\'Na pewno usunąć?\')){this.form.action=\'/admin/users/delete/' + ${user.userId} + '\'; this.form.submit();}'">
-                        Usuń
-                    </button>
-                </td>
-            </form>
-        </tr>
-        </tbody>
-    </table>
+  <h2 class="mb-4">Użytkownicy</h2>
+
+  <!-- Formularz filtrowania -->
+  <form class="mb-3" method="get" th:action="@{/admin/users}">
+    <div class="input-group">
+      <input class="form-control" name="email" placeholder="Filtruj po e-mailu..."
+             th:value="${email}"
+             type="text">
+      <input name="sort" th:value="${sort}" type="hidden">
+      <input name="dir" th:value="${dir}" type="hidden">
+      <button class="btn btn-primary" type="submit">Filtruj</button>
+    </div>
+  </form>
+
+  <table class="table table-striped align-middle">
+    <thead class="table-primary">
+    <tr>
+      <th class="admin-sort">
+        <a th:href="@{/admin/users(page=0, size=5, sort='userId', dir=${sort == 'userId' and dir == 'asc' ? 'desc' : 'asc'}, email=${email})}">
+          ID <span th:if="${sort == 'userId'}" th:text="${dir == 'asc' ? '↑' : '↓'}"></span>
+        </a>
+      </th>
+      <th class="admin-sort">
+        <a th:href="@{/admin/users(page=0, size=5, sort='firstName', dir=${sort == 'firstName' and dir == 'asc' ? 'desc' : 'asc'}, email=${email})}">
+          Imię <span th:if="${sort == 'firstName'}" th:text="${dir == 'asc' ? '↑' : '↓'}"></span>
+        </a>
+      </th>
+      <th class="admin-sort">
+        <a th:href="@{/admin/users(page=0, size=5, sort='lastName', dir=${sort == 'lastName' and dir == 'asc' ? 'desc' : 'asc'}, email=${email})}">
+          Nazwisko <span th:if="${sort == 'lastName'}" th:text="${dir == 'asc' ? '↑' : '↓'}"></span>
+        </a>
+      </th>
+      <th class="admin-sort">
+        <a th:href="@{/admin/users(page=0, size=5, sort='email', dir=${sort == 'email' and dir == 'asc' ? 'desc' : 'asc'}, email=${email})}">
+          Email <span th:if="${sort == 'email'}" th:text="${dir == 'asc' ? '↑' : '↓'}"></span>
+        </a>
+      </th>
+      <th class="admin-sort">Numer indeksu</th>
+      <th class="admin-sort">Rola</th>
+      <th class="admin-sort">Nowe hasło</th>
+      <th class="admin-sort">Akcje</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${usersPage.content}">
+      <form method="post" th:action="@{'/admin/users/edit/' + ${user.userId}}">
+        <td th:text="${user.userId}"></td>
+        <td>
+          <input class="form-control" name="firstName" required th:value="${user.firstName}"
+                 type="text">
+        </td>
+        <td>
+          <input class="form-control" name="lastName" required th:value="${user.lastName}"
+                 type="text">
+        </td>
+        <td>
+          <input class="form-control" name="email" required th:value="${user.email}" type="email">
+        </td>
+        <td>
+          <input class="form-control" name="numberIndex" required th:value="${user.numberIndex}"
+                 type="text">
+        </td>
+        <td>
+          <select class="form-select" name="role" required>
+            <option th:each="role : ${roles}" th:selected="${role} == ${user.role}"
+                    th:text="${role}"
+                    th:value="${role}"></option>
+          </select>
+        </td>
+        <td>
+          <input class="form-control" name="password" placeholder="Nowe hasło" type="password">
+        </td>
+        <td>
+          <div style="display: flex;column-gap: 10px;">
+            <button class="btn btn-success btn-sm" type="submit">Zapisz</button>
+            <button class="btn btn-danger btn-sm"
+                    th:onclick="'if(confirm(\'Na pewno usunąć?\')){this.form.action=\'/admin/users/delete/' + ${user.userId} + '\'; this.form.submit();}'"
+                    type="button">
+              Usuń
+            </button>
+          </div>
+        </td>
+      </form>
+    </tr>
+    </tbody>
+  </table>
+
+  <!-- Paginacja -->
+  <nav>
+    <ul class="pagination justify-content-center mt-3">
+      <li class="page-item" th:classappend="${usersPage.first} ? 'disabled'">
+        <a class="page-link"
+           th:href="@{/admin/users(page=${usersPage.number - 1}, size=5, sort=${sort}, dir=${dir}, email=${email})}">
+          Poprzednia
+        </a>
+      </li>
+
+      <li class="page-item disabled">
+        <a class="page-link">
+          Strona <span th:text="${usersPage.number + 1}"></span> z <span
+            th:text="${usersPage.totalPages}"></span>
+        </a>
+      </li>
+
+      <li class="page-item" th:classappend="${usersPage.last} ? 'disabled'">
+        <a class="page-link"
+           th:href="@{/admin/users(page=${usersPage.number + 1}, size=5, sort=${sort}, dir=${dir}, email=${email})}">
+          Następna
+        </a>
+      </li>
+    </ul>
+  </nav>
 </div>
 </body>
 </html>

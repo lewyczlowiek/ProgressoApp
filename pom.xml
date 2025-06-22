@@ -43,7 +43,10 @@
       <artifactId>spring-boot-starter-websocket</artifactId>
       <groupId>org.springframework.boot</groupId>
     </dependency>
-
+    <dependency>
+      <artifactId>thymeleaf-extras-springsecurity6</artifactId>
+      <groupId>org.thymeleaf.extras</groupId>
+    </dependency>
     <dependency>
       <artifactId>lombok</artifactId>
       <groupId>org.projectlombok</groupId>

@@ -104,4 +104,8 @@ public class TaskService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
         taskRepository.delete(task);
     }
+
+    public List<Task> findAll() {
+        return taskRepository.findAll();
+    }
 }

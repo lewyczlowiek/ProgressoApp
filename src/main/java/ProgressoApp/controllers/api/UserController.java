@@ -1,10 +1,9 @@
-package ProgressoApp.controllers;
+package ProgressoApp.controllers.api;
 
 
 import ProgressoApp.dto.request.UserRequestDTO;
 import ProgressoApp.dto.response.UserResponseDTO;
 import ProgressoApp.model.User;
-import ProgressoApp.repository.UserRepository;
 import ProgressoApp.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

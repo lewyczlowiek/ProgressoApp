@@ -2,11 +2,16 @@ package ProgressoApp.service;
 
 import ProgressoApp.dto.request.RegisterDTO;
 import ProgressoApp.dto.request.UserRequestDTO;
+import ProgressoApp.dto.response.UserResponseDTO;
 import ProgressoApp.model.Role;
 import ProgressoApp.model.User;
 import ProgressoApp.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -34,36 +39,38 @@ public class UserService implements UserDetailsService {
     }
 
     User user = User.builder()
-            .firstName(registerDTO.getFirstName())
-            .lastName(registerDTO.getLastName())
-            .email(registerDTO.getEmail())
-            .password(passwordEncoder.encode(registerDTO.getPassword()))
-            .numberIndex(registerDTO.getNumberIndex())
-            .role(Role.STUDENT)
-            .build();
+        .firstName(registerDTO.getFirstName())
+        .lastName(registerDTO.getLastName())
+        .email(registerDTO.getEmail())
+        .password(passwordEncoder.encode(registerDTO.getPassword()))
+        .numberIndex(registerDTO.getNumberIndex())
+        .role(Role.STUDENT)
+        .build();
 
     userRepository.save(user);
   }
 
-  public User createUser(UserRequestDTO dto){
-    if (userRepository.existsByEmail(dto.email())){
-      throw new ResponseStatusException(HttpStatus.CONFLICT,  "Użytkownik z takim e-mailem już istnieje!");
+  public User createUser(UserRequestDTO dto) {
+    if (userRepository.existsByEmail(dto.email())) {
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Użytkownik z takim e-mailem już istnieje!");
     }
 
     if (userRepository.existsByNumberIndex(dto.numberIndex())) {
-      throw new ResponseStatusException(HttpStatus.CONFLICT, "Numer indesku już jest zajęty przez innego użytkownika!");
+      throw new ResponseStatusException(HttpStatus.CONFLICT,
+          "Numer indesku już jest zajęty przez innego użytkownika!");
     }
 
     User user = User.builder()
-            .firstName(dto.firstName())
-            .lastName(dto.lastName())
-            .email(dto.email())
-            .password(dto.password())
-            .numberIndex(dto.numberIndex())
-            .role(Role.STUDENT)
-            .build();
+        .firstName(dto.firstName())
+        .lastName(dto.lastName())
+        .email(dto.email())
+        .password(dto.password())
+        .numberIndex(dto.numberIndex())
+        .role(Role.STUDENT)
+        .build();
 
-      return userRepository.save(user);
+    return userRepository.save(user);
   }
 
   public User updateUser(Long id, UserRequestDTO dto) {
@@ -88,7 +95,8 @@ public class UserService implements UserDetailsService {
 
   public User findById(Long id) {
     return userRepository.findById(id)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nie znaleziono użytkownika"));
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Nie znaleziono użytkownika"));
   }
 
   public Optional<User> findByEmail(String email) {
@@ -99,9 +107,28 @@ public class UserService implements UserDetailsService {
     return userRepository.findAll();
   }
 
+
+  public Page<UserResponseDTO> getUsersPageFiltered(String email, Pageable pageable, String sort,
+      String dir) {
+    Sort.Direction direction =
+        dir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+    Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(),
+        Sort.by(direction, sort));
+
+    Page<User> users;
+    if (email != null && !email.isBlank()) {
+      users = userRepository.findByEmailContainingIgnoreCase(email, sortedPageable);
+    } else {
+      users = userRepository.findAll(sortedPageable);
+    }
+
+    return users.map(
+        User::toUserResponseDTO);
+  }
+
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     return userRepository.findByEmail(email)
-            .orElseThrow(() -> new UsernameNotFoundException("Użytkownik nie istnieje: " + email));
+        .orElseThrow(() -> new UsernameNotFoundException("Użytkownik nie istnieje: " + email));
   }
 }

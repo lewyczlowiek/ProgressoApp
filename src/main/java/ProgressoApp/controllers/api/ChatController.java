@@ -43,7 +43,7 @@ public class ChatController {
 }
 */
 
-package ProgressoApp.controllers;
+package ProgressoApp.controllers.api;
 
 import ProgressoApp.model.ChatMessage;
 import ProgressoApp.service.UserService;
