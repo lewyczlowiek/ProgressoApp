@@ -18,12 +18,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.io.Serializable;
 import java.util.stream.Collectors;
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Getter
-@Setter
+@ToString(exclude = "submissions")
 @Entity
 @Table(name = "users")
 public class User implements UserDetails {
@@ -53,11 +53,7 @@ public class User implements UserDetails {
   private Role role;
 
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<TaskSubmission> taskSubmissions = new ArrayList<>();
-
-  @ToString.Exclude
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-  private List<TaskSubmission> submissions;
+  private List<TaskSubmission> submissions = new ArrayList<>();
 
   public User(User user) {
     this.email = user.email;

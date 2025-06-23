@@ -8,9 +8,9 @@
   <link rel="stylesheet" th:href="@{/navbar.css}">
   <style>
     .admin-sort a {
-    display: inline-flex;
-    align-items: center;
-     gap: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       text-decoration: none;
       white-space: nowrap;
       color: inherit;
@@ -19,7 +19,8 @@
       border-radius: 4px;
       transition: background-color 0.2s;
     }
-   .admin-sort a:hover {
+
+    .admin-sort a:hover {
       background-color: #e0e0e0;
     }
   </style>
@@ -32,7 +33,7 @@
   <h2 class="mb-4">Użytkownicy</h2>
 
   <!-- Formularz filtrowania -->
-  <form class="mb-3" method="get" th:action="@{/admin/users}">
+  <form class="mb-3" method="get" th:action="@{/admin}">
     <div class="input-group">
       <input class="form-control" name="email" placeholder="Filtruj po e-mailu..."
              th:value="${email}"
@@ -47,22 +48,22 @@
     <thead class="table-primary">
     <tr>
       <th class="admin-sort">
-        <a th:href="@{/admin/users(page=0, size=5, sort='userId', dir=${sort == 'userId' and dir == 'asc' ? 'desc' : 'asc'}, email=${email})}">
+        <a th:href="@{/admin(page=0, size=5, sort='userId', dir=${sort == 'userId' and dir == 'asc' ? 'desc' : 'asc'}, email=${email})}">
           ID <span th:if="${sort == 'userId'}" th:text="${dir == 'asc' ? '↑' : '↓'}"></span>
         </a>
       </th>
       <th class="admin-sort">
-        <a th:href="@{/admin/users(page=0, size=5, sort='firstName', dir=${sort == 'firstName' and dir == 'asc' ? 'desc' : 'asc'}, email=${email})}">
+        <a th:href="@{/admin(page=0, size=5, sort='firstName', dir=${sort == 'firstName' and dir == 'asc' ? 'desc' : 'asc'}, email=${email})}">
           Imię <span th:if="${sort == 'firstName'}" th:text="${dir == 'asc' ? '↑' : '↓'}"></span>
         </a>
       </th>
       <th class="admin-sort">
-        <a th:href="@{/admin/users(page=0, size=5, sort='lastName', dir=${sort == 'lastName' and dir == 'asc' ? 'desc' : 'asc'}, email=${email})}">
+        <a th:href="@{/admin(page=0, size=5, sort='lastName', dir=${sort == 'lastName' and dir == 'asc' ? 'desc' : 'asc'}, email=${email})}">
           Nazwisko <span th:if="${sort == 'lastName'}" th:text="${dir == 'asc' ? '↑' : '↓'}"></span>
         </a>
       </th>
       <th class="admin-sort">
-        <a th:href="@{/admin/users(page=0, size=5, sort='email', dir=${sort == 'email' and dir == 'asc' ? 'desc' : 'asc'}, email=${email})}">
+        <a th:href="@{/admin(page=0, size=5, sort='email', dir=${sort == 'email' and dir == 'asc' ? 'desc' : 'asc'}, email=${email})}">
           Email <span th:if="${sort == 'email'}" th:text="${dir == 'asc' ? '↑' : '↓'}"></span>
         </a>
       </th>
@@ -74,7 +75,7 @@
     </thead>
     <tbody>
     <tr th:each="user : ${usersPage.content}">
-      <form method="post" th:action="@{'/admin/users/edit/' + ${user.userId}}">
+      <form method="post" th:action="@{'/admin/edit/' + ${user.userId}}">
         <td th:text="${user.userId}"></td>
         <td>
           <input class="form-control" name="firstName" required th:value="${user.firstName}"
@@ -104,11 +105,10 @@
         <td>
           <div style="display: flex;column-gap: 10px;">
             <button class="btn btn-success btn-sm" type="submit">Zapisz</button>
-            <button class="btn btn-danger btn-sm"
-                    th:onclick="'if(confirm(\'Na pewno usunąć?\')){this.form.action=\'/admin/users/delete/' + ${user.userId} + '\'; this.form.submit();}'"
-                    type="button">
-              Usuń
-            </button>
+            <form method="post" onsubmit="return confirm('Na pewno usunąć?')"
+                  th:action="@{/admin/delete/{id}(id=${user.userId})}">
+              <button class="btn btn-danger btn-sm" type="submit">Usuń</button>
+            </form>
           </div>
         </td>
       </form>
@@ -121,7 +121,7 @@
     <ul class="pagination justify-content-center mt-3">
       <li class="page-item" th:classappend="${usersPage.first} ? 'disabled'">
         <a class="page-link"
-           th:href="@{/admin/users(page=${usersPage.number - 1}, size=5, sort=${sort}, dir=${dir}, email=${email})}">
+           th:href="@{/admin(page=${usersPage.number - 1}, size=5, sort=${sort}, dir=${dir}, email=${email})}">
           Poprzednia
         </a>
       </li>
@@ -135,7 +135,7 @@
 
       <li class="page-item" th:classappend="${usersPage.last} ? 'disabled'">
         <a class="page-link"
-           th:href="@{/admin/users(page=${usersPage.number + 1}, size=5, sort=${sort}, dir=${dir}, email=${email})}">
+           th:href="@{/admin(page=${usersPage.number + 1}, size=5, sort=${sort}, dir=${dir}, email=${email})}">
           Następna
         </a>
       </li>

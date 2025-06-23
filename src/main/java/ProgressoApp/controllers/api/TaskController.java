@@ -71,21 +71,31 @@ public class TaskController {
   public String createTask(
       @RequestParam String name,
       @RequestParam String description,
-      @RequestParam Integer taskOrder,
-      @RequestParam TaskStatus taskStatus,
       @RequestParam Long projectId,
-      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate
+      @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate,
+      @RequestParam(required = false, name = "selectedUsers") List<Long> selectedUsers
   ) {
-    TaskRequestDTO dto = new TaskRequestDTO(name, description, taskOrder, taskStatus, projectId,
-        dueDate);
-    taskService.createTask(dto);
+    TaskRequestDTO dto = new TaskRequestDTO(
+        name,
+        description,
+        0, // lub taskOrder z formularza
+        TaskStatus.TO_DO, // lub status z formularza
+        projectId,
+        dueDate
+    );
+    Long taskId = taskService.createTask(dto).getTaskId();
+
+    if (selectedUsers != null) {
+      taskService.assignUsersToTask(taskId, selectedUsers);
+    }
+
     return "redirect:/tasks";
   }
 
-  @DeleteMapping("/{id}")
+  @PostMapping("/{id}/delete")
   public String deleteTask(@PathVariable Long id) {
     taskService.deleteTask(id);
-    return "redirect:/tasks";
+    return "redirect:/task_get";
   }
 
   @PostMapping("/addTasks/{projectId}")
@@ -129,6 +139,14 @@ public class TaskController {
 
     return "redirect:/project/details/" + projectId;
   }
+
+  @PatchMapping("/{id}/status")
+  public Task updateTaskStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    String statusString = body.get("taskStatus");
+    return taskService.updateTaskStatus(id, statusString);
+  }
+
+
 }
 
 

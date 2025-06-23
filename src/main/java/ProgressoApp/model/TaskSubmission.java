@@ -25,8 +25,8 @@ public class TaskSubmission {
   @JoinColumn(name = "task_id", nullable = false)
   private Task task;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id", nullable = false)
+  @ManyToOne(optional = true)
+  @JoinColumn(name = "user_id")
   private User user;
 
   public TaskSubmission() {
@@ -53,7 +53,7 @@ public class TaskSubmission {
     return new TaskSubmissionResponseDTO(
         this.id,
         this.task != null ? this.task.getTaskId() : null,
-            this.submittedAt
+        this.submittedAt
     );
   }
 

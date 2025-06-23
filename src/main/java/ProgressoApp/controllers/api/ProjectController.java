@@ -40,13 +40,6 @@ public class ProjectController {
     this.userService = userService;
   }
 
-//  @PostMapping("/{id}/edit")
-//  public String updateProject(@PathVariable long id, @ModelAttribute ProjectRequestDTO projectDto) {
-//    // Zaktualizowanie projektu na podstawie przekazanych danych
-//    projectService.updateProject(id, projectDto);
-//    return "redirect:/index"; // Po zapisaniu, przekierowanie na stronę z listą projektów
-//  }
-
 
   @GetMapping("/all")
   public ResponseEntity<Page<ProjectResponseDTO>> getAllProjects(
@@ -76,21 +69,6 @@ public class ProjectController {
     );
   }
 
-  @GetMapping("/add")
-  public String showAddProjectForm(Model model) {
-    ProjectRequestDTO emptyProject = new ProjectRequestDTO(
-        "", // Empty project name
-        "", // Empty description
-        LocalDateTime.now(), // Default current time
-        new ArrayList<>(), // Empty task list
-        new HashSet<>(), // Empty user set
-        LocalDateTime.now(),
-        "active"
-    );
-
-    model.addAttribute("project", emptyProject);
-    return "project_file"; // Return the view for the form
-  }
 
   @PostMapping("/add")
   public String createProject(@ModelAttribute ProjectRequestDTO projectDto) {
@@ -112,52 +90,6 @@ public class ProjectController {
     return "redirect:/index";  // Redirect after saving the project
   }
 
-  @GetMapping("/delete/{id}")
-  public String deleteProject(@PathVariable long id) {
-    projectService.deleteProject(id);  // Wywołanie metody usuwania
-    return "redirect:/index";   // Przekierowanie po usunięciu projektu
-  }
-
-
-  @PostMapping("/add-person/{projectId}")
-  public String addUsersToProject(@PathVariable Long projectId,
-      @RequestParam(required = false) Set<Long> selectedUsers) {
-    // Logowanie dla diagnostyki
-    System.out.println("Próba dodania użytkowników do projektu o ID: " + projectId);
-    System.out.println("Wybrani użytkownicy (ID): " + selectedUsers);
-
-    // Pobranie projektu na podstawie ID
-    Project project = projectRepository.findById(projectId)
-        .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
-
-    // Jeśli nie wybrano żadnych użytkowników, przekierowujemy na stronę /index
-    if (selectedUsers == null || selectedUsers.isEmpty()) {
-      return "redirect:/index";  // Przekierowanie na stronę główną, jeśli żaden użytkownik nie został wybrany
-    }
-
-    // Pobranie użytkowników, którzy są aktualnie przypisani do projektu
-    Set<User> currentUsers = project.getUsers();
-
-    // Pobranie użytkowników na podstawie ich ID
-    Set<User> usersToAdd = new HashSet<>(userRepository.findAllById(selectedUsers));
-
-    // Użytkownicy do usunięcia (odznaczeni w formularzu)
-    Set<User> usersToRemove = new HashSet<>(currentUsers);
-    usersToRemove.removeAll(usersToAdd); // Usuwamy tych, którzy są teraz zaznaczeni
-
-    // Użytkownicy do dodania (zaznaczeni w formularzu, ale nie w projekcie)
-    usersToAdd.removeAll(currentUsers); // Usuwamy tych, którzy są już przypisani
-
-    // Przypisanie nowych użytkowników do projektu
-    currentUsers.addAll(usersToAdd);
-    currentUsers.removeAll(usersToRemove); // Usuwamy użytkowników, którzy zostali odznaczeni
-
-    // Zapisanie zmian
-    projectRepository.save(project);
-
-    // Po zapisaniu zmian przekierowujemy na stronę z projektem lub listą projektów
-    return "redirect:/index";  // Możesz dostosować tę ścieżkę, aby przekierować użytkownika na odpowiednią stronę
-  }
 
   @GetMapping("/add-person/{projectId}")
   public String showAddPeopleToProjectForm(@PathVariable Long projectId, Model model) {

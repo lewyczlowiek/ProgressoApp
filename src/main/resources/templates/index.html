@@ -10,17 +10,62 @@
         rel="stylesheet">
   <link rel="stylesheet" th:href="@{/navbar.css}">
   <style>
-    .btn-primary { background-color: #007bff; border-color: #007bff; }
-    .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
-    .btn-outline-secondary:hover { background-color: #6c757d; border-color: #6c757d; color: white; }
-    .btn-outline-danger:hover { background-color: #dc3545; border-color: #dc3545; color: white; }
-    .btn-outline-primary:hover { background-color: #0d6efd; border-color: #0d6efd; color: white; }
-    .btn-info { background-color: #17a2b8; border-color: #17a2b8; color: white; }
-    .btn-info:hover { background-color: #138496; border-color: #138496; }
-    .list-group-item-action:hover { background-color: #f8f9fa; }
-    .list-group-item-action { transition: background-color 0.3s ease; }
-    .button-group { display: flex; gap: 0.5rem; align-items: center; }
-    .header-row { margin-bottom: 2rem; }
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+
+    .btn-outline-secondary:hover {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      color: white;
+    }
+
+    .btn-outline-danger:hover {
+      background-color: #dc3545;
+      border-color: #dc3545;
+      color: white;
+    }
+
+    .btn-outline-primary:hover {
+      background-color: #0d6efd;
+      border-color: #0d6efd;
+      color: white;
+    }
+
+    .btn-info {
+      background-color: #17a2b8;
+      border-color: #17a2b8;
+      color: white;
+    }
+
+    .btn-info:hover {
+      background-color: #138496;
+      border-color: #138496;
+    }
+
+    .list-group-item-action:hover {
+      background-color: #f8f9fa;
+    }
+
+    .list-group-item-action {
+      transition: background-color 0.3s ease;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .header-row {
+      margin-bottom: 2rem;
+    }
   </style>
 </head>
 <body class="bg-light">
@@ -35,7 +80,7 @@
           Lista projektów
         </h1>
         <a class="btn btn-primary" role="button" sec:authorize="hasAnyRole('ADMIN','LECTURER')"
-           th:href="@{/api/project/add}">
+           th:href="@{/project/add}">
           <i class="fas fa-plus me-1"></i>
           Nowy Projekt
         </a>
@@ -116,7 +161,7 @@
        data-bs-target="#confirmDeleteModal"
        data-bs-toggle="modal"
        href="#"
-       th:attr="data-delete-url=@{/api/project/delete/{id}(id=${project.projectId})}">
+       th:attr="data-delete-url=@{/project/delete/{id}(id=${project.projectId})}">
       <i class="fas fa-trash me-1"></i> Usuń
     </a>
   </span>
@@ -181,15 +226,15 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-  document.addEventListener("DOMContentLoaded", function() {
-      var confirmModal = document.getElementById('confirmDeleteModal');
-      var confirmBtn = document.getElementById('confirmDeleteBtn');
+  document.addEventListener("DOMContentLoaded", function () {
+    var confirmModal = document.getElementById('confirmDeleteModal');
+    var confirmBtn = document.getElementById('confirmDeleteBtn');
 
-      confirmModal.addEventListener('show.bs.modal', function (event) {
-          var button = event.relatedTarget;
-          var deleteUrl = button.getAttribute('data-delete-url');
-          confirmBtn.setAttribute('href', deleteUrl);
-      });
+    confirmModal.addEventListener('show.bs.modal', function (event) {
+      var button = event.relatedTarget;
+      var deleteUrl = button.getAttribute('data-delete-url');
+      confirmBtn.setAttribute('href', deleteUrl);
+    });
   });
 </script>
 
