@@ -53,11 +53,7 @@ public class TaskSubmission {
     return new TaskSubmissionResponseDTO(
         this.id,
         this.task != null ? this.task.getTaskId() : null,
-        this.user != null ? this.user.getUserId() : null,
-        this.filePath,
-        this.grade,
-        this.feedback,
-        this.submittedAt
+            this.submittedAt
     );
   }
 

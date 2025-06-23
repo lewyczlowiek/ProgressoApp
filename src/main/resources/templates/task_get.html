@@ -1,165 +1,136 @@
 <!DOCTYPE html>
-<html xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
-      xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-  <meta charset="UTF-8">
-  <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Lista Zadań</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-        rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-        rel="stylesheet">
-  <link rel="stylesheet" th:href="@{/navbar.css}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Zadań</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/navbar.css}">
+    <style>
+        .btn-outline-secondary:hover { background-color: #6c757d; border-color: #6c757d; color: white; }
+        .btn-outline-danger:hover { background-color: #dc3545; border-color: #dc3545; color: white; }
+        .btn-outline-primary:hover { background-color: #0d6efd; border-color: #0d6efd; color: white; }
+        .badge { padding: 0.6em 1em; font-weight: 500; border-radius: 20px; }
+        .list-group-item-action:hover { background-color: #f8f9fa; }
+        .list-group-item-action { transition: background-color 0.3s ease; }
+        .button-group { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+        .header-row { margin-bottom: 2rem; }
+        .button-group a.btn, .button-group button.btn {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+    </style>
 </head>
 
 <body class="bg-light">
 
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
-<div class="container mt-5">
-  <div class="row">
-    <div class="col-lg-8 mx-auto">
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="h3"><i class="fas fa-tasks me-2"></i>Lista zadań</h1>
-        <a class="btn btn-primary" th:href="@{/tasks/add}">
-          <i class="fas fa-plus me-2"></i>Nowe zadanie
-        </a>
-      </div>
+<main class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
 
-      <div class="list-group shadow-sm" id="tasks-list">
-        <div class="list-group-item list-group-item-action" th:each="task : ${tasks}">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <h5 class="mb-1" th:text="${task.name}">Tytuł zadania</h5>
-              <small class="text-muted">
-                Utworzono: <span th:text="${task.formattedCreationDate}">2024-01-01</span>
-              </small>
+            <div class="d-flex justify-content-between align-items-center header-row">
+                <h1 class="h3 mb-0">
+                    <i class="fas fa-tasks me-2"></i>
+                    Lista zadań
+                </h1>
+                <a class="btn btn-primary d-flex align-items-center" th:href="@{/tasks/add}">
+                    <i class="fas fa-plus me-1"></i> <span>Nowe zadanie</span>
+                </a>
             </div>
-            <div class="d-flex align-items-center">
 
-                            <span class="badge me-2"
+            <div id="tasks-list" class="list-group shadow-sm">
+                <div th:each="task : ${tasks}" class="list-group-item list-group-item-action p-3 mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h5 class="mb-1" th:text="${task.name}">Tytuł zadania</h5>
+                            <div class="mt-2">
+                                <small class="text-muted d-block">
+                                    <strong>Utworzono:</strong>
+                                    <span th:text="${task.formattedCreationDate}">2025-06-01</span>
+                                </small>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-row align-items-center justify-content-end flex-wrap gap-2">
+                            <span class="mb-2 badge"
+                                  th:text="${task.taskStatus}"
                                   th:classappend="${task.taskStatus == 'Nowe' ? ' bg-secondary' :
                                                    (task.taskStatus == 'W toku' ? ' bg-warning' :
-                                                   (task.taskStatus == 'Zakończone' ? ' bg-success' : ' bg-secondary'))}"
-                                  th:text="${task.taskStatus}">
+                                                   (task.taskStatus == 'Zakończone' ? ' bg-success' : ' bg-secondary'))}">
                                 Status
                             </span>
 
-              <select class="form-select form-select-sm me-2"
-                      onchange="changeStatus(this)"
-                      th:attr="data-task-id=${task.taskId}">
-                <option th:selected="${task.taskStatus == 'Nowe'}">Nowe</option>
-                <option th:selected="${task.taskStatus == 'W toku'}">W toku</option>
-                <option th:selected="${task.taskStatus == 'Zakończone'}">Zakończone</option>
-              </select>
+                            <div class="button-group">
+                                <select class="form-select form-select-sm"
+                                        th:attr="data-task-id=${task.taskId}"
+                                        onchange="changeStatus(this)">
+                                    <option th:selected="${task.taskStatus == 'Nowe'}">Nowe</option>
+                                    <option th:selected="${task.taskStatus == 'W toku'}">W toku</option>
+                                    <option th:selected="${task.taskStatus == 'Zakończone'}">Zakończone</option>
+                                </select>
 
-              <a class="btn btn-sm btn-outline-info me-2"
-                 th:href="@{/tasks/{id}(id=${task.taskId})}">
-                <i class="fas fa-info-circle"></i> Szczegóły
-              </a>
+                                <a class="btn btn-sm btn-info" th:href="@{/tasks/{id}(id=${task.taskId})}">
+                                    <i class="fas fa-info-circle"></i> <span>Szczegóły</span>
+                                </a>
 
-              <a class="btn btn-sm btn-outline-secondary me-2"
-                 th:href="@{/tasks/{id}/edit(id=${task.taskId})}">
-                <i class="fas fa-pen"></i>
-              </a>
-
-              <form method="post"
-                    onsubmit="return confirm('Czy na pewno chcesz usunąć to zadanie?');"
-                    th:action="@{/tasks/{id}/delete(id=${task.taskId})}"
-                    th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''LEKTOR'')')}">
-                <button class="btn btn-sm btn-outline-danger" type="submit">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </form>
+                                <a class="btn btn-sm btn-outline-secondary" th:href="@{/tasks/{id}/edit(id=${task.taskId})}">
+                                    <i class="fas fa-pen"></i> <span>Edytuj</span>
+                                </a>
+                                <form th:action="@{/tasks/{id}/delete(id=${task.taskId})}" method="post"
+                                      th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''LEKTOR'')')}"
+                                      onsubmit="return confirm('Czy na pewno chcesz usunąć to zadanie?');">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash"></i> <span>Usuń</span>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
+
         </div>
-      </div>
-
     </div>
-  </div>
-</div>
-
-<style>
-  body {
-      background-color: #f8f9fa;
-      font-family: 'Segoe UI', sans-serif;
-  }
-
-  .list-group-item {
-      border-left: 4px solid transparent;
-      transition: all 0.2s ease;
-      padding: 1rem;
-      margin-bottom: 0.5rem;
-      border-radius: 8px !important;
-  }
-
-  .list-group-item:hover {
-      border-left-color: #0d6efd;
-      background-color: #f8f9fa;
-      transform: translateX(3px);
-      box-shadow: 0 2px 5px rgba(0, 0, 0, .08);
-  }
-
-  .badge {
-      padding: 0.6em 1em;
-      font-weight: 500;
-      border-radius: 20px;
-  }
-
-  .btn-outline-danger {
-      opacity: 0.7;
-      transition: all 0.2s ease;
-  }
-
-  .btn-outline-danger:hover {
-      opacity: 1;
-      background-color: #dc3545;
-      color: white;
-  }
-
-  .form-select {
-      width: auto;
-  }
-</style>
+</main>
 
 <script>
-  function changeStatus(selectElement) {
-      const status = selectElement.value;
-      const taskId = selectElement.dataset.taskId;
-      const badge = selectElement.parentElement.querySelector('.badge');
+    function changeStatus(selectElement) {
+        const status = selectElement.value;
+        const taskId = selectElement.dataset.taskId;
+        const badge = selectElement.closest('.list-group-item').querySelector('.badge');
 
-      badge.className = `badge me-2 ${getBadgeClass(status)}`;
-      badge.textContent = status;
+        badge.className = `badge mb-2 ${getBadgeClass(status)}`;
+        badge.textContent = status;
 
-      const statusMap = {
-          "Nowe": "TO_DO",
-          "W toku": "IN_PROGRESS",
-          "Zakończone": "DONE"
-      };
+        const statusMap = {
+            "Nowe": "TO_DO",
+            "W toku": "IN_PROGRESS",
+            "Zakończone": "DONE"
+        };
 
-     fetch(`/api/tasks/status/${taskId}`, {
-  method: 'PUT',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify(statusMap[status]) // np. "TO_DO"
-}).then(response => {
-           console.log(response)
-          if (!response.ok) {
-              alert('Nie udało się zaktualizować statusu.');
-          }
-      });
-  }
+        fetch(`/api/tasks/${taskId}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ taskStatus: statusMap[status] })
+        }).then(response => {
+            if (!response.ok) {
+                alert('Nie udało się zaktualizować statusu.');
+            }
+        });
+    }
 
-  function getBadgeClass(status) {
-      switch (status) {
-          case 'Nowe': return 'bg-secondary';
-          case 'W toku': return 'bg-warning';
-          case 'Zakończone': return 'bg-success';
-          default: return 'bg-secondary';
-      }
-  }
+    function getBadgeClass(status) {
+        switch (status) {
+            case 'Nowe': return 'bg-secondary';
+            case 'W toku': return 'bg-warning';
+            case 'Zakończone': return 'bg-success';
+            default: return 'bg-secondary';
+        }
+    }
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
