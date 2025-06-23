@@ -52,7 +52,7 @@ public class User implements UserDetails {
   @Column(nullable = false)
   private Role role;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  @OneToMany(mappedBy = "user", orphanRemoval = true)
   private List<TaskSubmission> submissions = new ArrayList<>();
 
   public User(User user) {

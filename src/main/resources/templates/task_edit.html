@@ -3,27 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <title>Edytuj zadanie</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        rel="stylesheet">
   <link rel="stylesheet" th:href="@{/navbar.css}">
   <style>
-    body { background-color: #f8f9fa; font-family: 'Segoe UI', sans-serif; }
-    .form-label { font-weight: 500; color: #495057; }
-    .form-control { border-radius: 8px; padding: 12px; }
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: #495057;
+    }
+
+    .form-control {
+      border-radius: 8px;
+      padding: 12px;
+    }
+
     .form-control:focus {
       border-color: #80bdff;
       box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.25);
     }
-    .btn { border-radius: 8px; padding: 10px 20px; }
-    .btn-danger { background-color: #dc3545; border: none; }
-    .btn-danger:hover { background-color: #c82333; }
-    .btn-success { background-color: #28a745; border: none; }
-    .btn-success:hover { background-color: #218838; }
+
+    .btn {
+      border-radius: 8px;
+      padding: 10px 20px;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      border: none;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    .btn-success {
+      background-color: #28a745;
+      border: none;
+    }
+
+    .btn-success:hover {
+      background-color: #218838;
+    }
+
     ul.assigned-users {
       list-style: none;
       padding-left: 0;
     }
+
     ul.assigned-users li {
       margin-bottom: 4px;
     }
@@ -40,22 +74,23 @@
 
       <h2 class="mb-4"><i class="fas fa-pen me-2"></i> Edytuj zadanie</h2>
 
-      <form th:action="@{/tasks/{id}/save(id=${task.taskId})}" method="post" id="editTaskForm">
+      <form id="editTaskForm" method="post" th:action="@{/tasks/{id}/save(id=${task.taskId})}">
 
         <div class="mb-3">
           <label class="form-label">Nazwa zadania</label>
-          <input type="text" class="form-control" name="name" th:value="${task.name}" required>
+          <input class="form-control" name="name" required th:value="${task.name}" type="text">
         </div>
 
         <div class="mb-3">
           <label class="form-label">Opis</label>
-          <textarea name="description" class="form-control" rows="4" th:text="${task.description}"></textarea>
+          <textarea class="form-control" name="description" rows="4"
+                    th:text="${task.description}"></textarea>
         </div>
 
         <div class="mb-3">
           <label class="form-label">Termin wykonania</label>
-          <input type="date" name="dueDate" class="form-control"
-                 th:value="${#temporals.format(task.dueDate, 'yyyy-MM-dd')}" required>
+          <input class="form-control" name="dueDate" required
+                 th:value="${#temporals.format(task.dueDate, 'yyyy-MM-dd')}" type="date">
         </div>
 
         <div class="mb-3">
@@ -63,9 +98,9 @@
           <select class="form-control" name="projectId" required>
             <option value="">-- Wybierz projekt --</option>
             <option th:each="project : ${projects}"
-                    th:value="${project.projectId}"
+                    th:selected="${project.projectId == task.project.projectId}"
                     th:text="${project.name}"
-                    th:selected="${project.projectId == task.project.projectId}">
+                    th:value="${project.projectId}">
             </option>
           </select>
         </div>
@@ -75,7 +110,8 @@
           <ul class="assigned-users">
             <li th:each="user : ${task.project.users}">
               <i class="fas fa-user"></i>
-              <span th:text="${user.firstName + ' ' + user.lastName + ' (' + user.numberIndex + ')'}">Imię Nazwisko</span>
+              <span
+                  th:text="${user.firstName + ' ' + user.lastName + ' (' + user.numberIndex + ')'}">Imię Nazwisko</span>
             </li>
           </ul>
         </div>
@@ -84,7 +120,7 @@
           <a class="btn btn-danger" th:href="@{/tasks}">
             <i class="fas fa-sign-out-alt"></i> Cofnij
           </a>
-          <button type="submit" class="btn btn-success">
+          <button class="btn btn-success" type="submit">
             <i class="fas fa-save"></i> Zapisz zmiany
           </button>
         </div>
@@ -95,5 +131,50 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const projectSelect = document.getElementById('projectSelect');
+  const usersTableBody = document.getElementById('usersTableBody');
+  const selectAllCheckbox = document.getElementById('selectAllCheckbox');
+
+  projectSelect.addEventListener('change', function () {
+    const projectId = this.value;
+    usersTableBody.innerHTML = '';
+
+    if (!projectId) {
+      return;
+    }
+
+    fetch(`/api/project/${projectId}/users`)
+    .then(response => response.json())
+    .then(users => {
+      users.forEach(user => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${user.firstName}</td>
+            <td>${user.lastName}</td>
+            <td>${user.numberIndex}</td>
+            <td>
+              <input type="checkbox" class="form-check-input user-checkbox" name="selectedUsers" value="${user.userId}" />
+            </td>
+          `;
+        usersTableBody.appendChild(row);
+      });
+    })
+    .catch(error => {
+      console.error("Błąd podczas ładowania użytkowników:", error);
+    });
+  });
+
+  selectAllCheckbox.addEventListener('change', function () {
+    const checked = this.checked;
+    document.querySelectorAll('.user-checkbox').forEach(cb => cb.checked = checked);
+  });
+
+  window.addEventListener('DOMContentLoaded', () => {
+    if (projectSelect.value) {
+      projectSelect.dispatchEvent(new Event('change'));
+    }
+  });
+</script>
 </body>
 </html>

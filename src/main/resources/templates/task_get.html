@@ -75,7 +75,9 @@
           <i class="fas fa-tasks me-2"></i>
           Lista zadań
         </h1>
-        <a class="btn btn-primary d-flex align-items-center" th:href="@{/tasks/add}">
+        <a class="btn btn-primary d-flex align-items-center"
+           sec:authorize="hasAnyRole('ADMIN', 'LECTURER')"
+           th:href="@{/tasks/add}">
           <i class="fas fa-plus me-1"></i> <span>Nowe zadanie</span>
         </a>
       </div>
@@ -115,13 +117,15 @@
                   <i class="fas fa-info-circle"></i> <span>Szczegóły</span>
                 </a>
 
-                <a class="btn btn-sm btn-outline-secondary"
-                   th:href="@{/tasks/{id}/edit(id=${task.taskId})}">
-                  <i class="fas fa-pen"></i> <span>Edytuj</span>
-                </a>
+                <span sec:authorize="hasAnyRole('ADMIN', 'LECTURER')">
+  <a class="btn btn-sm btn-outline-secondary"
+     th:href="@{/tasks/{id}/edit(id=${task.taskId})}">
+    <i class="fas fa-pen"></i> <span>Edytuj</span>
+  </a>
+</span>
                 <form method="post"
                       onsubmit="return confirm('Czy na pewno chcesz usunąć to zadanie?');"
-                      th:action="@{api/tasks/{id}/delete(id=${task.taskId})}"
+                      th:action="@{/tasks/{id}/delete(id=${task.taskId})}"
                       th:if="${#authorization.expression('hasRole(''ADMIN'') or hasRole(''LEKTOR'')')}">
                   <button class="btn btn-sm btn-outline-danger" type="submit">
                     <i class="fas fa-trash"></i> <span>Usuń</span>

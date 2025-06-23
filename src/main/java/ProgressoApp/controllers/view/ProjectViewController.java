@@ -43,6 +43,7 @@ public class ProjectViewController {
   @Autowired
   private final UserRepository userRepository;
 
+  @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
   @GetMapping("/add")
   public String showAddProjectForm(Model model) {
     ProjectRequestDTO emptyProject = new ProjectRequestDTO(
@@ -59,7 +60,7 @@ public class ProjectViewController {
     return "project_file"; // Return the view for the form
   }
 
-
+  @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
   @PostMapping("/add")
   public String createProject(@ModelAttribute ProjectRequestDTO projectDto) {
     // Check if statusProject is null or empty and assign a default value
@@ -122,6 +123,7 @@ public class ProjectViewController {
   }
 
 
+  @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
   @PostMapping("/{id}/edit")
   public String updateProject(@PathVariable long id, @ModelAttribute ProjectRequestDTO projectDto) {
 
@@ -129,7 +131,7 @@ public class ProjectViewController {
     return "redirect:/index";
   }
 
-
+  @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
   @GetMapping("/edit/{id}")
   public String showEditProjectForm(@PathVariable long id, Model model) {
     // Pobieramy projekt
@@ -149,12 +151,14 @@ public class ProjectViewController {
     return "edit_project";  // Przekazanie modelu do widoku
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
   @GetMapping("/delete/{id}")
   public String deleteProject(@PathVariable long id) {
     projectService.deleteProject(id);  // Wywołanie metody usuwania
     return "redirect:/index";   // Przekierowanie po usunięciu projektu
   }
 
+  @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
   @PostMapping("/add-person/{projectId}")
   public String addUsersToProject(@PathVariable Long projectId,
       @RequestParam(required = false) Set<Long> selectedUsers) {

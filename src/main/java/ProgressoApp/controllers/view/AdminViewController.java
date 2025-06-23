@@ -8,6 +8,7 @@ import ProgressoApp.repository.TaskSubmissionRepository;
 import ProgressoApp.repository.UserRepository;
 import ProgressoApp.service.UserService;
 import jakarta.transaction.Transactional;
+import java.util.Iterator;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -93,13 +94,12 @@ public class AdminViewController {
   public String deleteUser(@PathVariable Long id) {
     User user = userRepository.findById(id).orElse(null);
     if (user != null) {
-      // Znajdź zgłoszenia użytkownika
+      // Znajdź zgłoszenia przypisane do użytkownika
       List<TaskSubmission> submissions = submissionRepository.findByUser(user);
 
-      // Odłącz zgłoszenia od użytkownika i zapisz je
+      // Usuń każde zgłoszenie osobno
       for (TaskSubmission submission : submissions) {
-        submission.setUser(null);
-        submissionRepository.save(submission);
+        submissionRepository.delete(submission);
       }
 
       // Usuń użytkownika
@@ -107,6 +107,7 @@ public class AdminViewController {
     }
     return "redirect:/admin";
   }
+
 
 }
 

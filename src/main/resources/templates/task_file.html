@@ -2,31 +2,90 @@
 <html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
   <title>Dodaj Zadanie</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        rel="stylesheet">
   <link rel="stylesheet" th:href="@{/navbar.css}">
   <style>
-    .btn-primary { background-color: #007bff; border-color: #007bff; }
-    .btn-primary:hover { background-color: #0056b3; border-color: #0056b3; }
-    .btn-outline-secondary:hover { background-color: #6c757d; border-color: #6c757d; color: white; }
-    .btn-outline-danger:hover { background-color: #dc3545; border-color: #dc3545; color: white; }
-    .btn-outline-primary:hover { background-color: #0d6efd; border-color: #0d6efd; color: white; }
-    .btn-success:hover { background-color: #218838; }
-    .header-row { margin-bottom: 2rem; }
-    .form-label { font-weight: 500; color: #495057; }
-    .form-control { border-radius: 8px; padding: 12px; }
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+
+    .btn-outline-secondary:hover {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      color: white;
+    }
+
+    .btn-outline-danger:hover {
+      background-color: #dc3545;
+      border-color: #dc3545;
+      color: white;
+    }
+
+    .btn-outline-primary:hover {
+      background-color: #0d6efd;
+      border-color: #0d6efd;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background-color: #218838;
+    }
+
+    .header-row {
+      margin-bottom: 2rem;
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: #495057;
+    }
+
+    .form-control {
+      border-radius: 8px;
+      padding: 12px;
+    }
+
     .form-control:focus {
       border-color: #80bdff;
       box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.25);
     }
-    .table th, .table td { padding: 12px; vertical-align: middle; }
-    .table-striped tbody tr:nth-of-type(odd) { background-color: #f9f9f9; }
-    .user-checkbox { margin-left: 10px; }
-    .table th { background-color: #f1f1f1; color: #495057; }
-    .form-check-label { font-weight: 500; }
-    .form-check-input { border-radius: 5px; }
+
+    .table th, .table td {
+      padding: 12px;
+      vertical-align: middle;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #f9f9f9;
+    }
+
+    .user-checkbox {
+      margin-left: 10px;
+    }
+
+    .table th {
+      background-color: #f1f1f1;
+      color: #495057;
+    }
+
+    .form-check-label {
+      font-weight: 500;
+    }
+
+    .form-check-input {
+      border-radius: 5px;
+    }
   </style>
 </head>
 
@@ -37,7 +96,8 @@
   <div class="row">
     <div class="col-lg-8 mx-auto">
 
-      <form th:action="@{/tasks/addTasks/{projectId}(projectId=${project.projectId})}" method="post" th:object="${task}">
+      <form method="post" th:action="@{/tasks/addTasks/{projectId}(projectId=${project.projectId})}"
+            th:object="${task}">
         <!-- Nagłówek -->
         <div class="d-flex justify-content-between align-items-center header-row">
           <h2 class="h3 mb-0">
@@ -51,27 +111,28 @@
 
         <!-- Nazwa zadania -->
         <div class="mb-3">
-          <label for="taskTitle" class="form-label">Nazwa zadania</label>
-          <input type="text" class="form-control" id="taskTitle" th:field="*{name}" required>
+          <label class="form-label" for="taskTitle">Nazwa zadania</label>
+          <input class="form-control" id="taskTitle" required th:field="*{name}" type="text">
         </div>
 
         <!-- Opis -->
         <div class="mb-3">
-          <label for="taskDescription" class="form-label">Opis</label>
-          <textarea class="form-control" id="taskDescription" th:field="*{description}" rows="4"></textarea>
+          <label class="form-label" for="taskDescription">Opis</label>
+          <textarea class="form-control" id="taskDescription" rows="4"
+                    th:field="*{description}"></textarea>
         </div>
 
         <!-- Termin -->
         <div class="mb-3">
-          <label for="dueDate" class="form-label">Termin wykonania</label>
-          <input type="date" class="form-control" id="dueDate" th:field="*{dueDate}" required>
+          <label class="form-label" for="dueDate">Termin wykonania</label>
+          <input class="form-control" id="dueDate" required th:field="*{dueDate}" type="date">
         </div>
 
         <!-- Lista użytkowników -->
         <div class="mb-3">
           <label class="form-label">Wybierz użytkowników</label>
           <div class="form-check mb-2">
-            <input class="form-check-input" type="checkbox" id="selectAllCheckbox" />
+            <input class="form-check-input" id="selectAllCheckbox" type="checkbox"/>
             <label class="form-check-label" for="selectAllCheckbox">Wybierz wszystkich</label>
           </div>
 
@@ -91,7 +152,8 @@
                 <td th:text="${user.lastName}">Kowalski</td>
                 <td th:text="${user.numberIndex}">12345</td>
                 <td>
-                  <input type="checkbox" class="user-checkbox" name="assignedUsersIds" th:value="${user.userId}" />
+                  <input class="form-check-input user-checkbox" name="selectedUsers" type="checkbox"
+                         value="${user.userId}"/>
                 </td>
               </tr>
               </tbody>
@@ -101,7 +163,7 @@
 
         <!-- Przyciski -->
         <div class="d-flex justify-content-end gap-2">
-          <button type="submit" class="btn btn-success">
+          <button class="btn btn-success" type="submit">
             <i class="fas fa-check me-1"></i> Dodaj zadanie
           </button>
         </div>

@@ -78,7 +78,7 @@
 
 <body class="bg-light">
 
-<form id="addTaskForm" method="post" th:action="@{/api/tasks}">
+<form id="addTaskForm" method="post" th:action="@{/tasks}">
   <h2>Dodaj nowe zadanie</h2>
 
   <div class="mb-3">
@@ -165,7 +165,7 @@
             <td>${user.lastName}</td>
             <td>${user.numberIndex}</td>
             <td>
-              <input type="checkbox" class="form-check-input user-checkbox" name="assignedUsersIds" value="${user.userId}" />
+              <input type="checkbox" class="form-check-input user-checkbox" name="selectedUsers" value="${user.userId}" />
             </td>
           `;
         usersTableBody.appendChild(row);
