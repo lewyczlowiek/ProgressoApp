@@ -25,11 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Controller
@@ -172,24 +168,44 @@ public class MainController {
   public String editTaskForm(@PathVariable Long id, Model model) {
     Task task = taskRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Zadanie nie znalezione"));
+
+    List<Project> projects = projectRepository.findAll();
+
     model.addAttribute("task", task);
+    model.addAttribute("projects", projects);
+
+    // Przekazujemy listę ID przypisanych użytkowników do JS
+    List<Long> assignedUserIds = task.getUsers().stream()
+            .map(User::getUserId)
+            .collect(Collectors.toList());
+    model.addAttribute("assignedUserIds", assignedUserIds);
+
     return "task_edit";
   }
+
   @PostMapping("/tasks/{id}/save")
   public String saveTask(@PathVariable Long id,
                          @RequestParam String name,
                          @RequestParam String description,
                          @RequestParam TaskStatus taskStatus,
+                         @RequestParam Long projectId,
                          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dueDate) {
+
     Task task = taskRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Zadanie nie znalezione"));
+
+    Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new RuntimeException("Projekt nie znaleziony"));
 
     task.setName(name);
     task.setDescription(description);
     task.setTaskStatus(taskStatus);
     task.setDueDate(dueDate);
+    task.setProject(project);
+
     taskRepository.save(task);
 
     return "redirect:/tasks/" + id;
   }
+
 }

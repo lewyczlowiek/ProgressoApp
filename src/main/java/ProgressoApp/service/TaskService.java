@@ -4,7 +4,10 @@ import ProgressoApp.dto.request.TaskRequestDTO;
 import ProgressoApp.dto.response.TaskResponseDTO;
 import ProgressoApp.model.Task;
 import ProgressoApp.model.Project;
+import ProgressoApp.model.TaskStatus;
+import ProgressoApp.model.User;
 import ProgressoApp.repository.TaskRepository;
+import ProgressoApp.repository.UserRepository;
 import ProgressoApp.utils.TaskSpecification;
 import ProgressoApp.utils.SearchCriteria;
 import java.util.List;
@@ -25,14 +28,16 @@ public class TaskService {
 
     private final TaskRepository taskRepository;
     private final ProjectService projectService;
+    private final UserRepository userRepository;
 
     @Autowired
     public TaskService(
             TaskRepository taskRepository,
-            ProjectService projectService
-    ) {
+            ProjectService projectService,
+            UserRepository userRepository) {
         this.taskRepository = taskRepository;
         this.projectService = projectService;
+        this.userRepository = userRepository;
     }
 
 
@@ -103,5 +108,27 @@ public class TaskService {
         Task task = taskRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
         taskRepository.delete(task);
+    }
+    public Task updateTaskStatus(Long id, String statusString) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Task not found"));
+
+        try {
+            TaskStatus status = TaskStatus.valueOf(statusString);
+            task.setTaskStatus(status);
+        } catch (IllegalArgumentException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid taskStatus value: " + statusString);
+        }
+
+        return taskRepository.save(task);
+    }
+    public void assignUsersToTask(Long taskId, List<Long> selectedUserIds) {
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono zadania o ID: " + taskId));
+
+        List<User> users = userRepository.findAllById(selectedUserIds);
+
+        task.setUsers(users); // lub task.getUsers().addAll(users); jeśli relacja to np. @ManyToMany
+        taskRepository.save(task);
     }
 }

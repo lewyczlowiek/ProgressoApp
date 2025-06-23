@@ -147,7 +147,7 @@
                     <div id="todo-list">
                         <div th:each="task : ${todoTasks}" class="task-card">
                             <h5 th:text="${task.name}">Zadanie 1</h5>
-                            <a th:href="@{'/tasks/details/' + ${task.taskId}}" class="btn btn-info btn-sm">
+                            <a th:href="@{'/tasks/' + ${task.taskId}}" class="btn btn-info btn-sm">
                                 Szczegóły
                             </a>
                         </div>
@@ -160,7 +160,7 @@
                     <div id="in-progress-list">
                         <div th:each="task : ${inProgressTasks}" class="task-card">
                             <h5 th:text="${task.name}">Zadanie 2</h5>
-                            <a th:href="@{'/tasks/details/' + ${task.taskId}}" class="btn btn-info btn-sm">
+                            <a th:href="@{'/tasks/' + ${task.taskId}}" class="btn btn-info btn-sm">
                                 Szczegóły
                             </a>
                         </div>
@@ -173,7 +173,7 @@
                     <div id="done-list">
                         <div th:each="task : ${doneTasks}" class="task-card">
                             <h5 th:text="${task.name}">Zadanie 3</h5>
-                            <a th:href="@{'/tasks/details/' + ${task.taskId}}" class="btn btn-info btn-sm">
+                            <a th:href="@{'/tasks/' + ${task.taskId}}" class="btn btn-info btn-sm">
                                 Szczegóły
                             </a>
                         </div>

@@ -4,10 +4,14 @@ import ProgressoApp.dto.request.TaskRequestDTO;
 import ProgressoApp.dto.response.TaskResponseDTO;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import java.time.LocalDate;
-import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "tasks")
@@ -44,18 +48,26 @@ public class Task {
   @JoinColumn(name = "project_id")
   private Project project;
 
+  // ✅ NOWE POLE – relacja z użytkownikami
+  @ManyToMany
+  @JoinTable(
+          name = "task_user",
+          joinColumns = @JoinColumn(name = "task_id"),
+          inverseJoinColumns = @JoinColumn(name = "user_id")
+  )
+  private List<User> users = new ArrayList<>();
+
+  // 🔧 Konstruktory
+
   public Task(Task task) {
     this.name = task.name;
     this.description = task.description;
-    /*this.taskOrder = task.taskOrder;*/
     this.creationTimestamp = task.creationTimestamp;
     this.taskStatus = task.taskStatus;
     this.submissions = task.submissions;
   }
 
-  public Task() {
-
-  }
+  public Task() {}
 
   public Task(TaskRequestDTO taskRequestDTO) {
     this.taskOrder = taskRequestDTO.taskOrder();
@@ -63,24 +75,28 @@ public class Task {
     this.description = taskRequestDTO.description();
     this.taskStatus = taskRequestDTO.taskStatus();
     this.dueDate = taskRequestDTO.dueDate();
-
   }
+
+  // 🧩 DTO mapping
 
   public TaskResponseDTO toTaskResponseDTO() {
     return new TaskResponseDTO(
-        this.taskId,
-        this.name,
-        this.description,
-        this.taskOrder != null ? this.taskOrder.toString() : null,
-        this.taskStatus,
-        this.project != null ? this.project.getProjectId() : null,
-        this.creationTimestamp,
-        this.dueDate,
-        this.submissions != null ? this.submissions.stream()
-            .map(TaskSubmission::toTaskSubmissionResponseDTO).toList() : List.of()
+            this.taskId,
+            this.name,
+            this.description,
+            this.taskOrder != null ? this.taskOrder.toString() : null,
+            this.taskStatus,
+            this.project != null ? this.project.getProjectId() : null,
+            this.creationTimestamp,
+            this.dueDate,
+            this.submissions != null
+                    ? this.submissions.stream().map(TaskSubmission::toTaskSubmissionResponseDTO).toList()
+                    : List.of()
     );
   }
 
+
+  // 🔧 Gettery i settery
 
   public Integer getTaskOrder() {
     return taskOrder;
@@ -145,6 +161,14 @@ public class Task {
   public void setDueDate(LocalDate dueDate) {
     this.dueDate = dueDate;
   }
+
+  // ✅ Gettery/settery dla użytkowników
+
+  public List<User> getUsers() {
+    return users;
+  }
+
+  public void setUsers(List<User> users) {
+    this.users = users;
+  }
 }
-
-

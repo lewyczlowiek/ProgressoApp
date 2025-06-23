@@ -2,6 +2,8 @@ package ProgressoApp.controllers;
 
 import ProgressoApp.dto.request.ProjectRequestDTO;
 import ProgressoApp.dto.response.ProjectResponseDTO;
+import ProgressoApp.dto.response.TaskSubmissionResponseDTO;
+import ProgressoApp.dto.response.UserResponseDTO;
 import ProgressoApp.model.Project;
 import ProgressoApp.model.Task;
 import ProgressoApp.model.TaskStatus;
@@ -232,6 +234,30 @@ public class ProjectController {
 
         return "details_project";
 
+    }
+    @GetMapping("/{projectId}/users")
+    @ResponseBody
+    public List<UserResponseDTO> getUsersForProject(@PathVariable Long projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid project ID"));
+
+        return project.getUsers().stream()
+                .map(user -> new UserResponseDTO(
+                        user.getUserId(),
+                        user.getFirstName(),
+                        user.getLastName(),
+                        user.getEmail(),
+                        user.getRole(),
+                        user.getNumberIndex(),
+                        user.getTaskSubmissions().stream()
+                                .map(submission -> new TaskSubmissionResponseDTO(
+                                        submission.getId(),
+                                        submission.getTask().getTaskId(),
+                                        submission.getSubmittedAt()
+                                ))
+                                .collect(Collectors.<TaskSubmissionResponseDTO>toList()) // 🔥 kluczowa linia
+                ))
+                .collect(Collectors.toList());
     }
 
 

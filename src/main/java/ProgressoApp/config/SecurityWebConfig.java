@@ -2,51 +2,32 @@ package ProgressoApp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-import lombok.RequiredArgsConstructor;
-
-import java.util.Arrays;
-import java.util.Collections;
+import org.springframework.web.filter.HiddenHttpMethodFilter;
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityWebConfig {
 
-  private final JwtAuthFilter jwtAuthFilter;
-
-  @Bean
-  public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    return http
-        .cors(AbstractHttpConfigurer::disable)
-        .csrf(AbstractHttpConfigurer::disable) // Disable CSRF (since we're using stateless JWT)
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/login", "/register", "/auth/login", "/auth/register/save", "/")
-            .permitAll()
-            .anyRequest().authenticated())
-        .formLogin(login -> login
-            .loginPage("/login")
-            .permitAll()
-        )// All other endpoints require authentication
-        .sessionManagement(session -> session
-            .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
-        .logout(logout -> logout
-            .logoutUrl("/auth/logout")  // dopasuj do twojego endpointa
-            .logoutSuccessUrl("/auth/login?logout")
-            .deleteCookies("jwtToken")
-            .permitAll()
-        )
-        .addFilterBefore(jwtAuthFilter,
-            UsernamePasswordAuthenticationFilter.class)  // Add JWT filter
-        .build();
-  }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .cors(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/**").permitAll()  // ZEZWÓL NA WSZYSTKO
+                )
+                .sessionManagement(session -> session
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .build();
+    }
+    @Bean
+    public HiddenHttpMethodFilter hiddenHttpMethodFilter() {
+        return new HiddenHttpMethodFilter();
+    }
 }

@@ -47,8 +47,8 @@ public class TaskController {
     return taskService.findById(id);
   }
 
-  @PutMapping("/{id}")
-  public Task updateTask(@PathVariable Long id, @RequestBody TaskRequestDTO dto) {
+  @PostMapping("/{id}")
+  public Task updateTask(@PathVariable Long id, @ModelAttribute TaskRequestDTO dto) {
     return taskService.updateTask(id, dto);
   }
 
@@ -57,6 +57,13 @@ public class TaskController {
   public void deleteTask(@PathVariable Long id) {
     taskService.deleteTask(id);
   }
+
+  @PatchMapping("/{id}/status")
+  public Task updateTaskStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    String statusString = body.get("taskStatus");
+    return taskService.updateTaskStatus(id, statusString);
+  }
+
 
 }
 

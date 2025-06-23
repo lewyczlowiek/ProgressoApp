@@ -7,16 +7,15 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-import java.util.Collections;
-import java.util.List;
+
+import java.util.*;
+
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serializable;
-import java.util.Collection;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @Data
@@ -52,6 +51,9 @@ public class User implements UserDetails {
   @Enumerated(EnumType.STRING)
   @Column(nullable = false)
   private Role role;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<TaskSubmission> taskSubmissions = new ArrayList<>();
 
   @ToString.Exclude
   @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

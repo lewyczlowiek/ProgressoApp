@@ -2,9 +2,14 @@ package ProgressoApp.service;
 
 import ProgressoApp.dto.request.RegisterDTO;
 import ProgressoApp.dto.request.UserRequestDTO;
+import ProgressoApp.dto.response.UserResponseDTO;
+import ProgressoApp.mapper.UserMapper;
+import ProgressoApp.model.Project;
 import ProgressoApp.model.Role;
 import ProgressoApp.model.User;
+import ProgressoApp.repository.ProjectRepository;
 import ProgressoApp.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +30,9 @@ public class UserService implements UserDetailsService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final UserMapper userMapper;
+  private final ProjectRepository projectRepository;
+
 
   public void saveUser(RegisterDTO registerDTO) {
     if (userRepository.existsByEmail(registerDTO.getEmail())) {
@@ -103,5 +112,13 @@ public class UserService implements UserDetailsService {
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
     return userRepository.findByEmail(email)
             .orElseThrow(() -> new UsernameNotFoundException("Użytkownik nie istnieje: " + email));
+  }
+
+  public List<UserResponseDTO> getUsersByProjectId(Long projectId) {
+    Project project = projectRepository.findById(projectId)
+            .orElseThrow(() -> new EntityNotFoundException("Project not found"));
+    return project.getUsers().stream()
+            .map(userMapper::toDto)
+            .collect(Collectors.toList());
   }
 }
