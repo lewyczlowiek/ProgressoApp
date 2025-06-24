@@ -13,11 +13,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -39,9 +43,23 @@ public class TaskController {
   }
 
   @GetMapping
-  public Page<TaskResponseDTO> getAllTasks(Pageable pageable) {
-    return taskService.getAllTasks(pageable);
+  public Page<TaskResponseDTO> getTasksForCurrentUser(Pageable pageable) {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String email = authentication.getName();
+    User user = userService.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found: " + email));
+
+    boolean isAdminOrLecturer = authentication.getAuthorities().stream()
+            .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN") ||
+                    auth.getAuthority().equals("ROLE_LECTURER"));
+
+    if (isAdminOrLecturer) {
+      return taskService.getAllTasks(pageable);
+    } else {
+      return taskService.getTasksAssignedDirectlyToUser(user.getUserId(), pageable);
+    }
   }
+
 
   @GetMapping("/search")
   public Page<TaskResponseDTO> getTasksWithParams(

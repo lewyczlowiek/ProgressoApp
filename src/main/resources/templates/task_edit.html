@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -96,7 +97,7 @@
         <div class="mb-3">
           <label class="form-label">Wybierz projekt</label>
           <select class="form-control" name="projectId" required>
-            <option value="">-- Wybierz projekt --</option>
+            <option value="">&#45;&#45; Wybierz projekt &#45;&#45;</option>
             <option th:each="project : ${projects}"
                     th:selected="${project.projectId == task.project.projectId}"
                     th:text="${project.name}"
@@ -174,6 +175,181 @@
     if (projectSelect.value) {
       projectSelect.dispatchEvent(new Event('change'));
     }
+  });
+</script>
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Edytuj zadanie</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/navbar.css}">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: #495057;
+    }
+
+    .form-control {
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .form-control:focus {
+      border-color: #80bdff;
+      box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.25);
+    }
+
+    .btn {
+      border-radius: 8px;
+      padding: 10px 20px;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      border: none;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    .btn-success {
+      background-color: #28a745;
+      border: none;
+    }
+
+    .btn-success:hover {
+      background-color: #218838;
+    }
+
+    .table th, .table td {
+      padding: 12px;
+      vertical-align: middle;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: #f9f9f9;
+    }
+
+    .user-checkbox {
+      margin-left: 10px;
+    }
+
+    .table th {
+      background-color: #f1f1f1;
+      color: #495057;
+    }
+  </style>
+</head>
+
+<body class="bg-light">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container mt-4">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+
+      <h2 class="mb-4"><i class="fas fa-pen me-2"></i> Edytuj zadanie</h2>
+
+      <form id="editTaskForm" method="post" th:action="@{/tasks/{id}/save(id=${task.taskId})}">
+
+        <div class="mb-3">
+          <label class="form-label">Nazwa zadania</label>
+          <input class="form-control" name="name" required th:value="${task.name}" type="text">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Opis</label>
+          <textarea class="form-control" name="description" rows="4"
+                    th:text="${task.description}"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Termin wykonania</label>
+          <input class="form-control" name="dueDate" required
+                 th:value="${#temporals.format(task.dueDate, 'yyyy-MM-dd')}" type="date">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Wybierz projekt</label>
+          <select class="form-control" name="projectId" required>
+            <option value="">-- Wybierz projekt --</option>
+            <option th:each="project : ${projects}"
+                    th:selected="${project.projectId == task.project.projectId}"
+                    th:text="${project.name}"
+                    th:value="${project.projectId}">
+            </option>
+          </select>
+        </div>
+
+        <!-- Wybór użytkowników przypisanych do zadania (zaznaczone jeśli już przypisany) -->
+        <div class="mb-3">
+          <label class="form-label">Wybierz użytkowników</label>
+          <div class="form-check mb-2">
+            <input class="form-check-input" id="selectAllCheckbox" type="checkbox"/>
+            <label class="form-check-label" for="selectAllCheckbox">Wybierz wszystkich</label>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+              <tr>
+                <th>Imię</th>
+                <th>Nazwisko</th>
+                <th>Numer Indeksu</th>
+                <th>Wybierz</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="user : ${assignedUsers}">
+                <td th:text="${user.firstName}">Jan</td>
+                <td th:text="${user.lastName}">Kowalski</td>
+                <td th:text="${user.numberIndex}">12345</td>
+                <td>
+                  <input class="form-check-input user-checkbox" name="selectedUsers"
+                         type="checkbox" th:value="${user.userId}"
+                         th:checked="${#lists.contains(task.users, user)}"/>
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <a class="btn btn-danger" th:href="@{/tasks}">
+            <i class="fas fa-sign-out-alt"></i> Cofnij
+          </a>
+          <button class="btn btn-success" type="submit">
+            <i class="fas fa-save"></i> Zapisz zmiany
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('selectAllCheckbox').addEventListener('change', function () {
+    const checked = this.checked;
+    document.querySelectorAll('.user-checkbox').forEach(cb => {
+      cb.checked = checked;
+    });
   });
 </script>
 </body>
