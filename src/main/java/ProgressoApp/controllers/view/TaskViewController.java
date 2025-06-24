@@ -112,33 +112,33 @@ public class TaskViewController {
     return "task_form";
   }
 
-/*  @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
+  /*  @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
+    @GetMapping("/{id}/edit")
+    public String editTaskForm(@PathVariable Long id, Model model) {
+      Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
+      List<ProjectResponseDTO> projects = projectService.getAllProjects(pageable).getContent();
+      model.addAttribute("projects", projects);
+      Task task = taskService.findById(id);
+      model.addAttribute("task", task);
+      return "task_edit";
+    }*/
+  @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
   @GetMapping("/{id}/edit")
   public String editTaskForm(@PathVariable Long id, Model model) {
+    Task task = taskService.findById(id);
     Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
     List<ProjectResponseDTO> projects = projectService.getAllProjects(pageable).getContent();
+
+    // Pobierz użytkowników przypisanych do projektu danego zadania:
+    Set<User> assignedUsersSet = task.getProject().getUsers();
+    List<User> assignedUsers = new ArrayList<>(assignedUsersSet);
+
     model.addAttribute("projects", projects);
-    Task task = taskService.findById(id);
     model.addAttribute("task", task);
+    model.addAttribute("assignedUsers", assignedUsers); // <-- dodaj to!
+
     return "task_edit";
-  }*/
-@PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
-@GetMapping("/{id}/edit")
-public String editTaskForm(@PathVariable Long id, Model model) {
-  Task task = taskService.findById(id);
-  Pageable pageable = PageRequest.of(0, Integer.MAX_VALUE);
-  List<ProjectResponseDTO> projects = projectService.getAllProjects(pageable).getContent();
-
-  // Pobierz użytkowników przypisanych do projektu danego zadania:
-  Set<User> assignedUsersSet = task.getProject().getUsers();
-  List<User> assignedUsers = new ArrayList<>(assignedUsersSet);
-
-  model.addAttribute("projects", projects);
-  model.addAttribute("task", task);
-  model.addAttribute("assignedUsers", assignedUsers); // <-- dodaj to!
-
-  return "task_edit";
-}
+  }
 
 
   /*@GetMapping()
@@ -167,11 +167,11 @@ public String editTaskForm(@PathVariable Long id, Model model) {
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     String email = authentication.getName();
     User user = userService.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found: " + email));
+        .orElseThrow(() -> new RuntimeException("User not found: " + email));
 
     boolean isAdminOrLecturer = authentication.getAuthorities().stream()
-            .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN") ||
-                    auth.getAuthority().equals("ROLE_LECTURER"));
+        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN") ||
+            auth.getAuthority().equals("ROLE_LECTURER"));
 
     List<Task> tasks;
     if (isAdminOrLecturer) {
@@ -216,37 +216,69 @@ public String editTaskForm(@PathVariable Long id, Model model) {
 
     return "task_file"; // nazwa szablonu formularza
   }
-@PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
-@PostMapping("/addTasks/{projectId}")
-public String addTask(
-        @PathVariable Long projectId,
-        @RequestParam String name,
-        @RequestParam String description,
-        @RequestParam(required = false) Integer taskOrder,
-        @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dueDate,
-        @RequestParam(required = false, name = "selectedUsers") List<Long> selectedUsers
-) {
-  TaskRequestDTO taskRequestDTO = new TaskRequestDTO(
-          name, description, taskOrder, TaskStatus.TO_DO, projectId, dueDate
-  );
 
-  // ZAPISUJEMY TASK i otrzymujemy taskId
-  Task createdTask = taskService.createTask(taskRequestDTO);
+  @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
+  @PostMapping("/addTasks/{projectId}")
+  public String addTask(
+      @PathVariable Long projectId,
+      @RequestParam String name,
+      @RequestParam String description,
+      @RequestParam(required = false) Integer taskOrder,
+      @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate dueDate,
+      @RequestParam(required = false, name = "selectedUsers") List<Long> selectedUsers
+  ) {
+    TaskRequestDTO taskRequestDTO = new TaskRequestDTO(
+        name, description, taskOrder, TaskStatus.TO_DO, projectId, dueDate
+    );
 
-  // PRZYPISUJEMY użytkowników do zadania (to robi wpisy w task_user)
-  if (selectedUsers != null && !selectedUsers.isEmpty()) {
-    taskService.assignUsersToTask(createdTask.getTaskId(), selectedUsers);
+    // ZAPISUJEMY TASK i otrzymujemy taskId
+    Task createdTask = taskService.createTask(taskRequestDTO);
+
+    // PRZYPISUJEMY użytkowników do zadania (to robi wpisy w task_user)
+    if (selectedUsers != null && !selectedUsers.isEmpty()) {
+      taskService.assignUsersToTask(createdTask.getTaskId(), selectedUsers);
+    }
+
+    return "redirect:/project/details/" + projectId;
   }
-
-  return "redirect:/project/details/" + projectId;
-}
 
 
   @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
   @PostMapping("/{id}/delete")
-  public String deleteTask(@PathVariable Long id) {
+  public String deleteTask(@PathVariable Long id, Model model) {
     taskService.deleteTask(id);
-    return "/task_get";
+
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    String email = authentication.getName();
+    User user = userService.findByEmail(email)
+        .orElseThrow(() -> new RuntimeException("User not found: " + email));
+
+    boolean isAdminOrLecturer = authentication.getAuthorities().stream()
+        .anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN") ||
+            auth.getAuthority().equals("ROLE_LECTURER"));
+
+    List<Task> tasks;
+    if (isAdminOrLecturer) {
+      tasks = taskService.findAll(); // wszystkie zadania dla admin/lecturer
+    } else {
+      tasks = taskService.findAllAssignedToUser(user.getUserId()); // tylko przypisane dla usera
+    }
+
+    // Formatowanie daty do Stringa
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+    // Mapowanie zadań z dodaną sformatowaną datą
+    List<Map<String, Object>> taskList = tasks.stream().map(task -> {
+      Map<String, Object> taskMap = new HashMap<>();
+      taskMap.put("taskId", task.getTaskId());
+      taskMap.put("name", task.getName());
+      taskMap.put("taskStatus", task.getTaskStatus());
+      taskMap.put("formattedCreationDate", task.getCreationTimestamp().format(formatter));
+      return taskMap;
+    }).collect(Collectors.toList());
+
+    model.addAttribute("tasks", taskList);
+    return "task_get";
   }
 
 }
