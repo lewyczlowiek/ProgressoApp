@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -35,10 +36,10 @@
         <h1 class="h3"><i class="fas fa-users me-2"></i>Wybór osób</h1>
       </div>
       <div class="table-responsive">
-        <!-- Formularz do przypisania użytkowników -->
+        &lt;!&ndash; Formularz do przypisania użytkowników &ndash;&gt;
         <form action="#" method="post"
               th:action="@{/project/add-person/{projectId}(projectId=${project.projectId})}">
-          <input name="selectedUsers" type="hidden" value=""/>  <!-- Dodajemy ukryte pole -->
+          <input name="selectedUsers" type="hidden" value=""/>  &lt;!&ndash; Dodajemy ukryte pole &ndash;&gt;
 
           <table class="table table-striped">
             <thead>
@@ -56,7 +57,7 @@
                 <td th:text="${user.lastName}">Nazwisko</td>
                 <td th:text="${user.numberIndex}">Numer Indeksu</td>
                 <td>
-                  <!-- Sprawdzamy, czy użytkownik jest przypisany do projektu -->
+                  &lt;!&ndash; Sprawdzamy, czy użytkownik jest przypisany do projektu &ndash;&gt;
                   <input name="selectedUsers" th:checked="${project.users.contains(user)}" th:value="${user.userId}"
                          type="checkbox"/>
                 </td>
@@ -73,5 +74,129 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+-->
+
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Wybór osób</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/navbar.css}">
+  <style>
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+    }
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+    .table-striped tbody tr:nth-child(odd) {
+      background-color: #f9f9f9;
+    }
+    .filter-label {
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    .filter-box {
+      max-width: 220px;
+      margin-bottom: 1.2rem;
+    }
+  </style>
+</head>
+<body class="bg-light">
+<div th:replace="fragments/navbar :: navbar"></div>
+<main class="container mt-4">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3"><i class="fas fa-users me-2"></i>Wybór osób</h1>
+      </div>
+      <div class="table-responsive">
+        <form action="#" method="post"
+              th:action="@{/project/add-person/{projectId}(projectId=${project.projectId})}">
+          <input name="selectedUsers" type="hidden" value=""/>
+
+          <!-- Pole do filtrowania -->
+          <div class="filter-box">
+            <label for="filterIndex" class="filter-label">Filtruj po numerze indeksu:</label>
+            <input type="text" id="filterIndex" class="form-control" placeholder="Wpisz numer indeksu...">
+          </div>
+
+          <table class="table table-striped" id="usersTable">
+            <thead>
+            <tr>
+              <th>Imię</th>
+              <th>Nazwisko</th>
+              <th>Numer Indeksu</th>
+              <th>
+                <input type="checkbox" id="selectAll" title="Zaznacz wszystkich">
+                <label for="selectAll" class="ms-2" style="cursor:pointer; user-select:none;">Wybierz wszystkich</label>
+              </th>
+            </tr>
+            </thead>
+            <tbody>
+            <th:block th:each="user : ${users}">
+              <tr>
+                <td th:text="${user.firstName}">Imię</td>
+                <td th:text="${user.lastName}">Nazwisko</td>
+                <td class="user-index" th:text="${user.numberIndex}">Numer Indeksu</td>
+                <td>
+                  <input name="selectedUsers"
+                         th:checked="${project.users.contains(user)}"
+                         th:value="${user.userId}"
+                         class="user-checkbox"
+                         type="checkbox"/>
+                </td>
+              </tr>
+            </th:block>
+            </tbody>
+          </table>
+          <button class="btn btn-primary" type="submit">Zapisz zmiany</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // Filtrowanie po numerze indeksu
+  document.getElementById('filterIndex').addEventListener('input', function () {
+    const filterValue = this.value.trim().toLowerCase();
+    document.querySelectorAll('#usersTable tbody tr').forEach(row => {
+      const indexCell = row.querySelector('.user-index');
+      if (indexCell) {
+        const cellText = indexCell.textContent.toLowerCase();
+        row.style.display = cellText.includes(filterValue) ? '' : 'none';
+      }
+    });
+  });
+
+  // Wybierz wszystkich
+  document.getElementById('selectAll').addEventListener('change', function () {
+    const checked = this.checked;
+    document.querySelectorAll('.user-checkbox').forEach(cb => {
+      if (!cb.disabled && cb.offsetParent !== null) cb.checked = checked;
+    });
+  });
+
+  // Opcjonalnie: automatyczne odznaczenie "wybierz wszystkich" gdy ręcznie coś zmienisz
+  document.querySelectorAll('.user-checkbox').forEach(cb => {
+    cb.addEventListener('change', function () {
+      const allCheckboxes = Array.from(document.querySelectorAll('.user-checkbox'))
+              .filter(cb => cb.offsetParent !== null);
+      const allChecked = allCheckboxes.every(cb => cb.checked);
+      document.getElementById('selectAll').checked = allChecked;
+    });
+  });
+</script>
 </body>
 </html>

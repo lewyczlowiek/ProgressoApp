@@ -1,3 +1,4 @@
+<!--
 <!DOCTYPE html>
 <html lang="pl" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -118,7 +119,7 @@
   </style>
 </head>
 <body>
-<!-- Formularz edycji projektu -->
+&lt;!&ndash; Formularz edycji projektu &ndash;&gt;
 <form id="editProjectForm" method="post" th:action="@{/project/{id}/edit(id=${project.projectId})}"
       th:object="${project}">
   <div class="mb-3">
@@ -132,7 +133,7 @@
   </div>
   <div class="mb-3">
     <label class="form-label" for="endDateTime">Data zakończenia projektu</label>
-    <!-- Sformatowanie endDateTime w formularzu -->
+    &lt;!&ndash; Sformatowanie endDateTime w formularzu &ndash;&gt;
     <input class="form-control" id="endDateTime" name="endDateTime"
            required th:value="${formattedEndDateTime}" type="datetime-local">
   </div>
@@ -145,5 +146,109 @@
 </form>
 
 
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="pl" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Edycja projektu</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <link rel="stylesheet" th:href="@{/navbar.css}">
+  <style>
+    body {
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .form-label {
+      font-weight: 500;
+      color: #495057;
+    }
+
+    .form-control {
+      border-radius: 8px;
+      padding: 12px;
+    }
+
+    .form-control:focus {
+      border-color: #80bdff;
+      box-shadow: 0 0 0 0.25rem rgba(38, 143, 255, 0.25);
+    }
+
+    .btn {
+      border-radius: 8px;
+      padding: 10px 20px;
+    }
+
+    .btn-danger {
+      background-color: #dc3545;
+      border: none;
+    }
+
+    .btn-danger:hover {
+      background-color: #c82333;
+    }
+
+    .btn-success {
+      background-color: #28a745;
+      border: none;
+    }
+
+    .btn-success:hover {
+      background-color: #218838;
+    }
+  </style>
+</head>
+<body class="bg-light">
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="container mt-4">
+  <div class="row">
+    <div class="col-lg-8 mx-auto">
+
+      <!-- Nagłówek z ikoną -->
+      <h2 class="mb-4">
+        <i class="fas fa-pen-to-square me-2"></i>
+        Edycja projektu
+      </h2>
+
+      <!-- Formularz edycji projektu -->
+      <form id="editProjectForm" method="post" th:action="@{/project/{id}/edit(id=${project.projectId})}" th:object="${project}">
+
+        <div class="mb-3">
+          <label class="form-label" for="projectTitle">Tytuł projektu</label>
+          <input class="form-control" id="projectTitle" required th:field="*{name}" type="text">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="projectDescription">Opis projektu</label>
+          <textarea class="form-control" id="projectDescription" rows="4" th:field="*{description}"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="endDateTime">Data zakończenia projektu</label>
+          <input class="form-control" id="endDateTime" name="endDateTime" required th:value="${formattedEndDateTime}" type="datetime-local">
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <a class="btn btn-danger" th:href="@{/index}">
+            <i class="fas fa-sign-out-alt"></i> Cofnij
+          </a>
+          <button class="btn btn-success" type="submit">
+            <i class="fas fa-save"></i> Zapisz zmiany
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
