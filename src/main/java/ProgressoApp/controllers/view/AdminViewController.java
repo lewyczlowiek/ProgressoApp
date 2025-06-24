@@ -4,6 +4,8 @@ import ProgressoApp.dto.request.UserRequestDTO;
 import ProgressoApp.dto.response.UserResponseDTO;
 import ProgressoApp.model.Role;
 import ProgressoApp.model.TaskSubmission;
+import ProgressoApp.repository.ProjectRepository;
+import ProgressoApp.repository.TaskRepository;
 import ProgressoApp.repository.TaskSubmissionRepository;
 import ProgressoApp.repository.UserRepository;
 import ProgressoApp.service.UserService;
@@ -37,13 +39,18 @@ public class AdminViewController {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final TaskSubmissionRepository submissionRepository;
+  private final TaskRepository taskRepository;
+
+  private final ProjectRepository projectRepository;
 
   public AdminViewController(UserService userService, UserRepository userRepository,
-      PasswordEncoder passwordEncoder, TaskSubmissionRepository submissionRepository) {
+      PasswordEncoder passwordEncoder, TaskSubmissionRepository submissionRepository, TaskRepository taskRepository, ProjectRepository projectRepository) {
     this.userService = userService;
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.submissionRepository = submissionRepository;
+    this.taskRepository = taskRepository;
+    this.projectRepository = projectRepository;
   }
 
   @GetMapping
@@ -94,19 +101,23 @@ public class AdminViewController {
   public String deleteUser(@PathVariable Long id) {
     User user = userRepository.findById(id).orElse(null);
     if (user != null) {
-      // Znajdź zgłoszenia przypisane do użytkownika
+      // Usuń powiązane zgłoszenia
       List<TaskSubmission> submissions = submissionRepository.findByUser(user);
-
-      // Usuń każde zgłoszenie osobno
       for (TaskSubmission submission : submissions) {
         submissionRepository.delete(submission);
       }
+
+      // Usuń powiązania ManyToMany w task_user
+      taskRepository.deleteAllTaskUserByUserId(user.getUserId());
+      // Usuń powiązania ManyToMany w project_user
+      projectRepository.deleteAllProjectUserByUserId(user.getUserId());
 
       // Usuń użytkownika
       userRepository.delete(user);
     }
     return "redirect:/admin";
   }
+
 
 
 }

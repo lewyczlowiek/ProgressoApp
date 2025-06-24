@@ -146,4 +146,14 @@ public class TaskService {
   public List<Task> findAll() {
     return taskRepository.findAll();
   }
+
+    public Page<TaskResponseDTO> getTasksAssignedDirectlyToUser(Long userId, Pageable pageable) {
+        return taskRepository.findTasksAssignedDirectly(userId, pageable)
+                .map(Task::toTaskResponseDTO);
+    }
+  public List<Task> findAllAssignedToUser(Long userId) {
+    return taskRepository.findTasksAssignedDirectly(userId, Pageable.unpaged()).getContent();
+  }
+
+
 }
