@@ -44,7 +44,8 @@
     </div>
     <div class="terms">
       <input id="terms" name="terms" required type="checkbox">
-      <label for="terms">Akceptuję <a href="/privacy-policy.html" target="_blank">regulamin i politykę
+      <label for="terms">Akceptuję <a href="/privacy-policy.html" target="_blank">regulamin i
+        politykę
         prywatności</a></label>
     </div>
     <button class="register-button" type="submit">Zarejestruj się</button>
@@ -100,7 +101,8 @@
         const data = await response.json();
 
         if (response.ok) {
-          window.location.href = '/register?success';
+          window.location.href = '/login';
+           alert("Utworzono konto");
         } else {
           if (data.message === "EMAIL_IN_USE") {
             alert("Ten adres e-mail jest już zarejestrowany.");

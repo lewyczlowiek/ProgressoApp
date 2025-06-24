@@ -12,6 +12,7 @@ import ProgressoApp.service.ProjectService;
 import ProgressoApp.service.TaskService;
 import ProgressoApp.service.TaskSubmissionService;
 import ProgressoApp.service.UserService;
+import java.security.Principal;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -122,14 +123,20 @@ public class TaskViewController {
   }
 
   @GetMapping()
-  public String showTasks(Model model) {
-    List<Task> tasks = taskService.findAll();
+  public String showTasks(Model model, Principal principal) {
+    // Pobierz aktualnie zalogowanego użytkownika po emailu (username)
+    User user = userService.findByEmail(principal.getName()).orElseThrow();
 
-    // Formatowanie daty do Stringa
+    // Pobierz wszystkie zadania, ale tylko z projektów, do których należy użytkownik
+    List<Task> allTasks = taskService.findAll();
+    List<Task> userTasks = allTasks.stream()
+        .filter(task -> task.getProject() != null &&
+            task.getProject().getUsers().contains(user))
+        .collect(Collectors.toList());
+
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-    // Mapowanie zadań z dodaną sformatowaną datą
-    List<Map<String, Object>> taskList = tasks.stream().map(task -> {
+    List<Map<String, Object>> taskList = userTasks.stream().map(task -> {
       Map<String, Object> taskMap = new HashMap<>();
       taskMap.put("taskId", task.getTaskId());
       taskMap.put("name", task.getName());
