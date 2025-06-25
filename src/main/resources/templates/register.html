@@ -100,7 +100,7 @@
         const data = await response.json();
 
         if (response.ok) {
-          window.location.href = '/register?success';
+          window.location.href = '/login';
         } else {
           if (data.message === "EMAIL_IN_USE") {
             alert("Ten adres e-mail jest już zarejestrowany.");
